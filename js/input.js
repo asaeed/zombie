@@ -12,7 +12,7 @@ class InputHandler {
     this.mouseTile = null;
 
     // Drag selection
-    this.selectBox = null;    // {x1,y1,x2,y2} in world space
+    this.selectBox = null;    // {x1,y1,x2,y2} in screen space
     this._dragStart = null;   // screen coords
     this._dragging = false;
 
@@ -33,10 +33,7 @@ class InputHandler {
   }
 
   _screenToWorld(sx, sy) {
-    return {
-      x: sx + this.game.camera.x,
-      y: sy + this.game.camera.y,
-    };
+    return screenToWorld(sx, sy, this.game.camera);
   }
 
   _updateMouseState(e) {
@@ -75,10 +72,9 @@ class InputHandler {
       const MY = window.innerHeight - 110 - MINIMAP_H - 10;
       const fx = (e.clientX - MX) / MINIMAP_W;
       const fy = (e.clientY - MY) / MINIMAP_H;
-      game.camera.x = fx * MAP_W * TILE - window.innerWidth  / 2;
-      game.camera.y = fy * MAP_H * TILE - window.innerHeight / 2;
-      game.camera.x = clamp(game.camera.x, 0, MAP_W * TILE - window.innerWidth);
-      game.camera.y = clamp(game.camera.y, 0, MAP_H * TILE - window.innerHeight);
+      const wx = fx * MAP_W * TILE, wy = fy * MAP_H * TILE;
+      centerCameraOn(game.camera, wx, wy, window.innerWidth, window.innerHeight);
+      clampCamera(game.camera, window.innerWidth, window.innerHeight);
       return;
     }
 
@@ -97,9 +93,9 @@ class InputHandler {
       return;
     }
 
-    // Check barracks train buttons FIRST (world-space buttons on the building)
+    // Check barracks train buttons FIRST (screen-space buttons on the building)
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
-      const trainResult = this._checkBarracksTrainClick(wx, wy);
+      const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
       if (trainResult) {
         game.trainUnit(game._selectedBuilding, trainResult);
         return;
@@ -112,13 +108,18 @@ class InputHandler {
       game._selectedBuilding = building;
       game.selected = [];
       for (const u of game.units) u.selected = false;
+      // ponytail: pre-existing bug independent of the iso migration — this
+      // mousedown returns without arming a drag, so the paired mouseup fell
+      // into the "single click, no unit here" branch and immediately cleared
+      // _selectedBuilding back to null. Mark dragging so mouseup's branches
+      // (both gated on _dragging) no-op for this click and the selection sticks.
+      this._dragging = true;
       return;
     }
 
     // Left click in world: begin drag or select single unit
     game._selectedBuilding = null;
     this._dragStart = { x: e.clientX, y: e.clientY };
-    this._dragStartWorld = { x: wx, y: wy };
     this._dragging = false;
   }
 
@@ -132,10 +133,9 @@ class InputHandler {
         this._dragging = true;
       }
       if (this._dragging) {
-        const ww = this.mouseWorld;
         this.selectBox = {
-          x1: this._dragStartWorld.x, y1: this._dragStartWorld.y,
-          x2: ww.x, y2: ww.y,
+          x1: this._dragStart.x, y1: this._dragStart.y,
+          x2: e.clientX,          y2: e.clientY,
         };
       }
     }
@@ -150,7 +150,7 @@ class InputHandler {
 
     if (this._dragging && this.selectBox) {
       // Box select
-      const units = game.unitsInRect(
+      const units = game.unitsInScreenRect(
         this.selectBox.x1, this.selectBox.y1,
         this.selectBox.x2, this.selectBox.y2
       );
@@ -185,7 +185,6 @@ class InputHandler {
     }
 
     this._dragStart = null;
-    this._dragStartWorld = null;
     this._dragging = false;
     this.selectBox = null;
   }
@@ -319,23 +318,14 @@ class InputHandler {
 
   }
 
-  _checkBarracksTrainClick(wx, wy) {
-    // Buttons are in world space, attached to the barracks building
-    // Must match renderer._drawBarracksButtons layout
+  // ponytail: buildings hit-test at their ground footprint; clicking a tall
+  // roof selects the tile behind it. Fine for placeholder volumes — revisit
+  // with sprite hit-boxes in phase 7.
+  _checkBarracksTrainClick(sx, sy) {
     const b = this.game._selectedBuilding;
     if (!b || b.type !== 'barracks' || b.dead) return null;
-
-    const BTW = 96, BTH = 58, gap = 6;
-    const totalW = 3 * BTW + 2 * gap;
-    const startX = b.x - totalW / 2;
-    const startY = b.y + b.height / 2 + 10;
-    const trainable = ['soldier', 'builder', 'scout'];
-
-    for (let i = 0; i < trainable.length; i++) {
-      const bx = startX + i * (BTW + gap);
-      if (wx >= bx && wx <= bx + BTW && wy >= startY && wy <= startY + BTH) {
-        return trainable[i];
-      }
+    for (const rc of barracksButtonRects(b, this.game.camera)) {
+      if (sx >= rc.x && sx <= rc.x + rc.w && sy >= rc.y && sy <= rc.y + rc.h) return rc.type;
     }
     return null;
   }

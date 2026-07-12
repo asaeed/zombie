@@ -202,10 +202,15 @@ class Game {
     return null;
   }
 
-  unitsInRect(x1, y1, x2, y2) {
-    const lx = Math.min(x1,x2), rx = Math.max(x1,x2);
-    const ly = Math.min(y1,y2), ry = Math.max(y1,y2);
-    return this.units.filter(u => !u.dead && u.x >= lx && u.x <= rx && u.y >= ly && u.y <= ry);
+  // Box-select against projected positions: what you see is what you select
+  unitsInScreenRect(x1, y1, x2, y2) {
+    const lx = Math.min(x1, x2), rx = Math.max(x1, x2);
+    const ly = Math.min(y1, y2), ry = Math.max(y1, y2);
+    return this.units.filter(u => {
+      if (u.dead) return false;
+      const s = worldToScreen(u.x, u.y, this.camera);
+      return s.x >= lx && s.x <= rx && s.y >= ly && s.y <= ry;
+    });
   }
 
   isTileBlockedForUnits(tx, ty) {
