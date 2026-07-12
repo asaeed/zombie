@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dead Zone RTS — Visual Direction Mockups</title>
+<style>
+  body { background:#101014; color:#c8c8d0; font:14px/1.5 -apple-system, sans-serif;
+         margin:0; padding:32px; }
+  h1 { font-size:20px; color:#eee; margin:0 0 4px; }
+  .sub { color:#888; margin-bottom:28px; }
+  .grid { display:grid; grid-template-columns:repeat(2, 656px); gap:28px; }
+  .panel { background:#18181e; border:1px solid #2a2a33; border-radius:8px; padding:8px; }
+  canvas { width:640px; height:360px; image-rendering:pixelated; display:block;
+           border-radius:4px; }
+  .cap { padding:10px 6px 4px; font-size:13px; color:#aaa; }
+  .cap b { color:#ddd; }
+  .pal { margin-top:28px; }
+  .pal span { display:inline-block; width:28px; height:28px; border-radius:3px;
+              margin-right:4px; vertical-align:middle; }
+  .note { color:#777; font-size:12px; margin-top:16px; max-width:900px; }
+</style>
+</head>
+<body>
+<h1>Dead Zone RTS — visual direction mockups</h1>
+<div class="sub">Direction A "Darkest Night" + low-rez 3/4 pixel art. All art here is placeholder-quality but built the same way the game will build it (pixel sprites + lighting layer).</div>
+
+<div class="grid">
+  <div class="panel"><canvas id="day" width="320" height="180"></canvas>
+    <div class="cap"><b>A. Daytime — 3/4 oblique pixel art.</b> Square grid unchanged; buildings get roofs + front faces, units/zombies are upright sprites. Cabin, dumpster and wrecked car are searchable caches; note the dormant zombie slumped beside the car.</div></div>
+  <div class="panel"><canvas id="night" width="320" height="180"></canvas>
+    <div class="cap"><b>B. Same scene at night.</b> Ambient darkness, warm light pool at the HQ, small flashlight radii on units, and a signal flare burning at the right — the horde drifts toward it instead of the walls.</div></div>
+  <div class="panel"><canvas id="fog" width="320" height="180"></canvas>
+    <div class="cap"><b>C. Fog of war.</b> Left: visible (live). Middle: explored — remembered terrain and structures, dimmed, no live entities. Right: unexplored black. At night the visible band shrinks to your light radii.</div></div>
+  <div class="panel"><canvas id="iso" width="320" height="180"></canvas>
+    <div class="cap"><b>D. True isometric (comparison — rejected).</b> Same content on a diamond grid. Looks good, but every world↔screen transform, hit-test, and the placement UX changes with it; the spec rejects it in §9. If this look is worth that cost to you, say so now.</div></div>
+</div>
+
+<div class="pal" id="palstrip"></div>
+<div class="note">Everything above is procedural — no image files. The real game renders sprites from
+compact pixel-data strings into an atlas once at load (js/sprites.js), then draws the lighting as one
+offscreen composite per frame. Want to see the neon-vector direction mocked up too, or palette
+variants (colder/warmer night, more/less saturated grass)? Easy to add.</div>
+
+<script>
+'use strict';
+
+// ── Palette ──────────────────────────────────────────────────────────────────
+const P = {
+  grass1:'#3a5f2a', grass2:'#33531f', grass3:'#4a7534',
+  dirt1:'#6b543a',  dirt2:'#57452f',
+  water1:'#1d3d5c', water2:'#2a5580', sand:'#a89468',
+  wood1:'#7a5c3e',  wood2:'#5d4530',  wood3:'#8f7050',
+  stone1:'#9a9da0', stone2:'#6f7275', stone3:'#54575a',
+  metal:'#5a636e',  rust:'#8a4a30',   rust2:'#6e3a24',
+  hqA:'#7a6aa0',    hqB:'#5c4f80',    hqC:'#483d68',
+  blue:'#4a9eff',   teal:'#3fd8c0',   amber:'#e8a33d',
+  zGreen:'#6fae4e', zGreen2:'#4e8236', cloth:'#4a4238',
+  blood:'#6e1f18',  skin:'#d8a878',   dark:'#1c1c22', black:'#0c0c10',
+  white:'#f0ead8',  red:'#c03028',
+};
+
+// Seeded RNG so day/night render the identical scene
+function rng(seed){ let s=seed>>>0; return ()=>((s=(s*1664525+1013904223)>>>0)/4294967296); }
+
+// ── Tiny sprite engine: strings → pixels ─────────────────────────────────────
+function sprite(ctx, x, y, rows, map){
+  for (let r=0;r<rows.length;r++) for (let c=0;c<rows[r].length;c++){
+    const ch=rows[r][c]; if (ch==='.'||ch===' ') continue;
+    ctx.fillStyle=map[ch]; ctx.fillRect(x+c, y+r, 1, 1);
+  }
+}
+
+const SOLDIER = ['..cc..','..cc..','..ss..','.bbbb.','gbbbbg','.bbbb.','.p..p.','.p..p.','.k..k.'];
+const SOLDIER_M = {c:'#3f5f37', s:P.skin, b:P.blue, g:'#333', p:'#3a4252', k:P.dark};
+const SCOUT   = ['..cc..','..ss..','.tttt.','htttth','.tttt.','.p..p.','.p..p.','.k..k.'];
+const SCOUT_M = {c:'#7a4a28', s:P.skin, t:P.teal, h:'#b08040', p:'#4a4a40', k:P.dark};
+const BUILDER = ['..yy..','..ss..','.aaaa.','waaaaw','.aaaa.','.p..p.','.k..k.'];
+const BUILDER_M = {y:'#e8c020', s:P.skin, a:P.amber, w:'#888', p:'#4a4238', k:P.dark};
+const WALKER  = ['..gg..','.grrg.','..gg..','dggggd','d.gg.d','..gg..','.d..d.','.d..d.','.k..k.'];
+const WALKER_M = {g:P.zGreen, r:'#d02020', d:P.cloth, k:P.dark};
+const DORMANT = ['......','..gg..','.gggg.','.dgg d','.dggd.','.dddd.','.d..d.'];
+const DORMANT_M = {g:P.zGreen, d:'#2e2a22'};
+const BRUTE = ['..gggg..','.gggggg.','.grr rg.','gggggggg','g.gggg.g','gg.gg.gg','..gggg..','..g..g..','.gg..gg.','.k....k.'];
+const BRUTE_M = {g:'#4e8236', r:'#e03030', k:P.dark};
+const TREE = ['....t...','..t.t.t.','...ttt..','.t..t...','..t.t...','....t...','....t...','....t...','...tt...'];
+const TREE_M = {t:'#4a3a2c'};
+const CAR = [
+  '....rrrrrrrrrr......',
+  '..rrWWWrrrWWWrr.....',
+  '.rrrrrrrrrrrrrrr....',
+  'rrrrrrrrrRRrrrrrr...',
+  'rr.kk.rrrrrr.kk.rr..',
+  '...kk........kk.....'];
+const CAR_M = {r:P.rust, R:P.rust2, W:'#7a92a8', k:'#222'};
+const DUMPSTER = ['LLLLLLLLLL','GGGGGGGGGG','GgGGGGGGgG','GGGGGGGGGG','.k......k.'];
+const DUMPSTER_M = {L:'#3e5e46', G:'#35503c', g:'#2a4030', k:'#222'};
+
+// ── Terrain ──────────────────────────────────────────────────────────────────
+function drawTerrain(ctx, R){
+  ctx.fillStyle=P.grass1; ctx.fillRect(0,0,320,180);
+  for (let y=0;y<180;y+=3) for (let x=0;x<320;x+=3){
+    const v=R();
+    if (v<0.10){ ctx.fillStyle=P.grass2; ctx.fillRect(x,y,2,1); }
+    else if (v<0.16){ ctx.fillStyle=P.grass3; ctx.fillRect(x,y,1,1); }
+    else if (v<0.168){ ctx.fillStyle='#5a8a3a'; ctx.fillRect(x,y,1,2); }
+  }
+  // Dirt path, meandering left→right
+  for (let x=-10;x<330;x+=4){
+    const cy=104-10*Math.sin(x/70), r=7+3*Math.sin(x/31);
+    ctx.fillStyle=P.dirt1;
+    for(let dy=-r;dy<=r;dy++){ const w=Math.sqrt(Math.max(0,r*r-dy*dy)); ctx.fillRect(Math.round(x-w),Math.round(cy+dy),Math.round(2*w),1); }
+  }
+  for (let x=0;x<320;x+=5){ const cy=104-10*Math.sin(x/70); if(R()<0.5){ ctx.fillStyle=P.dirt2; ctx.fillRect(x+((R()*6)|0)-3, cy+((R()*8)|0)-4, 2,1);} }
+  // Pond, top-right with sand shore
+  const px=282, py=26;
+  for(let dy=-24;dy<=24;dy++) for(let dx=-34;dx<=34;dx++){
+    const d=(dx*dx)/(34*34)+(dy*dy)/(24*24), w=0.12*Math.sin(dx/4)+0.1*Math.cos(dy/3);
+    if (d+w<1.18 && d+w>=0.88){ ctx.fillStyle=P.sand; ctx.fillRect(px+dx,py+dy,1,1); }
+  }
+  for(let dy=-24;dy<=24;dy++) for(let dx=-34;dx<=34;dx++){
+    const d=(dx*dx)/(34*34)+(dy*dy)/(24*24), w=0.12*Math.sin(dx/4)+0.1*Math.cos(dy/3);
+    if (d+w<0.88){ ctx.fillStyle=(dx+dy*2)%9===0?P.water2:P.water1; ctx.fillRect(px+dx,py+dy,1,1); }
+  }
+}
+
+// ── Buildings (procedural 3/4: roof + front face) ───────────────────────────
+function box(ctx,x,y,w,roofH,faceH,roofC,faceC,edgeC){
+  ctx.fillStyle=edgeC; ctx.fillRect(x-1,y-1,w+2,roofH+faceH+2);
+  ctx.fillStyle=roofC; ctx.fillRect(x,y,w,roofH);
+  ctx.fillStyle=faceC; ctx.fillRect(x,y+roofH,w,faceH);
+}
+function drawHQ(ctx,x,y){
+  box(ctx,x,y,52,18,22,P.hqA,P.hqB,P.dark);
+  ctx.fillStyle=P.hqC; for(let i=0;i<4;i++) ctx.fillRect(x+4+i*13,y+20,7,9);   // windows
+  ctx.fillStyle='#ffd890'; ctx.fillRect(x+17,y+20,7,9);                        // one lit
+  ctx.fillStyle=P.hqC; ctx.fillRect(x+22,y+27,9,13);                           // door
+  ctx.fillStyle=P.stone3; ctx.fillRect(x-4,y+36,60,5);                         // sandbag skirt
+  ctx.fillStyle=P.stone2; for(let i=0;i<10;i++) ctx.fillRect(x-4+i*6,y+36,5,2);
+  ctx.fillStyle=P.red; ctx.fillRect(x+46,y-8,1,9); ctx.fillRect(x+47,y-8,5,3); // flag
+}
+function drawTower(ctx,x,y){
+  ctx.fillStyle=P.wood2; ctx.fillRect(x+2,y+14,3,16); ctx.fillRect(x+15,y+14,3,16);
+  ctx.fillStyle=P.wood1; ctx.fillRect(x+3,y+20,14,2);
+  box(ctx,x,y,20,6,10,P.wood3,P.wood1,P.dark);
+  ctx.fillStyle='#333'; ctx.fillRect(x+18,y+6,8,2);                            // barrel
+  ctx.fillStyle=P.dark; ctx.fillRect(x+8,y+8,4,4);                             // gunner slit
+}
+function drawWallRun(ctx,x,y,n,gateAt){
+  for(let i=0;i<n;i++){
+    const wx=x+i*14;
+    if (i===gateAt){ box(ctx,wx,y,14,4,8,P.wood3,P.wood1,P.dark);
+      ctx.fillStyle=P.wood2; ctx.fillRect(wx+2,y+5,2,6); ctx.fillRect(wx+6,y+5,2,6); ctx.fillRect(wx+10,y+5,2,6); }
+    else { box(ctx,wx,y,14,4,8,P.stone1,P.stone2,P.dark);
+      ctx.fillStyle=P.stone3; ctx.fillRect(wx+3,y+6,3,2); ctx.fillRect(wx+9,y+8,3,2); }
+  }
+}
+function drawCabin(ctx,x,y){
+  box(ctx,x,y,38,14,16,P.wood2,P.wood1,P.dark);
+  ctx.fillStyle=P.wood3; for(let i=0;i<5;i++) ctx.fillRect(x,y+2+i*3,38,1);    // roof planks
+  ctx.fillStyle=P.dark;  ctx.fillRect(x+6,y+18,8,7);                           // window (dark: abandoned)
+  ctx.fillStyle=P.wood2; ctx.fillRect(x+24,y+17,8,13);                         // door
+}
+function drawCrates(ctx,x,y){
+  ctx.fillStyle=P.wood1; ctx.fillRect(x,y,10,8); ctx.fillRect(x+11,y+2,8,6); ctx.fillRect(x+4,y-6,8,6);
+  ctx.fillStyle=P.wood2; ctx.strokeStyle=P.wood2;
+  ctx.fillRect(x,y+3,10,1); ctx.fillRect(x+4,y-3,8,1); ctx.fillRect(x+11,y+4,8,1);
+}
+
+// ── Actors & effects ─────────────────────────────────────────────────────────
+function drawActors(ctx, opts){
+  const night = opts && opts.night;
+  sprite(ctx, 88, 118, BUILDER, BUILDER_M);
+  sprite(ctx, 104, 124, SOLDIER, SOLDIER_M);
+  sprite(ctx, 148, 118, SOLDIER, SOLDIER_M);
+  sprite(ctx, 196, 100, SCOUT, SCOUT_M);
+  ctx.fillStyle='#b08040'; ctx.fillRect(202,102,4,4);          // scout's loot bag
+  ctx.fillStyle='#ffd; '; ctx.fillStyle='#ffdd88';
+  // firefight: tracer + muzzle + damage number
+  ctx.fillStyle='#ffe9a0'; ctx.fillRect(155,121,2,2);          // muzzle flash
+  for(let i=0;i<5;i++){ ctx.fillStyle='#fff4c0'; ctx.fillRect(158+i*7,121,3,1); }
+  sprite(ctx, 193, 118, WALKER, WALKER_M);
+  ctx.fillStyle='#fff'; ctx.font='7px monospace'; ctx.fillText('14', 195, 114);
+  // corpse decal + blood
+  ctx.fillStyle=P.blood; ctx.fillRect(170,128,7,3); ctx.fillRect(173,126,3,2); ctx.fillRect(168,131,3,2);
+  if (night){
+    // horde drifting toward the flare instead of the walls
+    sprite(ctx, 238, 112, WALKER, WALKER_M);
+    sprite(ctx, 262, 132, WALKER, WALKER_M);
+    sprite(ctx, 272, 100, BRUTE, BRUTE_M);
+  } else {
+    sprite(ctx, 250, 126, WALKER, WALKER_M);
+    sprite(ctx, 292, 106, BRUTE, BRUTE_M);
+  }
+  sprite(ctx, 250, 96, DORMANT, DORMANT_M);                    // dormant guard by the car, on the path
+}
+function drawStatics(ctx){
+  drawCabin(ctx, 12, 14);
+  sprite(ctx, 62, 22, DUMPSTER, DUMPSTER_M);
+  drawCrates(ctx, 30, 78);
+  drawHQ(ctx, 62, 52);
+  drawTower(ctx, 128, 58);
+  drawWallRun(ctx, 46, 108, 8, 4);
+  sprite(ctx, 228, 88, CAR, CAR_M);
+  sprite(ctx, 176, 36, TREE, TREE_M);
+  sprite(ctx, 18, 128, TREE, TREE_M);
+  sprite(ctx, 298, 140, TREE, TREE_M);
+  const rocks=[[210,60],[120,150],[260,160],[40,54]];
+  for (const [rx,ry] of rocks){ sprite(ctx,rx,ry,['.ss.','ssss','.ss.'],{s:P.stone2}); }
+}
+function drawScene(ctx, seed, opts){
+  drawTerrain(ctx, rng(seed));
+  drawStatics(ctx);
+  drawActors(ctx, opts);
+}
+
+// ── Lighting (the real game's approach: dark overlay, punched holes) ────────
+function light(octx, x, y, r){
+  const g=octx.createRadialGradient(x,y,r*0.2,x,y,r);
+  g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  octx.fillStyle=g; octx.beginPath(); octx.arc(x,y,r,0,7); octx.fill();
+}
+function applyNight(ctx){
+  const o=document.createElement('canvas'); o.width=320; o.height=180;
+  const octx=o.getContext('2d');
+  octx.fillStyle='rgba(7,10,32,0.90)'; octx.fillRect(0,0,320,180);
+  octx.globalCompositeOperation='destination-out';
+  light(octx, 88, 82, 52);      // HQ warm pool
+  light(octx, 141, 66, 26);     // tower
+  light(octx, 91, 122, 15);     // builder
+  light(octx, 107, 128, 15);    // soldiers
+  light(octx, 151, 122, 17);
+  light(octx, 199, 104, 19);    // scout
+  light(octx, 254, 122, 34);    // flare
+  light(octx, 20, 26, 9);       // cabin window remnant
+  ctx.drawImage(o, 0, 0);
+  // warm additive glows
+  ctx.globalCompositeOperation='lighter';
+  const warm=(x,y,r,c)=>{ const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,c); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); };
+  warm(88,84,44,'rgba(255,170,70,0.22)');
+  warm(254,122,26,'rgba(255,120,40,0.5)');
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#fff0c0'; ctx.fillRect(253,120,2,3);          // flare core
+  ctx.fillStyle=P.red;     ctx.fillRect(253,123,2,2);
+  // cold night tint
+  ctx.fillStyle='rgba(40,60,140,0.10)'; ctx.fillRect(0,0,320,180);
+}
+
+// ── Panels A–C ───────────────────────────────────────────────────────────────
+const SEED=12345;
+{ const ctx=document.getElementById('day').getContext('2d');   drawScene(ctx, SEED); }
+{ const ctx=document.getElementById('night').getContext('2d'); drawScene(ctx, SEED, {night:true}); applyNight(ctx); }
+{
+  const ctx=document.getElementById('fog').getContext('2d');
+  drawTerrain(ctx, rng(SEED)); drawStatics(ctx);
+  ctx.save(); ctx.beginPath(); ctx.rect(0,0,120,180); ctx.clip(); drawActors(ctx); ctx.restore();
+  ctx.fillStyle='rgba(8,10,24,0.55)'; ctx.fillRect(120,0,100,180);   // explored: dim
+  ctx.fillStyle='#08080c'; ctx.fillRect(220,0,100,180);              // unexplored: black
+  for(let y=0;y<180;y+=4) for(let x=0;x<8;x+=4){                     // dithered boundaries
+    if(((x+y)/4)%2===0){ ctx.fillStyle='rgba(8,10,24,0.55)'; ctx.fillRect(116+x,y,4,4);
+                          ctx.fillStyle='#08080c'; ctx.fillRect(216+x,y,4,4); } }
+  ctx.fillStyle='#9ad'; ctx.font='7px monospace';
+  ctx.fillText('VISIBLE',8,172); ctx.fillText('EXPLORED',136,172); ctx.fillText('UNEXPLORED',234,172);
+}
+
+// ── Panel D: true isometric comparison ───────────────────────────────────────
+{
+  const ctx=document.getElementById('iso').getContext('2d');
+  ctx.fillStyle='#15151c'; ctx.fillRect(0,0,320,180);
+  const TW=30, TH=15, OX=160, OY=34;
+  const tp=(tx,ty)=>({x:OX+(tx-ty)*TW/2, y:OY+(tx+ty)*TH/2});
+  function diamond(cx,cy,w,h,c){
+    ctx.fillStyle=c;
+    for(let r=0;r<h;r++){ const t=r<h/2?r+1:h-r;
+      const half=Math.max(1,Math.round(t*(w/h))); ctx.fillRect(cx-half,cy-h/2+r,half*2,1); }
+  }
+  function cube(cx,cy,w,h,depth,top,L,Rc){
+    for(let dx=-w/2;dx<w/2;dx++){
+      const yLow=cy+Math.round((h/2)*(1-Math.abs(dx+0.5)/(w/2)));
+      ctx.fillStyle=dx<0?L:Rc; ctx.fillRect(cx+dx,yLow-depth,1,depth); }
+    diamond(cx,cy-depth,w,h,top);
+  }
+  const R=rng(777);
+  for(let ty=0;ty<8;ty++) for(let tx=0;tx<8;tx++){
+    const {x,y}=tp(tx,ty);
+    const dirtish=(tx===4&&ty>2)||(tx===5&&ty===3);
+    diamond(x,y,TW,TH,dirtish?P.dirt1:((tx+ty)%2?P.grass1:P.grass2));
+    if(R()<0.3){ ctx.fillStyle=P.grass3; ctx.fillRect(x+((R()*10)|0)-5, y+((R()*4)|0)-2,1,1); }
+  }
+  { const {x,y}=tp(2,2); cube(x,y+TH/2,TW*1.8,TH*1.8,26,P.hqA,P.hqB,P.hqC);
+    ctx.fillStyle='#ffd890'; ctx.fillRect(x-6,y-14,4,5); ctx.fillStyle=P.red; ctx.fillRect(x+12,y-40,1,8); ctx.fillRect(x+13,y-40,4,2); }
+  { const {x,y}=tp(5,1); cube(x,y,TW*0.8,TH*0.8,30,P.wood3,P.wood1,P.wood2);
+    ctx.fillStyle='#333'; ctx.fillRect(x+8,y-28,7,2); }
+  { const {x,y}=tp(1,5); cube(x,y,TW*0.9,TH*0.9,8,P.rust,P.rust2,P.rust2);
+    ctx.fillStyle='#7a92a8'; ctx.fillRect(x-5,y-7,10,2); }
+  for(const [tx,ty] of [[3,4],[4,5]]){ const {x,y}=tp(tx,ty); cube(x,y,TW,TH,7,P.stone1,P.stone2,P.stone3); }
+  { const {x,y}=tp(3,3); sprite(ctx,x-3,y-10,SOLDIER,SOLDIER_M); }
+  { const {x,y}=tp(2,4); sprite(ctx,x-3,y-9,SCOUT,SCOUT_M); }
+  { const {x,y}=tp(6,4); sprite(ctx,x-4,y-10,WALKER,WALKER_M); }
+  { const {x,y}=tp(6,6); sprite(ctx,x-4,y-8,DORMANT,DORMANT_M); }
+  { const {x,y}=tp(7,2); sprite(ctx,x-4,y-11,TREE,TREE_M); }
+}
+
+// ── Palette strip ────────────────────────────────────────────────────────────
+{
+  const el=document.getElementById('palstrip');
+  for (const c of Object.values(P)){ const s=document.createElement('span'); s.style.background=c; el.appendChild(s); }
+}
+</script>
+</body>
+</html>
