@@ -46,3 +46,12 @@ const CAM_SPEED = 500; // px/sec keyboard pan
 const EDGE_SCROLL_MARGIN = 40; // px from edge triggers scroll
 const MINIMAP_W = 180;
 const MINIMAP_H = 180;
+
+// ── Isometric projection ──────────────────────────────────────────────────────
+// One world tile (TILE=40 world px) renders as a 64×32 diamond at zoom 1.
+const ISO_X = 0.8;   // screen px per world px along (wx - wy)
+const ISO_Y = 0.4;   // screen px per world px along (wx + wy)
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 2.0;
+// Building volume heights in screen px at zoom 1 (placeholder iso volumes)
+const ISO_HEIGHTS = { hq: 44, wall: 18, tower: 48, barracks: 34, depot: 26 };

@@ -47,3 +47,70 @@ function roundRect(ctx, x, y, w, h, r) {
 
 // HSL color helper
 function hslColor(h, s, l) { return `hsl(${h},${s}%,${l}%)`; }
+
+// ── Isometric projection ──────────────────────────────────────────────────────
+// The ONLY place iso math is allowed to exist. cam = {x, y, zoom};
+// cam.x/cam.y are the camera offset in projected (screen) space.
+function worldToScreen(wx, wy, cam) {
+  return {
+    x: (wx - wy) * ISO_X * cam.zoom - cam.x,
+    y: (wx + wy) * ISO_Y * cam.zoom - cam.y,
+  };
+}
+
+function screenToWorld(sx, sy, cam) {
+  const ix = (sx + cam.x) / (ISO_X * cam.zoom);
+  const iy = (sy + cam.y) / (ISO_Y * cam.zoom);
+  return { x: (iy + ix) / 2, y: (iy - ix) / 2 };
+}
+
+// Projected bounding box of the full map diamond at a given zoom
+function mapScreenBounds(zoom) {
+  const wpx = MAP_W * TILE, hpx = MAP_H * TILE;
+  return {
+    minX: -hpx * ISO_X * zoom,
+    maxX:  wpx * ISO_X * zoom,
+    minY: 0,
+    maxY: (wpx + hpx) * ISO_Y * zoom,
+  };
+}
+
+// Keep the viewport inside the projected map; center an axis when the
+// projected map is smaller than the viewport on that axis.
+function clampCamera(cam, viewW, viewH) {
+  const b = mapScreenBounds(cam.zoom);
+  cam.x = (b.maxX - b.minX <= viewW)
+    ? (b.minX + b.maxX - viewW) / 2
+    : clamp(cam.x, b.minX, b.maxX - viewW);
+  cam.y = (b.maxY - b.minY <= viewH)
+    ? (b.minY + b.maxY - viewH) / 2
+    : clamp(cam.y, b.minY, b.maxY - viewH);
+}
+
+function centerCameraOn(cam, wx, wy, viewW, viewH) {
+  cam.x = (wx - wy) * ISO_X * cam.zoom - viewW / 2;
+  cam.y = (wx + wy) * ISO_Y * cam.zoom - viewH / 2;
+}
+
+// Multiply a '#rrggbb' color's brightness by f (0..1 darkens, >1 lightens)
+function shadeColor(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = clamp(Math.round(((n >> 16) & 255) * f), 0, 255);
+  const g = clamp(Math.round(((n >> 8) & 255) * f), 0, 255);
+  const b = clamp(Math.round((n & 255) * f), 0, 255);
+  return `rgb(${r},${g},${b})`;
+}
+
+// Screen-space rects for the barracks train buttons, anchored under the
+// building's projected south corner. Renderer draws these; input hit-tests
+// them — keep this the single source of truth for that layout.
+function barracksButtonRects(b, cam) {
+  const BTW = 96, BTH = 58, gap = 6;
+  const s = worldToScreen(b.x + b.width / 2, b.y + b.height / 2, cam); // south corner
+  const totalW = 3 * BTW + 2 * gap;
+  const startX = s.x - totalW / 2;
+  const startY = s.y + 12;
+  return ['soldier', 'builder', 'scout'].map((type, i) => ({
+    type, x: startX + i * (BTW + gap), y: startY, w: BTW, h: BTH,
+  }));
+}
