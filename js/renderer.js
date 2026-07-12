@@ -5,6 +5,7 @@ class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.resize();
+    this._tileSprites = this._makeTileSprites();
   }
 
   resize() {
@@ -14,333 +15,310 @@ class Renderer {
     this.H = this.canvas.height;
   }
 
+  // Pre-render one 64×32 diamond per tile type × 2 checker shades
+  _makeTileSprites() {
+    const mk = (fill, accent) => {
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 32;
+      const g = c.getContext('2d');
+      g.fillStyle = fill;
+      g.beginPath();
+      g.moveTo(32, 0); g.lineTo(64, 16); g.lineTo(32, 32); g.lineTo(0, 16);
+      g.closePath(); g.fill();
+      if (accent) { // subtle inner sheen (water)
+        g.globalAlpha = 0.25; g.fillStyle = accent;
+        g.beginPath();
+        g.moveTo(32, 5); g.lineTo(55, 16); g.lineTo(32, 27); g.lineTo(9, 16);
+        g.closePath(); g.fill(); g.globalAlpha = 1;
+      }
+      return c;
+    };
+    return {
+      [TILE_GRASS]: [mk('#2d4a20'), mk('#355524')],
+      [TILE_DIRT]:  [mk('#5a4a2a'), mk('#4e3f24')],
+      [TILE_WATER]: [mk('#1a3a5c', '#4a7ab0'), mk('#163352', '#4a7ab0')],
+    };
+  }
+
   render(game, input) {
     const ctx = this.ctx;
-    const cam = game.camera;
+    ctx.fillStyle = '#0c0e14';               // void outside the map diamond
+    ctx.fillRect(0, 0, this.W, this.H);
 
-    ctx.clearRect(0, 0, this.W, this.H);
-
-    // ── World space (translated by camera) ──────────────────────────────────
-    ctx.save();
-    ctx.translate(-cam.x, -cam.y);
-
-    this._drawTiles(ctx, game, cam);
-    this._drawBuildings(ctx, game);
-    this._drawUnits(ctx, game);
-    this._drawZombies(ctx, game);
+    this._drawTiles(ctx, game);
+    if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
+    this._drawEntities(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
-
-    // Build mode ghost
-    if (game.buildMode && input.mouseTile) {
-      this._drawBuildGhost(ctx, game, input.mouseTile);
-    }
-
-    // Selection box
-    if (input.selectBox) {
-      this._drawSelectionBox(ctx, input.selectBox);
-    }
-
-    // Barracks train buttons (rendered in world space, attached to building)
+    if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
       this._drawBarracksButtons(ctx, game, game._selectedBuilding);
     }
 
-    ctx.restore();
-
-    // ── Screen space (HUD) ───────────────────────────────────────────────────
     this._drawHUD(ctx, game, input);
     this._drawMinimap(ctx, game);
-
     if (game.status === 'gameover') this._drawGameOver(ctx);
     if (game.status === 'victory') this._drawVictory(ctx);
   }
 
   // ── Tiles ──────────────────────────────────────────────────────────────────
-  _drawTiles(ctx, game, cam) {
-    const startTX = Math.max(0, Math.floor(cam.x / TILE));
-    const startTY = Math.max(0, Math.floor(cam.y / TILE));
-    const endTX   = Math.min(MAP_W, Math.ceil((cam.x + this.W) / TILE) + 1);
-    const endTY   = Math.min(MAP_H, Math.ceil((cam.y + this.H) / TILE) + 1);
+  _drawTiles(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
+    // World-space bounding box of the viewport (over-covers the diamond; fine)
+    const corners = [
+      screenToWorld(0, 0, cam), screenToWorld(this.W, 0, cam),
+      screenToWorld(0, this.H, cam), screenToWorld(this.W, this.H, cam),
+    ];
+    const xs = corners.map(c => c.x), ys = corners.map(c => c.y);
+    const tx0 = clamp(Math.floor(Math.min(...xs) / TILE) - 1, 0, MAP_W);
+    const tx1 = clamp(Math.ceil(Math.max(...xs) / TILE) + 1, 0, MAP_W);
+    const ty0 = clamp(Math.floor(Math.min(...ys) / TILE) - 1, 0, MAP_H);
+    const ty1 = clamp(Math.ceil(Math.max(...ys) / TILE) + 1, 0, MAP_H);
 
-    for (let ty = startTY; ty < endTY; ty++) {
-      for (let tx = startTX; tx < endTX; tx++) {
-        const tile = game.tiles[ty][tx];
-        const px = tx * TILE, py = ty * TILE;
-
-        // Checkerboard variation for grass
-        const shade = (tx + ty) % 2 === 0;
-
-        if (tile === TILE_GRASS) {
-          ctx.fillStyle = shade ? '#2d4a20' : '#355524';
-        } else if (tile === TILE_DIRT) {
-          ctx.fillStyle = shade ? '#5a4a2a' : '#4e3f24';
-        } else { // WATER
-          ctx.fillStyle = shade ? '#1a3a5c' : '#163352';
-        }
-        ctx.fillRect(px, py, TILE, TILE);
-
-        // Water shimmer
-        if (tile === TILE_WATER) {
-          ctx.fillStyle = 'rgba(100,160,220,0.15)';
-          ctx.fillRect(px, py, TILE, TILE);
-        }
+    const w = 64 * z, h = 32 * z;
+    for (let ty = ty0; ty < ty1; ty++) {
+      for (let tx = tx0; tx < tx1; tx++) {
+        const spr = this._tileSprites[game.tiles[ty][tx]][(tx + ty) % 2];
+        const s = worldToScreen(tx * TILE, ty * TILE, cam); // north corner of the diamond
+        ctx.drawImage(spr, s.x - w / 2, s.y, w, h);
       }
     }
   }
 
-  // ── Buildings ─────────────────────────────────────────────────────────────
-  _drawBuildings(ctx, game) {
+  // ── Entities ───────────────────────────────────────────────────────────────
+  // Back-to-front by (worldX + worldY): what's "behind" in iso draws first
+  _drawEntities(ctx, game) {
+    const drawables = [];
     for (const b of game.buildings) {
       if (b.dead) continue;
-      const def = BUILDING_DEFS[b.type];
-      const ts = def.tileSize;
-      const px = b.tileX * TILE, py = b.tileY * TILE;
-      const pw = ts * TILE, ph = ts * TILE;
-
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(px + 3, py + 3, pw, ph);
-
-      // Building body
-      ctx.fillStyle = def.color;
-      ctx.fillRect(px, py, pw, ph);
-
-      // Highlight top/left
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.fillRect(px, py, pw, 3);
-      ctx.fillRect(px, py, 3, ph);
-
-      // Dark border
-      ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-
-      // Building icon / label
-      ctx.fillStyle = 'rgba(255,255,255,0.8)';
-      ctx.font = `bold ${Math.min(12, ts * 8)}px monospace`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      const labels = { hq:'HQ', wall:'', tower:'T', barracks:'B', depot:'D' };
-      const label = labels[b.type] || '';
-      if (label) ctx.fillText(label, b.x, b.y);
-
-      // Health bar
-      this._drawHealthBar(ctx, px, py - 8, pw, 5, b.hp / b.maxHp);
-
-      // Barracks queue indicator
-      if (b.type === 'barracks' && b.trainQueue.length > 0) {
-        ctx.fillStyle = '#ffdd44';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(`[${b.trainQueue.length}]`, b.x, py - 14);
-        // Progress bar
-        if (b.trainProgress > 0) {
-          const pct = b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
-          this._drawHealthBar(ctx, px, py - 16, pw, 4, pct, '#44aaff');
-        }
-      }
-
-      // Tower range ring (when hovered / selected - optional, skip for perf)
+      const ts = b.def.tileSize;
+      drawables.push({ key: (b.tileX + ts) * TILE + (b.tileY + ts) * TILE,
+                       draw: () => this._drawBuilding(ctx, game, b) });
     }
-  }
-
-  // ── Units ─────────────────────────────────────────────────────────────────
-  _drawUnits(ctx, game) {
     for (const u of game.units) {
       if (u.dead) continue;
-      const def = u.def;
+      drawables.push({ key: u.x + u.y, draw: () => this._drawUnit(ctx, game, u) });
+    }
+    for (const z of game.zombies) {
+      if (z.dead) continue;
+      drawables.push({ key: z.x + z.y, draw: () => this._drawZombie(ctx, game, z) });
+    }
+    drawables.sort((a, b) => a.key - b.key);
+    for (const d of drawables) d.draw();
+  }
 
-      // Selection circle
-      if (u.selected) {
-        ctx.beginPath();
-        ctx.arc(u.x, u.y, def.radius + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = '#44ffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        // Direction tick
-      }
+  // Ground-plane circle of world radius r at world point (via projected s)
+  _groundEllipse(ctx, s, r, z) {
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y, r * 1.13 * z, r * 0.57 * z, 0, 0, Math.PI * 2);
+  }
 
-      // Unit body
+  _drawBuilding(ctx, game, b) {
+    const cam = game.camera, z = cam.zoom;
+    const def = b.def, ts = def.tileSize;
+    const x0 = b.tileX * TILE, y0 = b.tileY * TILE;
+    const x1 = x0 + ts * TILE, y1 = y0 + ts * TILE;
+    const h = ISO_HEIGHTS[b.type] * z;
+    const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
+          S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+
+    const face = (p1, p2, color) => {
+      ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(u.x, u.y, def.radius, 0, Math.PI * 2);
-      ctx.fillStyle = def.color;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(p2.x, p2.y - h); ctx.lineTo(p1.x, p1.y - h);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    };
+    face(E, S, shadeColor(def.color, 0.72)); // sun-side face
+    face(S, W, shadeColor(def.color, 0.52)); // shade-side face
 
-      // Type indicator dot
-      ctx.beginPath();
-      ctx.arc(u.x, u.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.fill();
+    ctx.fillStyle = def.color;               // roof
+    ctx.beginPath();
+    ctx.moveTo(N.x, N.y - h); ctx.lineTo(E.x, E.y - h);
+    ctx.lineTo(S.x, S.y - h); ctx.lineTo(W.x, W.y - h);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
 
-      // Health bar
-      this._drawHealthBar(ctx, u.x - def.radius, u.y - def.radius - 8, def.radius*2, 4, u.hp / u.maxHp);
+    // Label on the roof
+    const cx = (N.x + S.x) / 2, roofCy = (N.y + S.y) / 2 - h;
+    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D' };
+    if (labels[b.type]) {
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.font = `bold ${Math.min(12, ts * 8)}px monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(labels[b.type], cx, roofCy);
+    }
 
-      // Builder repair icon
-      if (u.type === 'builder' && u.repairTarget) {
-        ctx.fillStyle = '#ffdd44';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('⚙', u.x, u.y - def.radius - 14);
+    // Health bar above the top corner
+    const barW = 36 * ts * z;
+    const topY = N.y - h;
+    this._drawHealthBar(ctx, cx - barW / 2, topY - 10 * z, barW, 5, b.hp / b.maxHp);
+
+    // Barracks queue indicator + progress
+    if (b.type === 'barracks' && b.trainQueue.length > 0) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`[${b.trainQueue.length}]`, cx, topY - 16 * z);
+      if (b.trainProgress > 0) {
+        const pct = b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
+        this._drawHealthBar(ctx, cx - barW / 2, topY - 24 * z, barW, 4, pct, '#44aaff');
       }
     }
   }
 
-  // ── Zombies ───────────────────────────────────────────────────────────────
-  _drawZombies(ctx, game) {
-    for (const z of game.zombies) {
-      if (z.dead) continue;
-      const def = z.def;
+  _drawUnit(ctx, game, u) {
+    const cam = game.camera, z = cam.zoom;
+    const s = worldToScreen(u.x, u.y, cam);
+    const r = u.def.radius * z;
 
-      ctx.save();
-      ctx.translate(z.x, z.y);
-
-      // Zombie body - irregular shape
-      ctx.beginPath();
-      ctx.arc(0, 0, def.radius, 0, Math.PI * 2);
-      ctx.fillStyle = def.color;
-      ctx.fill();
-
-      // Dark outline
-      ctx.strokeStyle = '#005500';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      // Eyes
-      ctx.fillStyle = '#ff0000';
-      ctx.beginPath();
-      ctx.arc(-def.radius*0.3, -def.radius*0.2, def.radius*0.2, 0, Math.PI*2);
-      ctx.arc( def.radius*0.3, -def.radius*0.2, def.radius*0.2, 0, Math.PI*2);
-      ctx.fill();
-
-      ctx.restore();
-
-      // Health bar
-      this._drawHealthBar(ctx, z.x - def.radius, z.y - def.radius - 7, def.radius*2, 4, z.hp / z.maxHp, '#ff4422');
+    if (u.selected) {
+      this._groundEllipse(ctx, s, u.def.radius + 4, z);
+      ctx.strokeStyle = '#44ffff'; ctx.lineWidth = 2; ctx.stroke();
     }
+    this._groundEllipse(ctx, s, u.def.radius, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();       // ground shadow
+
+    ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, r, 0, Math.PI * 2); // raised body
+    ctx.fillStyle = u.def.color; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+
+    this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 6 * z, r * 2, 4, u.hp / u.maxHp);
+
+    if (u.type === 'builder' && u.repairTarget) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('⚙', s.x, s.y - r * 2.4 - 12 * z);
+    }
+  }
+
+  _drawZombie(ctx, game, zb) {
+    const cam = game.camera, z = cam.zoom;
+    const s = worldToScreen(zb.x, zb.y, cam);
+    const r = zb.def.radius * z;
+
+    this._groundEllipse(ctx, s, zb.def.radius, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+
+    const by = s.y - r * 1.2;
+    ctx.beginPath(); ctx.arc(s.x, by, r, 0, Math.PI * 2);
+    ctx.fillStyle = zb.def.color; ctx.fill();
+    ctx.strokeStyle = '#005500'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    ctx.fillStyle = '#ff0000';                              // eyes
+    ctx.beginPath();
+    ctx.arc(s.x - r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
+    ctx.arc(s.x + r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 5 * z, r * 2, 4, zb.hp / zb.maxHp, '#ff4422');
   }
 
   // ── Projectiles ───────────────────────────────────────────────────────────
   _drawProjectiles(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
     for (const p of game.projectiles) {
       if (p.dead) continue;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-      // Glow
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + '55';
-      ctx.fill();
+      const s = worldToScreen(p.x, p.y, cam);
+      const py = s.y - 10 * z;
+      ctx.beginPath(); ctx.arc(s.x, py, 3 * z, 0, Math.PI * 2);
+      ctx.fillStyle = p.color; ctx.fill();
+      ctx.beginPath(); ctx.arc(s.x, py, 5 * z, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + '55'; ctx.fill();
     }
   }
 
   // ── Particles ─────────────────────────────────────────────────────────────
   _drawParticles(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
     for (const p of game.particles) {
       const alpha = p.life / p.maxLife;
+      const s = worldToScreen(p.x, p.y, cam);
       ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(s.x, s.y - 10 * z, 2 * z, 0, Math.PI * 2);
+      ctx.fillStyle = p.color; ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
 
-  // ── Barracks Train Buttons (world space, on the building) ────────────────
+  // ── Barracks Train Buttons (screen space, anchored under the building) ───
   _drawBarracksButtons(ctx, game, b) {
-    const BTW = 96, BTH = 58, gap = 6;
-    const totalW = 3 * BTW + 2 * gap;
-    const startX = b.x - totalW / 2;
-    const startY = b.y + b.height / 2 + 10;
-    const trainable = ['soldier', 'builder', 'scout'];
+    const rects = barracksButtonRects(b, game.camera);
+    const startX = rects[0].x, startY = rects[0].y;
+    const BTH = rects[0].h;
+    const totalW = rects[2].x + rects[2].w - startX;
 
-    // Panel background
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6);
-    ctx.fill();
-    ctx.strokeStyle = '#883322';
-    ctx.lineWidth = 2;
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6);
-    ctx.stroke();
+    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6); ctx.fill();
+    ctx.strokeStyle = '#883322'; ctx.lineWidth = 2;
+    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6); ctx.stroke();
 
-    // Label
     ctx.fillStyle = '#ff8844';
     ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('TRAIN UNIT', b.x, startY + BTH + 8);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('TRAIN UNIT', startX + totalW / 2, startY + BTH + 8);
 
-    trainable.forEach((type, i) => {
-      const udef      = UNIT_DEFS[type];
+    for (const [i, rc] of rects.entries()) {
+      const udef = UNIT_DEFS[rc.type];
       const canAfford = game.supplies >= udef.cost;
-      const bx        = startX + i * (BTW + gap);
-      const by        = startY;
 
       ctx.fillStyle = canAfford ? 'rgba(70,50,30,0.95)' : 'rgba(20,20,20,0.95)';
-      roundRect(ctx, bx, by, BTW, BTH, 5); ctx.fill();
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 5); ctx.fill();
       ctx.strokeStyle = canAfford ? udef.color : '#444';
       ctx.lineWidth = canAfford ? 2.5 : 1;
-      roundRect(ctx, bx, by, BTW, BTH, 5); ctx.stroke();
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 5); ctx.stroke();
 
-      // Color dot
       ctx.beginPath();
-      ctx.arc(bx + 14, by + BTH / 2, 7, 0, Math.PI * 2);
-      ctx.fillStyle = canAfford ? udef.color : '#444';
-      ctx.fill();
+      ctx.arc(rc.x + 14, rc.y + rc.h / 2, 7, 0, Math.PI * 2);
+      ctx.fillStyle = canAfford ? udef.color : '#444'; ctx.fill();
 
       ctx.textAlign = 'left';
       ctx.fillStyle = canAfford ? '#eee' : '#555';
       ctx.font = 'bold 12px monospace';
-      ctx.fillText(udef.name, bx + 26, by + 16);
+      ctx.fillText(udef.name, rc.x + 26, rc.y + 16);
       ctx.fillStyle = canAfford ? '#ffdd44' : '#444';
       ctx.font = '11px monospace';
-      ctx.fillText(`$${udef.cost}`, bx + 26, by + 32);
+      ctx.fillText(`$${udef.cost}`, rc.x + 26, rc.y + 32);
       ctx.fillStyle = '#666';
       ctx.font = '10px monospace';
-      ctx.fillText(`${udef.trainTime}s  [${i + 6}]`, bx + 26, by + 47);
-    });
+      ctx.fillText(`${udef.trainTime}s  [${i + 6}]`, rc.x + 26, rc.y + 47);
+    }
 
-    // Training progress bar
     if (b.trainQueue.length > 0) {
-      const pct  = b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
+      const pct = b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
       const barY = startY + BTH + 18;
       ctx.fillStyle = '#333';
       ctx.fillRect(startX - 4, barY, totalW + 8, 6);
       ctx.fillStyle = '#44aaff';
       ctx.fillRect(startX - 4, barY, (totalW + 8) * pct, 6);
-      ctx.fillStyle = '#aaa';
-      ctx.font = '9px monospace';
-      ctx.textAlign = 'left';
+      ctx.fillStyle = '#aaa'; ctx.font = '9px monospace'; ctx.textAlign = 'left';
       ctx.fillText(`Training: ${b.trainQueue.map(t => UNIT_DEFS[t].name).join(', ')}`, startX - 4, barY + 16);
     }
   }
 
   // ── Build Ghost ───────────────────────────────────────────────────────────
+  // Projected footprint diamond — no volume; the flat footprint is clearer
+  // for placement.
   _drawBuildGhost(ctx, game, tile) {
-    const type = game.buildMode;
-    const def = BUILDING_DEFS[type];
+    const cam = game.camera;
+    const def = BUILDING_DEFS[game.buildMode];
     const ts = def.tileSize;
-    const px = tile.tx * TILE, py = tile.ty * TILE;
-    const pw = ts * TILE, ph = ts * TILE;
-    const valid = game.canPlaceBuilding(type, tile.tx, tile.ty);
-
-    ctx.globalAlpha = 0.6;
+    const x0 = tile.tx * TILE, y0 = tile.ty * TILE;
+    const x1 = x0 + ts * TILE, y1 = y0 + ts * TILE;
+    const valid = game.canPlaceBuilding(game.buildMode, tile.tx, tile.ty);
+    const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
+          S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+    ctx.globalAlpha = 0.55;
     ctx.fillStyle = valid ? def.color : '#ff2222';
-    ctx.fillRect(px, py, pw, ph);
-    ctx.strokeStyle = valid ? '#ffffff' : '#ff0000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(px, py, pw, ph);
+    ctx.beginPath();
+    ctx.moveTo(N.x, N.y); ctx.lineTo(E.x, E.y); ctx.lineTo(S.x, S.y); ctx.lineTo(W.x, W.y);
+    ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 1;
+    ctx.strokeStyle = valid ? '#ffffff' : '#ff0000'; ctx.lineWidth = 2; ctx.stroke();
   }
 
   // ── Selection Box ─────────────────────────────────────────────────────────
+  // Body is coordinate-agnostic — Task 3 changes the producer to screen-space.
   _drawSelectionBox(ctx, box) {
     const { x1, y1, x2, y2 } = box;
     const lx = Math.min(x1,x2), ly = Math.min(y1,y2);
@@ -582,15 +560,19 @@ class Renderer {
       ctx.fillRect(MX + z.x * scaleX - 1, MY + z.y * scaleY - 1, 2, 2);
     }
 
-    // Camera viewport rect
-    ctx.strokeStyle = '#ffffff55';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(
-      MX + game.camera.x * scaleX,
-      MY + game.camera.y * scaleY,
-      this.W * scaleX,
-      this.H * scaleY
-    );
+    // Camera viewport (projected quad, clipped to the minimap)
+    ctx.save();
+    ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();
+    const quad = [[0, 0], [this.W, 0], [this.W, this.H], [0, this.H]].map(([sx, sy]) => {
+      const w = screenToWorld(sx, sy, game.camera);
+      return [MX + w.x * scaleX, MY + w.y * scaleY];
+    });
+    ctx.strokeStyle = '#ffffff55'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(quad[0][0], quad[0][1]);
+    for (let i = 1; i < 4; i++) ctx.lineTo(quad[i][0], quad[i][1]);
+    ctx.closePath(); ctx.stroke();
+    ctx.restore();
 
     // Border
     ctx.strokeStyle = '#446644';

@@ -23,7 +23,7 @@ class Game {
     this.selected    = [];       // selected units
     this.buildMode   = null;     // string: building type being placed
 
-    this.camera      = { x: 0, y: 0 };
+    this.camera      = { x: 0, y: 0, zoom: 1 };
 
     this.status      = 'playing'; // 'playing' | 'gameover' | 'victory'
     this.gameTime    = 0;
@@ -39,9 +39,8 @@ class Game {
     // Center camera on HQ
     const hq = this.buildings.find(b => b.type === 'hq');
     if (hq) {
-      const cw = window.innerWidth, ch = window.innerHeight;
-      this.camera.x = hq.x - cw / 2;
-      this.camera.y = hq.y - ch / 2;
+      centerCameraOn(this.camera, hq.x, hq.y, window.innerWidth, window.innerHeight);
+      clampCamera(this.camera, window.innerWidth, window.innerHeight);
     }
   }
 
