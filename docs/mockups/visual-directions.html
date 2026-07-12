@@ -22,7 +22,7 @@
 </head>
 <body>
 <h1>Dead Zone RTS — visual direction mockups</h1>
-<div class="sub">Direction A "Darkest Night" + low-rez 3/4 pixel art. All art here is placeholder-quality but built the same way the game will build it (pixel sprites + lighting layer).</div>
+<div class="sub">CHOSEN (2026-07-13): true isometric (panel D) + the "Darkest Night" lighting from panel B, with fog of war (panel C). All art here is placeholder-quality but built the same way the game will build it (pixel sprites + lighting layer).</div>
 
 <div class="grid">
   <div class="panel"><canvas id="day" width="320" height="180"></canvas>
@@ -32,7 +32,7 @@
   <div class="panel"><canvas id="fog" width="320" height="180"></canvas>
     <div class="cap"><b>C. Fog of war.</b> Left: visible (live). Middle: explored — remembered terrain and structures, dimmed, no live entities. Right: unexplored black. At night the visible band shrinks to your light radii.</div></div>
   <div class="panel"><canvas id="iso" width="320" height="180"></canvas>
-    <div class="cap"><b>D. True isometric (comparison — rejected).</b> Same content on a diamond grid. Looks good, but every world↔screen transform, hit-test, and the placement UX changes with it; the spec rejects it in §9. If this look is worth that cost to you, say so now.</div></div>
+    <div class="cap"><b>D. True isometric — CHOSEN direction.</b> Same content on a diamond grid, combined with panel B's lighting. The transform cost (every world↔screen conversion, hit-test, and placement UX changes) is paid deliberately in phase 1 of the spec.</div></div>
 </div>
 
 <div class="pal" id="palstrip"></div>

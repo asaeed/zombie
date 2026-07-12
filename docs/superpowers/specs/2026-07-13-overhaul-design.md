@@ -20,27 +20,39 @@ haul what they find back home before the next horde hits. No help is coming.
 - Camera: arrows/edge scroll/minimap click. No zoom. A/S keys conflict (camera vs unit commands)
 - Win = survive 10 minutes. Restart = F5
 
-## 1. Visual direction: "Darkest Night" + low-rez 3/4 pixel art
+## 1. Visual direction: "Darkest Night" + true isometric pixel art
 
-### 1.1 Pixel sprites (3/4 top-down oblique — NOT true isometric)
+### 1.1 True isometric pixel art (user decision 2026-07-13, mockup panel D + B)
 
-Square tile grid stays. All game logic, input, and placement code untouched. Sprites are
-drawn in 3/4 perspective: buildings have a roof + visible front face extending above
-their tile footprint; units/zombies are small upright characters with implied height.
+The world renders in 2:1 isometric projection (diamond tiles). The simulation is
+untouched: game logic stays on the existing square tile grid and world coordinates;
+the projection lives in one pair of transforms (`worldToScreen` / `screenToWorld`)
+that ALL rendering and input route through. Nothing else is allowed to do coordinate
+math on its own.
 
-- Base sprite resolution 16×16 (units/zombies) and 16px-per-tile buildings/terrain,
-  rendered scaled up with `ctx.imageSmoothingEnabled = false` for crisp pixels
-- Sprites authored as embedded pixel data (compact palette-indexed strings in a new
-  `js/sprites.js`), rasterized once at load into an offscreen atlas canvas. No binary
-  assets, no HTTP fetches — the game stays a folder you open in a browser
-- Units/zombies: 2-frame walk animation + idle; zombies get a distinct dormant
-  (slouched) frame. Buildings: single sprite each + damaged variant (cracks) below 50% HP
-- Terrain: textured tiles with simple edge transitions (grass→dirt, grass→water shore),
-  scattered doodads (rocks, shrubs, dead trees) placed at mapgen, water shimmer kept
-- Draw order: painter's algorithm sorted by world y so tall sprites overlap correctly
+- Diamond tile 64×32 screen px at zoom 1.0. Sprites authored at half resolution
+  (32×16 diamond base) and scaled ×2 with `imageSmoothingEnabled = false` for the
+  chunky pixel look
+- Buildings are iso volumes (roof diamond + two visible faces, damaged variant below
+  50% HP); units/zombies are upright billboard sprites standing on their tile,
+  2-frame walk + idle, distinct dormant (slouched) frame
+- Painter's algorithm: draw order sorted by (worldX + worldY) so volumes correctly
+  occlude what stands behind them
+- Terrain: textured diamond tiles with edge transitions (grass→dirt, shore), doodads
+  (rocks, shrubs, dead trees) as billboards, water shimmer kept
+- Map edges: the projected 80×80 diamond sits in a dark void; camera clamps to the
+  projected bounds. Minimap stays a square top-down logical view initially (simple,
+  readable) — revisit as a diamond render only if it feels wrong in play
+- Sprites still authored as embedded pixel data (palette-indexed strings in a new
+  `js/sprites.js`), rasterized once at load into an atlas canvas. No binary assets,
+  no build step
+- Cost acknowledged: every screen↔world interaction (hit-tests, drag-select, build
+  ghost, minimap, edge scroll, camera clamping) must route through the new
+  transforms — this is why iso is its own foundation phase (phase 1), not a skin
+  applied at the end
 - Risk: hand-authored pixel art quality. Mitigation: tiny sizes, one limited palette
-  (~24 colors), consistent light-from-upper-left. Fallback if it disappoints: swap the
-  atlas for a CC0 pack (Kenney) — renderer interface stays the same either way
+  (~24 colors), consistent light direction. Fallback: swap the atlas for a CC0 iso
+  pack — the renderer interface stays the same either way
 
 ### 1.2 Lighting & darkness
 
@@ -48,7 +60,7 @@ Offscreen "darkness" canvas composited over the world each frame:
 
 - Fill with ambient darkness (alpha varies by time of day), punch out lights with
   radial gradients (`destination-out`): HQ large warm glow, buildings small glow,
-  units a modest flashlight radius, flare very bright, floodlight structure very wide
+  units a modest flashlight radius, flare very bright, light tower very wide
 - Day/night cycle: 3 min day / 2 min night (tunable in config). Night = deep darkness
   outside light pools; day = mild dimming only. Subtle color tint shifts (cold blue
   night, amber dusk)
@@ -56,6 +68,11 @@ Offscreen "darkness" canvas composited over the world each frame:
   simply scarier because visibility shrinks. Scavenging is naturally a daytime
   activity — going out at night is possible but you can't see dormant zombies until
   you're close
+- **Light is safety, not decoration.** At night, units and towers can only target
+  zombies that are lit — inside some light radius (or anywhere, during the day). An
+  unlit perimeter means your towers stay silent until the horde is already at the
+  walls. Keeping the camp lit becomes base infrastructure on par with walls, and the
+  light tower (§4) exists to push that safe envelope outward
 
 ### 1.3 Fog of war
 
@@ -68,7 +85,9 @@ Three tile states, stored per tile and updated from unit/building vision radii:
 
 Vision radius per entity (scout largest). At night, vision radii shrink to roughly the
 flashlight radius — fog and lighting share the same source data. Minimap shows fog.
-Zombie waves are still announced by direction (see 3.2) so fog doesn't make defense blind.
+Cache locations are never marked up front: finding resources means physically scouting
+the map. Zombie waves are still announced by direction (see 3.2) so fog doesn't make
+defense blind.
 
 ### 1.4 Juice pass
 
@@ -151,7 +170,7 @@ Zombie waves are still announced by direction (see 3.2) so fog doesn't make defe
 | Gate | 1×1 | 30 | Wall that friendly units path through; zombies treat as wall |
 | Barbed wire | 1×1 | 10 | Doesn't block; zombies crossing are slowed ~60% and take slow chip damage; degrades with use |
 | Mine | 1×1 | 40 | Hidden once placed; proximity-triggered AoE, single use |
-| Floodlight | 1×1 | 60 | Wide light + vision radius. No weapon. The darkness answer |
+| Light tower | 1×1 | 60 | Wide light + vision radius, no weapon. At night defenders only shoot lit targets (§1.2), so light towers extend the defensive envelope |
 | Sniper tower | 2×2 | 200 | Very long range, high single-target damage, slow rate. Existing tower = mid-range workhorse |
 | Workshop | 2×2 | 250 | One-at-a-time upgrades: tower damage +25%, unit armor +20%, carry capacity +50%, flashlight radius +40% |
 | Medic tent | 2×2 | 150 | Slowly heals units in radius |
@@ -202,6 +221,11 @@ Depot re-role covered in 2.3. Build panel grows to two rows; hotkeys move to let
 
 - File layout unchanged (+ `js/sprites.js` for the atlas, + new entity classes in
   entities.js). No modules/bundler — plain script tags stay
+- **Projection boundary:** simulation stays entirely in world coordinates (square
+  grid, world px) — pathfinding, flow field, combat ranges, separation all unchanged.
+  `worldToScreen(wx, wy)` / `screenToWorld(sx, sy)` (camera x/y/zoom aware) live in
+  utils.js and are the ONLY place iso math exists. Renderer and input both route
+  through them; viewport culling tests projected bounds
 - New systems land as: `game.caches[]`, `game.decals[]`, `game.fog` (Uint8Array),
   `game.lighting` (offscreen canvas in renderer), `game.dayTime`, `game.alerts[]`
 - Flow field: gates join walls in the blocked set (zombie side); unit A* treats gates
@@ -214,26 +238,37 @@ Depot re-role covered in 2.3. Build panel grows to two rows; hotkeys move to let
 
 Each phase leaves the game playable and better than before:
 
-1. **Controls & camera** — zoom, middle-drag, minimap drag, Space/bookmarks/N-alert,
-   control groups, attack-move, stop, rally, hotkey rework, restart button
-2. **Economy & exploration** — caches + search + carry/haul + drop bundles, depot
+1. **Iso foundation** — `worldToScreen`/`screenToWorld` + camera (pan/zoom/clamping),
+   diamond terrain rendering, (worldX+worldY)-sorted entity draw as placeholder iso
+   volumes/billboards, and every input path (hit-tests, drag-select, build ghost,
+   minimap, edge scroll) rerouted through the transforms. Game plays exactly as
+   today — just isometric, with mouse-wheel zoom and middle-drag pan landing here
+   since they're camera math
+2. **Controls & camera QoL** — minimap drag, Space→HQ, F1–F4 bookmarks, N→last
+   alert + minimap pings, control groups, attack-move, stop, rally points, hotkey
+   rework, restart button
+3. **Economy & exploration** — caches + search + carry/haul + drop bundles, depot
    re-role, kill/passive income removal, repair cost, fog of war (flat overlay
    version), dormant guards
-3. **Threat** — spitter/exploder/screamer/boss, HP scaling, directional waves +
-   warnings, signal flare, endless mode
-4. **Structures** — gate, barbed wire, mine, floodlight, sniper tower, workshop
-   upgrades, medic tent, two-row build panel
-5. **Visual overhaul** — sprite atlas + 3/4 pixel art, terrain texturing + doodads,
-   lighting/darkness + day/night cycle (upgrades phase-2 fog rendering), juice pass
-   (shake, hit flash, decals, damage numbers, wave banner)
+4. **Light & dark** — day/night cycle, darkness overlay + light sources (the panel-B
+   look), light-is-safety targeting rule, light tower, signal flare
+5. **Threat** — spitter/exploder/screamer/boss, HP scaling, directional waves +
+   warnings, endless mode
+6. **Structures** — gate, barbed wire, mine, sniper tower, workshop upgrades, medic
+   tent, two-row build panel
+7. **Polish** — final iso pixel-art sprite set, terrain texturing + doodads, juice
+   pass (shake, hit flash, decals, damage numbers, wave banner)
 
-Phase order rationale: controls first (everything else is tested through them),
-visuals last (no point skinning entities that phases 2–4 are still adding).
+Phase order rationale: iso first because every later feature is built and tested
+through its transforms; light & dark before new threats/structures because the
+light-targeting rule changes how defense is balanced; final art last so we aren't
+re-drawing sprites for entities that phases 3–6 are still adding.
 
 ## 9. Explicitly out of scope
 
-- True isometric projection (diamond grid) — rejected: doubles effort for projection
-  change; 3/4 oblique achieves the "3D-looking pixel art" read
+- 3/4 top-down oblique projection — was the original recommendation for its lower
+  cost; rejected 2026-07-13 after mockup review, Ahmad chose true isometric (panel D)
+  with the panel-B lighting. The cost is paid deliberately in phase 1
 - Sound/music — worth doing later, not in this overhaul
 - Save games, high-score persistence, multiple maps/difficulty presets
 - Touch/mobile support
