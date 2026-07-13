@@ -720,7 +720,6 @@ class Renderer {
     ctx.fillStyle = '#ffdd44';
     ctx.font = '20px monospace';
     ctx.fillText(`Final Score: ${window._game ? window._game.score : 0}`, this.W/2, this.H/2 + 55);
-    ctx.font = '16px monospace';
     this._drawRestartButton(ctx);
   }
 

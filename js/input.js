@@ -259,7 +259,7 @@ class InputHandler {
         u.selected = true;
         if (!game.selected.includes(u)) game.selected.push(u);
       }
-    } else if (!this._dragging && !this._clickHandled) {
+    } else if (!this._dragging && !this._clickHandled && !this._minimapDrag) {
       // Single click - select unit
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
         // Already handled in mousedown

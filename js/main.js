@@ -28,6 +28,9 @@
     input.game = game;
     input.attackMoveArm = false;
     input.canvas.style.cursor = '';
+    input.groups = {};
+    input._lastGroupTap = null;
+    input._panStart = null;
     window._game = game;
     game.start();
   };
