@@ -450,7 +450,7 @@ class Renderer {
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('BUILD (1-4) | ESC: cancel | Right-click: move/attack | Box-select: drag', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('R: builder repair  |  Del: sell selected building  |  Arrows/edges: scroll', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('R: builder repair  |  Del: sell selected building  |  Arrows: scroll, click edge: auto-scroll', BX + buildables.length * (BW + gap) + 8, PY + 48);
     ctx.fillText('Click a Barracks building to open TRAIN panel (keys 6/7/8)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 
@@ -562,18 +562,18 @@ class Renderer {
       ctx.fillRect(MX + z.x * scaleX - 1, MY + z.y * scaleY - 1, 2, 2);
     }
 
-    // Camera viewport (projected quad, clipped to the minimap)
+    // Camera viewport — axis-aligned bounding rect of the visible area
+    // (the true footprint is a rotated quad in world space; a square reads better)
     ctx.save();
     ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();
-    const quad = [[0, 0], [this.W, 0], [this.W, this.H], [0, this.H]].map(([sx, sy]) => {
+    const pts = [[0, 0], [this.W, 0], [this.W, this.H], [0, this.H]].map(([sx, sy]) => {
       const w = screenToWorld(sx, sy, game.camera);
       return [MX + w.x * scaleX, MY + w.y * scaleY];
     });
+    const vxs = pts.map(p => p[0]), vys = pts.map(p => p[1]);
+    const vx = Math.min(...vxs), vy = Math.min(...vys);
     ctx.strokeStyle = '#ffffff55'; ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(quad[0][0], quad[0][1]);
-    for (let i = 1; i < 4; i++) ctx.lineTo(quad[i][0], quad[i][1]);
-    ctx.closePath(); ctx.stroke();
+    ctx.strokeRect(vx, vy, Math.max(...vxs) - vx, Math.max(...vys) - vy);
     ctx.restore();
 
     // Border

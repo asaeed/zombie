@@ -8,7 +8,8 @@ and open localhost) and play.
 - Left click / drag: select units · Right click: move / attack / repair
 - 1–4: build (wall, tower, barracks, depot) · Esc: cancel · Del: sell
 - Click barracks → train panel (6/7/8) · R: builder repairs nearest
-- Mouse wheel: zoom · Middle-drag / arrows / screen edges / minimap click: pan
+- Mouse wheel: zoom · Middle-drag / arrows / minimap click: pan
+- Click a screen edge to arm auto-scroll; moving off the edge stops it
 
 ## Architecture
 - Simulation runs on a square 80×80 tile grid in world coordinates

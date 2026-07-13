@@ -22,6 +22,9 @@ class InputHandler {
     // Middle-drag pan state
     this._panStart = null;
 
+    // Edge scrolling arms only on a click in the hot zone (hover alone is annoying)
+    this._edgeScrollArmed = false;
+
     this._bind();
   }
 
@@ -75,6 +78,13 @@ class InputHandler {
     return x >= MX && x <= MX + MINIMAP_W && y >= MY && y <= MY + MINIMAP_H;
   }
 
+  // Edge-scroll hot zone: the screen borders, minus bottom panel and minimap
+  _inEdgeZone(x, y) {
+    const W = window.innerWidth, H = window.innerHeight, M = EDGE_SCROLL_MARGIN;
+    if (this._isInBottomPanel(y) || this._isInMinimap(x, y)) return false;
+    return x < M || x > W - M || y < M + 44 || y > H - 110 - M;
+  }
+
   _onMouseDown(e) {
     if (e.button === 1) {                    // middle: start drag-pan
       e.preventDefault();
@@ -105,6 +115,9 @@ class InputHandler {
       this._handleBuildPanelClick(e.clientX, e.clientY);
       return;
     }
+
+    // Clicking the edge hot zone arms edge scrolling (leaving the zone disarms)
+    if (this._inEdgeZone(e.clientX, e.clientY)) this._edgeScrollArmed = true;
 
     // Build mode: place building
     if (game.buildMode) {
@@ -402,14 +415,17 @@ class InputHandler {
     if (this.keys['ArrowUp']    || this.keys['KeyW'] && game.selected.length === 0) dy -= 1;
     if (this.keys['ArrowDown']  || this.keys['KeyS'] && game.selected.length === 0) dy += 1;
 
-    // Edge scrolling
+    // Edge scrolling — armed by a click in the hot zone, disarmed on leaving it
     const mx = this.mouseX, my = this.mouseY;
     const W = window.innerWidth, H = window.innerHeight;
     const M = EDGE_SCROLL_MARGIN;
-    if (mx < M) dx -= 1;
-    if (mx > W - M) dx += 1;
-    if (my < M + 44) dy -= 1;  // account for top bar
-    if (my > H - 110 - M) dy += 1;
+    if (this._edgeScrollArmed && !this._inEdgeZone(mx, my)) this._edgeScrollArmed = false;
+    if (this._edgeScrollArmed) {
+      if (mx < M) dx -= 1;
+      if (mx > W - M) dx += 1;
+      if (my < M + 44) dy -= 1;  // account for top bar
+      if (my > H - 110 - M) dy += 1;
+    }
 
     if (dx !== 0 || dy !== 0) {
       const len = Math.sqrt(dx*dx + dy*dy);
