@@ -175,6 +175,18 @@ class Renderer {
         this._drawHealthBar(ctx, cx - barW / 2, topY - 24 * z, barW, 4, pct, '#44aaff');
       }
     }
+
+    if (b.type === 'barracks' && b.rally && game._selectedBuilding === b) {
+      const rp = worldToScreen(b.rally.x, b.rally.y, cam);
+      this._groundEllipse(ctx, rp, 8, z);
+      ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.strokeStyle = '#ffdd44';
+      ctx.beginPath(); ctx.moveTo(rp.x, rp.y); ctx.lineTo(rp.x, rp.y - 18 * z); ctx.stroke();
+      ctx.fillStyle = '#ffdd44';
+      ctx.beginPath();
+      ctx.moveTo(rp.x, rp.y - 18 * z); ctx.lineTo(rp.x + 10 * z, rp.y - 14 * z); ctx.lineTo(rp.x, rp.y - 10 * z);
+      ctx.closePath(); ctx.fill();
+    }
   }
 
   _drawUnit(ctx, game, u) {
@@ -292,7 +304,7 @@ class Renderer {
       ctx.fillText(`$${udef.cost}`, rc.x + 26, rc.y + 32);
       ctx.fillStyle = '#666';
       ctx.font = '10px monospace';
-      ctx.fillText(`${udef.trainTime}s  [${i + 6}]`, rc.x + 26, rc.y + 47);
+      ctx.fillText(`${udef.trainTime}s  [${['Z','X','C'][i]}]`, rc.x + 26, rc.y + 47);
     }
 
     if (b.trainQueue.length > 0) {
@@ -395,6 +407,13 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 12, 22);
 
+    if (input.attackMoveArm) {
+      ctx.fillStyle = '#ff8866';
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('ATTACK-MOVE — click target (Esc cancels)', this.W / 2, 58);
+    }
+
     // Bottom panel
     this._drawBottomPanel(ctx, game);
 
@@ -450,7 +469,8 @@ class Renderer {
       // Hotkey hint
       ctx.fillStyle = '#888';
       ctx.font = '9px monospace';
-      ctx.fillText(`[${i+1}]`, x + BW - 14, y + 12);
+      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D' };
+      ctx.fillText(`[${hotkeys[type]}]`, x + BW - 14, y + 12);
       ctx.font = 'bold 12px monospace';
     });
 
@@ -458,9 +478,9 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('BUILD (1-4) | ESC: cancel | Right-click: move/attack | Box-select: drag', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('R: builder repair  |  Del: sell selected building  |  Arrows: scroll, click edge: auto-scroll', BX + buildables.length * (BW + gap) + 8, PY + 48);
-    ctx.fillText('Click a Barracks building to open TRAIN panel (keys 6/7/8)', BX + buildables.length * (BW + gap) + 8, PY + 66);
+    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
+    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 
   _drawSelectionPanel(ctx, game) {

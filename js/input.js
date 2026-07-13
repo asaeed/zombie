@@ -36,6 +36,11 @@ class InputHandler {
     // Edge scrolling arms only on a click in the hot zone (hover alone is annoying)
     this._edgeScrollArmed = false;
 
+    // Control groups + attack-move arm state
+    this.groups = {};            // digit -> unit array
+    this._lastGroupTap = null;   // { d, t } for double-tap detection
+    this.attackMoveArm = false;
+
     this._bind();
   }
 
@@ -145,6 +150,20 @@ class InputHandler {
         game.placeBuilding(game.buildMode, this.mouseTile.tx, this.mouseTile.ty);
         // Keep build mode active for quick placement
       }
+      return;
+    }
+
+    // Armed attack-move: this click is the order
+    if (this.attackMoveArm) {
+      this.attackMoveArm = false;
+      this.canvas.style.cursor = '';
+      const count = game.selected.length;
+      game.selected.forEach((u, i) => {
+        const row = Math.floor(i / 5), col = i % 5;
+        u.moveTo(wx + (col - Math.min(count, 5) / 2) * 22, wy + row * 22, game);
+        u.attackMove = true;
+      });
+      this._clickHandled = true;
       return;
     }
 
@@ -271,6 +290,13 @@ class InputHandler {
       return;
     }
 
+    // Selected barracks: right-click sets its rally point
+    const sb = game._selectedBuilding;
+    if (sb && sb.type === 'barracks' && !sb.dead) {
+      sb.rally = { x: this.mouseWorld.x, y: this.mouseWorld.y };
+      return;
+    }
+
     if (game.selected.length === 0) return;
 
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
@@ -308,6 +334,9 @@ class InputHandler {
     if (e.code === 'Escape') {
       if (game.buildMode) {
         game.buildMode = null;
+      } else if (this.attackMoveArm) {
+        this.attackMoveArm = false;
+        this.canvas.style.cursor = '';
       } else {
         for (const u of game.units) u.selected = false;
         game.selected = [];
@@ -315,21 +344,52 @@ class InputHandler {
       }
     }
 
-    // Number keys 1-4 for build mode
-    const buildables = Object.entries(BUILDING_DEFS).filter(([,d]) => d.canBuild);
-    const numKey = parseInt(e.key);
-    if (!isNaN(numKey) && numKey >= 1 && numKey <= buildables.length) {
-      const type = buildables[numKey - 1][0];
+    // Build hotkeys: mnemonic letters (digits are control groups now)
+    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot' };
+    if (buildKeys[e.code] && !e.shiftKey) {
+      const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
     }
 
-    // Keys 6/7/8: train from selected barracks
-    const trainable = ['soldier', 'builder', 'scout'];
-    if (!isNaN(numKey) && numKey >= 6 && numKey <= 8) {
+    // Barracks train: Z/X/C
+    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout' };
+    if (trainKeys[e.code]) {
       const b = game._selectedBuilding;
-      if (b && b.type === 'barracks' && !b.dead) {
-        game.trainUnit(b, trainable[numKey - 6]);
+      if (b && b.type === 'barracks' && !b.dead) game.trainUnit(b, trainKeys[e.code]);
+    }
+
+    // Control groups: digit selects, Shift+digit assigns, double-tap centers
+    const dm = /^Digit([1-9])$/.exec(e.code);
+    if (dm) {
+      const d = dm[1];
+      if (e.shiftKey) {
+        if (game.selected.length > 0) this.groups[d] = [...game.selected];
+      } else {
+        const grp = (this.groups[d] || []).filter(u => !u.dead);
+        this.groups[d] = grp;
+        for (const u of game.units) u.selected = false;
+        game.selected = [...grp];
+        for (const u of grp) u.selected = true;
+        if (grp.length > 0) game._selectedBuilding = null;
+        const now = performance.now();
+        if (this._lastGroupTap && this._lastGroupTap.d === d &&
+            now - this._lastGroupTap.t < 400 && grp.length > 0) {
+          const cx = grp.reduce((s, u) => s + u.x, 0) / grp.length;
+          const cy = grp.reduce((s, u) => s + u.y, 0) / grp.length;
+          centerCameraOn(game.camera, cx, cy, window.innerWidth, window.innerHeight);
+          clampCamera(game.camera, window.innerWidth, window.innerHeight);
+        }
+        this._lastGroupTap = { d, t: now };
       }
+    }
+
+    // H: select all idle military units (soldiers/scouts standing around)
+    if (e.code === 'KeyH') {
+      for (const u of game.units) u.selected = false;
+      game.selected = game.units.filter(u => !u.dead && u.type !== 'builder' &&
+        !u.atkTarget && u.waypoints.length === 0 && !u.repairTarget);
+      for (const u of game.selected) u.selected = true;
+      if (game.selected.length > 0) game._selectedBuilding = null;
     }
 
     // Delete: sell selected building
@@ -354,12 +414,10 @@ class InputHandler {
       }
     }
 
-    // A: stop/attack-move (stop current movement)
-    if (e.code === 'KeyA') {
-      for (const u of game.selected) {
-        u.waypoints = [];
-        u.moveTarget = null;
-      }
+    // A: arm attack-move — next left-click orders move-and-engage
+    if (e.code === 'KeyA' && game.selected.length > 0) {
+      this.attackMoveArm = true;
+      this.canvas.style.cursor = 'crosshair';
     }
 
     // S: stop all
@@ -368,7 +426,10 @@ class InputHandler {
         u.waypoints = [];
         u.moveTarget = null;
         u.atkTarget = null;
+        u.attackMove = false;
       }
+      this.attackMoveArm = false;
+      this.canvas.style.cursor = '';
     }
 
     // Space: center on HQ
