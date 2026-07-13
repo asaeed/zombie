@@ -75,16 +75,14 @@ function mapScreenBounds(zoom) {
   };
 }
 
-// Keep the viewport inside the projected map; center an axis when the
-// projected map is smaller than the viewport on that axis.
+// Keep the viewport CENTER over the map: every point of the map — corners
+// included — can be brought to screen center, and at most half a screen of
+// off-map wasteland is ever visible.
 function clampCamera(cam, viewW, viewH) {
-  const b = mapScreenBounds(cam.zoom);
-  cam.x = (b.maxX - b.minX <= viewW)
-    ? (b.minX + b.maxX - viewW) / 2
-    : clamp(cam.x, b.minX, b.maxX - viewW);
-  cam.y = (b.maxY - b.minY <= viewH)
-    ? (b.minY + b.maxY - viewH) / 2
-    : clamp(cam.y, b.minY, b.maxY - viewH);
+  const c = screenToWorld(viewW / 2, viewH / 2, cam);
+  const wx = clamp(c.x, 0, MAP_W * TILE);
+  const wy = clamp(c.y, 0, MAP_H * TILE);
+  if (wx !== c.x || wy !== c.y) centerCameraOn(cam, wx, wy, viewW, viewH);
 }
 
 function centerCameraOn(cam, wx, wy, viewW, viewH) {

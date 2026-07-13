@@ -40,9 +40,12 @@ math on its own.
   occlude what stands behind them
 - Terrain: textured diamond tiles with edge transitions (grass→dirt, shore), doodads
   (rocks, shrubs, dead trees) as billboards, water shimmer kept
-- Map edges: the projected 80×80 diamond sits in a dark void; camera clamps to the
-  projected bounds. Minimap stays a square top-down logical view initially (simple,
-  readable) — revisit as a diamond render only if it feels wrong in play
+- Map edges: beyond the 80×80 diamond a dark wasteland skirt is rendered (visual
+  only, not playable); the camera clamps so the viewport CENTER stays over the map —
+  every corner can be centered (changed 2026-07-13 from bounds-clamping after play
+  feedback: corners felt inaccessible). Minimap renders in zoom-1 projected space
+  (map reads as a diamond) so the camera viewport is an exact rectangle (changed
+  2026-07-13 from the square top-down view, same feedback round)
 - Sprites still authored as embedded pixel data (palette-indexed strings in a new
   `js/sprites.js`), rasterized once at load into an atlas canvas. No binary assets,
   no build step

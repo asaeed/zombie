@@ -40,21 +40,31 @@ for (const cam of [cam0, { x: 137, y: -260, zoom: 0.5 }, { x: -1000, y: 400, zoo
   assert.ok(Math.abs(s.x - 400) < 1e-6 && Math.abs(s.y - 300) < 1e-6, 'centerCameraOn off-center');
 }
 
-// clampCamera keeps the view inside the projected map bounds…
+// clampCamera keeps the viewport CENTER over the map (corners reachable)…
 {
-  const cam = { x: 99999, y: 99999, zoom: 1 };
+  const cam = { x: 99999, y: 99999, zoom: 1 }; // way off the SE corner
   clampCamera(cam, 800, 600);
-  const b = mapScreenBounds(1);
-  assert.ok(cam.x >= b.minX && cam.x <= b.maxX - 800, 'cam.x not clamped');
-  assert.ok(cam.y >= b.minY && cam.y <= b.maxY - 600, 'cam.y not clamped');
+  const c = screenToWorld(400, 300, cam);
+  assert.ok(Math.abs(c.x - 3200) < 1e-6 && Math.abs(c.y - 3200) < 1e-6,
+    'wild camera should clamp its center to the SE map corner');
 }
-// …and centers an axis when the map is smaller than the viewport
+// …and leaves an already-valid camera untouched
 {
-  const cam = { x: 0, y: 0, zoom: 0.5 }; // projected map 2560×1280 < 4000×3000 view
-  clampCamera(cam, 4000, 3000);
-  const b = mapScreenBounds(0.5);
-  assert.ok(Math.abs(cam.x - (b.minX + b.maxX - 4000) / 2) < 1e-6, 'small map not x-centered');
-  assert.ok(Math.abs(cam.y - (b.minY + b.maxY - 3000) / 2) < 1e-6, 'small map not y-centered');
+  const cam = { x: 0, y: 0, zoom: 1 };
+  centerCameraOn(cam, 1600, 1600, 800, 600);
+  const before = { x: cam.x, y: cam.y };
+  clampCamera(cam, 800, 600);
+  assert.ok(Math.abs(cam.x - before.x) < 1e-6 && Math.abs(cam.y - before.y) < 1e-6,
+    'in-bounds camera must not move');
+}
+// …and every map corner can be centered exactly
+for (const [wx, wy] of [[0, 0], [3200, 0], [3200, 3200], [0, 3200]]) {
+  const cam = { x: 0, y: 0, zoom: 1 };
+  centerCameraOn(cam, wx, wy, 800, 600);
+  clampCamera(cam, 800, 600);
+  const c = screenToWorld(400, 300, cam);
+  assert.ok(Math.abs(c.x - wx) < 1e-6 && Math.abs(c.y - wy) < 1e-6,
+    `map corner ${wx},${wy} should be centerable`);
 }
 
 assert.equal(shadeColor('#ff8800', 0.5), 'rgb(128,68,0)');

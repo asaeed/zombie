@@ -33,16 +33,18 @@ class Renderer {
       }
       return c;
     };
-    return {
+    const sprites = {
       [TILE_GRASS]: [mk('#2d4a20'), mk('#355524')],
       [TILE_DIRT]:  [mk('#5a4a2a'), mk('#4e3f24')],
       [TILE_WATER]: [mk('#1a3a5c', '#4a7ab0'), mk('#163352', '#4a7ab0')],
     };
+    sprites.waste = [mk('#1c2415'), mk('#171e11')]; // off-map wasteland skirt
+    return sprites;
   }
 
   render(game, input) {
     const ctx = this.ctx;
-    ctx.fillStyle = '#0c0e14';               // void outside the map diamond
+    ctx.fillStyle = '#12180d';               // far wasteland beyond the skirt band
     ctx.fillRect(0, 0, this.W, this.H);
 
     this._drawTiles(ctx, game);
@@ -70,16 +72,22 @@ class Renderer {
       screenToWorld(0, 0, cam), screenToWorld(this.W, 0, cam),
       screenToWorld(0, this.H, cam), screenToWorld(this.W, this.H, cam),
     ];
+    // ponytail: textured wasteland extends SKIRT tiles past the map edge, then
+    // gives way to the flat base fill — bounded per-frame cost at any zoom
+    const SKIRT = 12;
     const xs = corners.map(c => c.x), ys = corners.map(c => c.y);
-    const tx0 = clamp(Math.floor(Math.min(...xs) / TILE) - 1, 0, MAP_W);
-    const tx1 = clamp(Math.ceil(Math.max(...xs) / TILE) + 1, 0, MAP_W);
-    const ty0 = clamp(Math.floor(Math.min(...ys) / TILE) - 1, 0, MAP_H);
-    const ty1 = clamp(Math.ceil(Math.max(...ys) / TILE) + 1, 0, MAP_H);
+    const tx0 = clamp(Math.floor(Math.min(...xs) / TILE) - 1, -SKIRT, MAP_W + SKIRT);
+    const tx1 = clamp(Math.ceil(Math.max(...xs) / TILE) + 1, -SKIRT, MAP_W + SKIRT);
+    const ty0 = clamp(Math.floor(Math.min(...ys) / TILE) - 1, -SKIRT, MAP_H + SKIRT);
+    const ty1 = clamp(Math.ceil(Math.max(...ys) / TILE) + 1, -SKIRT, MAP_H + SKIRT);
 
     const w = 64 * z, h = 32 * z;
     for (let ty = ty0; ty < ty1; ty++) {
       for (let tx = tx0; tx < tx1; tx++) {
-        const spr = this._tileSprites[game.tiles[ty][tx]][(tx + ty) % 2];
+        const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
+        const shade = (((tx + ty) % 2) + 2) % 2;
+        const spr = inMap ? this._tileSprites[game.tiles[ty][tx]][shade]
+                          : this._tileSprites.waste[shade];
         const s = worldToScreen(tx * TILE, ty * TILE, cam); // north corner of the diamond
         ctx.drawImage(spr, s.x - w / 2, s.y, w, h);
       }
