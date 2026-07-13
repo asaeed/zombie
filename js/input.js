@@ -98,14 +98,16 @@ class InputHandler {
     const game = this.game;
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
-    // Minimap click
+    // Minimap click — minimap is drawn in zoom-1 projected space (see renderer)
     if (this._isInMinimap(e.clientX, e.clientY)) {
       const MX = window.innerWidth - MINIMAP_W - 10;
       const MY = window.innerHeight - 110 - MINIMAP_H - 10;
-      const fx = (e.clientX - MX) / MINIMAP_W;
-      const fy = (e.clientY - MY) / MINIMAP_H;
-      const wx = fx * MAP_W * TILE, wy = fy * MAP_H * TILE;
-      centerCameraOn(game.camera, wx, wy, window.innerWidth, window.innerHeight);
+      const b = mapScreenBounds(1);
+      const s = MINIMAP_W / (b.maxX - b.minX);
+      const px = (e.clientX - MX) / s + b.minX;
+      const py = (e.clientY - MY) / s;
+      const w = screenToWorld(px, py, { x: 0, y: 0, zoom: 1 });
+      centerCameraOn(game.camera, w.x, w.y, window.innerWidth, window.innerHeight);
       clampCamera(game.camera, window.innerWidth, window.innerHeight);
       return;
     }

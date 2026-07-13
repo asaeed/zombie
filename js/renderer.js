@@ -55,6 +55,7 @@ class Renderer {
       this._drawBarracksButtons(ctx, game, game._selectedBuilding);
     }
 
+    this._drawEdgeScrollHint(ctx, input);
     this._drawHUD(ctx, game, input);
     this._drawMinimap(ctx, game);
     if (game.status === 'gameover') this._drawGameOver(ctx);
@@ -517,63 +518,124 @@ class Renderer {
     }
   }
 
+  // ── Edge-scroll affordance ────────────────────────────────────────────────
+  // Subtle glow along the hovered screen edge: hints the hot zone is clickable,
+  // brightens slightly once armed (scrolling active).
+  _drawEdgeScrollHint(ctx, input) {
+    if (!input._inEdgeZone(input.mouseX, input.mouseY)) return;
+    const armed = input._edgeScrollArmed;
+    const a = armed ? 0.13 : 0.06;
+    const W = this.W, H = this.H, M = EDGE_SCROLL_MARGIN;
+    const top = 44, bottom = H - 110; // world area between HUD bar and panel
+    const mx = input.mouseX, my = input.mouseY;
+
+    const band = (x, y, w, h, x2, y2) => {
+      const g = ctx.createLinearGradient(x, y, x2, y2);
+      g.addColorStop(0, `rgba(255,255,255,${a})`);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(Math.min(x, x2), Math.min(y, y2),
+                   w || Math.abs(x2 - x), h || Math.abs(y2 - y));
+    };
+    const arrow = (cx, cy, dx, dy) => {
+      ctx.fillStyle = `rgba(255,255,255,${armed ? 0.45 : 0.25})`;
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * 7, cy + dy * 7);
+      ctx.lineTo(cx - dx * 3 + dy * 6, cy - dy * 3 + dx * 6);
+      ctx.lineTo(cx - dx * 3 - dy * 6, cy - dy * 3 - dx * 6);
+      ctx.closePath(); ctx.fill();
+    };
+
+    if (mx < M) {
+      band(0, top, 0, bottom - top, M, top);
+      arrow(12, clamp(my, top + 12, bottom - 12), -1, 0);
+    }
+    if (mx > W - M) {
+      band(W, top, 0, bottom - top, W - M, top);
+      arrow(W - 12, clamp(my, top + 12, bottom - 12), 1, 0);
+    }
+    if (my < M + top) {
+      band(0, top, W, 0, 0, top + M);
+      arrow(clamp(mx, 12, W - 12), top + 12, 0, -1);
+    }
+    if (my > bottom - M) {
+      band(0, bottom, W, 0, 0, bottom - M);
+      arrow(clamp(mx, 12, W - 12), bottom - 12, 0, 1);
+    }
+  }
+
   // ── Minimap ───────────────────────────────────────────────────────────────
+  // Drawn in projected (zoom-1 iso) space, so minimap directions match screen
+  // directions and the camera viewport is an EXACT rectangle — true aspect
+  // ratio and true relative size. The map itself reads as a diamond.
   _drawMinimap(ctx, game) {
     const MX = this.W - MINIMAP_W - 10;
     const MY = this.H - 110 - MINIMAP_H - 10;
-    const scaleX = MINIMAP_W / (MAP_W * TILE);
-    const scaleY = MINIMAP_H / (MAP_H * TILE);
+    const b = mapScreenBounds(1);
+    const s = MINIMAP_W / (b.maxX - b.minX); // == MINIMAP_H / b.maxY (2:1 aspect)
+    const cam1 = { x: 0, y: 0, zoom: 1 };
+    const mp = (wx, wy) => {
+      const p = worldToScreen(wx, wy, cam1);
+      return [MX + (p.x - b.minX) * s, MY + p.y * s];
+    };
 
-    // Background
-    ctx.fillStyle = '#1a2a1a';
+    // Backdrop + map diamond
+    ctx.fillStyle = '#0c0e14';
     ctx.fillRect(MX, MY, MINIMAP_W, MINIMAP_H);
+    const cs = [[0, 0], [MAP_W * TILE, 0], [MAP_W * TILE, MAP_H * TILE], [0, MAP_H * TILE]]
+      .map(([wx, wy]) => mp(wx, wy));
+    ctx.fillStyle = '#1a2a1a';
+    ctx.beginPath();
+    ctx.moveTo(cs[0][0], cs[0][1]);
+    for (let i = 1; i < 4; i++) ctx.lineTo(cs[i][0], cs[i][1]);
+    ctx.closePath(); ctx.fill();
 
     // Water tiles
+    ctx.fillStyle = '#163352';
     for (let ty = 0; ty < MAP_H; ty++) {
       for (let tx = 0; tx < MAP_W; tx++) {
         if (game.tiles[ty][tx] === TILE_WATER) {
-          ctx.fillStyle = '#163352';
-          ctx.fillRect(MX + tx * MINIMAP_W / MAP_W, MY + ty * MINIMAP_H / MAP_H,
-                       MINIMAP_W / MAP_W + 1, MINIMAP_H / MAP_H + 1);
+          const [x, y] = mp(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
+          ctx.fillRect(x - 1, y - 1, 3, 2);
         }
       }
     }
 
     // Buildings
-    for (const b of game.buildings) {
-      if (b.dead) continue;
-      ctx.fillStyle = BUILDING_DEFS[b.type].color;
-      const ts = BUILDING_DEFS[b.type].tileSize;
-      ctx.fillRect(MX + b.tileX * MINIMAP_W/MAP_W, MY + b.tileY * MINIMAP_H/MAP_H,
-                   ts * MINIMAP_W/MAP_W + 1, ts * MINIMAP_H/MAP_H + 1);
+    for (const bd of game.buildings) {
+      if (bd.dead) continue;
+      ctx.fillStyle = BUILDING_DEFS[bd.type].color;
+      const [x, y] = mp(bd.x, bd.y);
+      ctx.fillRect(x - 1, y - 1, 3, 3);
     }
 
     // Units
     ctx.fillStyle = '#4a9eff';
     for (const u of game.units) {
       if (u.dead) continue;
-      ctx.fillRect(MX + u.x * scaleX - 1, MY + u.y * scaleY - 1, 3, 3);
+      const [x, y] = mp(u.x, u.y);
+      ctx.fillRect(x - 1, y - 1, 3, 3);
     }
 
     // Zombies
     ctx.fillStyle = '#ff3322';
     for (const z of game.zombies) {
       if (z.dead) continue;
-      ctx.fillRect(MX + z.x * scaleX - 1, MY + z.y * scaleY - 1, 2, 2);
+      const [x, y] = mp(z.x, z.y);
+      ctx.fillRect(x - 1, y - 1, 2, 2);
     }
 
-    // Camera viewport — axis-aligned bounding rect of the visible area
-    // (the true footprint is a rotated quad in world space; a square reads better)
+    // Camera viewport — exact: the screen rect mapped into zoom-1 projected space
     ctx.save();
     ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();
-    const pts = [[0, 0], [this.W, 0], [this.W, this.H], [0, this.H]].map(([sx, sy]) => {
-      const w = screenToWorld(sx, sy, game.camera);
-      return [MX + w.x * scaleX, MY + w.y * scaleY];
-    });
-    const vxs = pts.map(p => p[0]), vys = pts.map(p => p[1]);
-    const vx = Math.min(...vxs), vy = Math.min(...vys);
-    ctx.strokeStyle = '#ffffff55'; ctx.lineWidth = 1;
-    ctx.strokeRect(vx, vy, Math.max(...vxs) - vx, Math.max(...vys) - vy);
+    const vz = game.camera.zoom;
+    ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 1;
+    ctx.strokeRect(
+      MX + (game.camera.x / vz - b.minX) * s,
+      MY + (game.camera.y / vz) * s,
+      (this.W / vz) * s,
+      (this.H / vz) * s
+    );
     ctx.restore();
 
     // Border

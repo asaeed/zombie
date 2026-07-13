@@ -45,7 +45,7 @@ const STARTING_SUPPLIES = 500;
 const CAM_SPEED = 500; // px/sec keyboard pan
 const EDGE_SCROLL_MARGIN = 40; // px from edge triggers scroll
 const MINIMAP_W = 180;
-const MINIMAP_H = 180;
+const MINIMAP_H = 90; // projected iso map is 2:1, so the minimap diamond fits exactly
 
 // ── Isometric projection ──────────────────────────────────────────────────────
 // One world tile (TILE=40 world px) renders as a 64×32 diamond at zoom 1.
