@@ -6,10 +6,14 @@ and open localhost) and play.
 
 ## Controls
 - Left click / drag: select units · Right click: move / attack / repair
-- 1–4: build (wall, tower, barracks, depot) · Esc: cancel · Del: sell
-- Click barracks → train panel (6/7/8) · R: builder repairs nearest
-- Mouse wheel: zoom · Middle-drag / arrows / minimap click: pan
+- Build: `W`all, `T`ower, `B`arracks, `D`epot · Esc: cancel · Del: sell
+- `A` + click: attack-move · `S`: stop · `R`: builder repair · `H`: select idle units
+- `1–9`: control groups (`Shift+digit` assigns, double-tap centers)
+- Barracks: click → train panel (`Z`/`X`/`C`) · right-click sets rally point
+- Camera: wheel zoom · middle-drag / arrows / minimap click: pan
 - Click a screen edge to arm auto-scroll; moving off the edge stops it
+- `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert
+- Game over / victory: click PLAY AGAIN or press Enter
 
 ## Architecture
 - Simulation runs on a square 80×80 tile grid in world coordinates
