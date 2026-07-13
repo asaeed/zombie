@@ -19,6 +19,9 @@ class InputHandler {
     // Keyboard state
     this.keys = {};
 
+    // Middle-drag pan state
+    this._panStart = null;
+
     this._bind();
   }
 
@@ -28,8 +31,20 @@ class InputHandler {
     c.addEventListener('mousemove',   e => this._onMouseMove(e));
     c.addEventListener('mouseup',     e => this._onMouseUp(e));
     c.addEventListener('contextmenu', e => { e.preventDefault(); this._onRightClick(e); });
+    c.addEventListener('wheel', e => this._onWheel(e), { passive: false });
     window.addEventListener('keydown', e => this._onKeyDown(e));
     window.addEventListener('keyup',   e => { this.keys[e.code] = false; });
+  }
+
+  _onWheel(e) {
+    e.preventDefault();
+    const cam = this.game.camera;
+    const before = screenToWorld(e.clientX, e.clientY, cam);
+    cam.zoom = clamp(cam.zoom * Math.pow(1.0015, -e.deltaY), ZOOM_MIN, ZOOM_MAX);
+    // Keep the world point under the cursor fixed while zooming
+    cam.x = (before.x - before.y) * ISO_X * cam.zoom - e.clientX;
+    cam.y = (before.x + before.y) * ISO_Y * cam.zoom - e.clientY;
+    clampCamera(cam, window.innerWidth, window.innerHeight);
   }
 
   _screenToWorld(sx, sy) {
@@ -60,6 +75,12 @@ class InputHandler {
   }
 
   _onMouseDown(e) {
+    if (e.button === 1) {                    // middle: start drag-pan
+      e.preventDefault();
+      this._panStart = { mx: e.clientX, my: e.clientY,
+                         cx: this.game.camera.x, cy: this.game.camera.y };
+      return;
+    }
     if (e.button !== 0) return;
     this._updateMouseState(e);
 
@@ -124,6 +145,12 @@ class InputHandler {
   }
 
   _onMouseMove(e) {
+    if (this._panStart) {
+      const cam = this.game.camera;
+      cam.x = this._panStart.cx - (e.clientX - this._panStart.mx);
+      cam.y = this._panStart.cy - (e.clientY - this._panStart.my);
+      clampCamera(cam, window.innerWidth, window.innerHeight);
+    }
     this._updateMouseState(e);
 
     if (this._dragStart) {
@@ -142,6 +169,7 @@ class InputHandler {
   }
 
   _onMouseUp(e) {
+    if (e.button === 1) { this._panStart = null; return; }
     if (e.button !== 0) return;
     this._updateMouseState(e);
 
@@ -371,8 +399,9 @@ class InputHandler {
 
     if (dx !== 0 || dy !== 0) {
       const len = Math.sqrt(dx*dx + dy*dy);
-      cam.x = clamp(cam.x + (dx/len) * speed * dt, 0, Math.max(0, MAP_W*TILE - W));
-      cam.y = clamp(cam.y + (dy/len) * speed * dt, 0, Math.max(0, MAP_H*TILE - H));
+      cam.x += (dx / len) * speed * dt;
+      cam.y += (dy / len) * speed * dt;
+      clampCamera(cam, W, H);
     }
   }
 }
