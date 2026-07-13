@@ -330,13 +330,13 @@ class InputHandler {
     this.keys[e.code] = true;
     const game = this.game;
 
-    // Escape: cancel build mode / deselect
+    // Escape: cancel attack-move arm / build mode / deselect
     if (e.code === 'Escape') {
-      if (game.buildMode) {
-        game.buildMode = null;
-      } else if (this.attackMoveArm) {
+      if (this.attackMoveArm) {
         this.attackMoveArm = false;
         this.canvas.style.cursor = '';
+      } else if (game.buildMode) {
+        game.buildMode = null;
       } else {
         for (const u of game.units) u.selected = false;
         game.selected = [];
@@ -349,6 +349,10 @@ class InputHandler {
     if (buildKeys[e.code] && !e.shiftKey) {
       const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
+      if (game.buildMode) {          // last intent wins: entering build mode disarms attack-move
+        this.attackMoveArm = false;
+        this.canvas.style.cursor = '';
+      }
     }
 
     // Barracks train: Z/X/C
@@ -418,6 +422,7 @@ class InputHandler {
     if (e.code === 'KeyA' && game.selected.length > 0) {
       this.attackMoveArm = true;
       this.canvas.style.cursor = 'crosshair';
+      game.buildMode = null;         // last intent wins: arming cancels build mode
     }
 
     // S: stop all
