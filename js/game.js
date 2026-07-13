@@ -8,6 +8,7 @@ class Game {
     this.zombies     = [];
     this.projectiles = [];
     this.particles   = [];
+    this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
 
     this.supplies    = STARTING_SUPPLIES;
     this.score       = 0;
@@ -240,6 +241,7 @@ class Game {
 
     this.waveActive = true;
     this.spawnTimer = 0;
+    this._waveAlerted = false;
   }
 
   _spawnZombieFromEdge(type) {
@@ -252,6 +254,10 @@ class Game {
       case 2: x = randFloat(margin, MAP_W*TILE-margin); y = MAP_H*TILE-margin; break;
       case 3: x = margin; y = randFloat(margin, MAP_H*TILE-margin); break;
     }
+    if (!this._waveAlerted) {
+      this._waveAlerted = true;
+      this.addAlert(x, y, 'wave');
+    }
     this.zombies.push(new Zombie(type, x, y));
   }
 
@@ -263,6 +269,14 @@ class Game {
     } else if (entity instanceof Building && entity.type === 'hq') {
       this.status = 'gameover';
     }
+  }
+
+  // Deduped alert feed: skip if a recent alert already covers this area
+  addAlert(x, y, kind) {
+    for (const a of this.alerts) {
+      if (this.gameTime - a.t < 3 && dist2(x, y, a.x, a.y) < 300 * 300) return;
+    }
+    this.alerts.push({ x, y, t: this.gameTime, kind });
   }
 
   spawnMuzzleFlash(x, y) {
@@ -363,6 +377,7 @@ class Game {
     this.zombies     = this.zombies.filter(z => !z.dead);
     this.projectiles = this.projectiles.filter(p => !p.dead);
     this.particles   = this.particles.filter(p => !p.dead);
+    this.alerts      = this.alerts.filter(a => this.gameTime - a.t < 8);
 
     // Remove dead from selection
     this.selected = this.selected.filter(u => !u.dead);

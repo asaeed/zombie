@@ -359,6 +359,8 @@ class Zombie {
         if (this.atkCooldown <= 0) {
           this.atkCooldown = 1 / this.def.atkRate;
           this.atkTarget.takeDamage(this.def.atkDmg);
+          game.addAlert(this.atkTarget.x, this.atkTarget.y,
+                        this.atkTarget instanceof Building ? 'building' : 'unit');
           if (this.atkTarget.dead) {
             game.onEntityDied(this.atkTarget);
           }

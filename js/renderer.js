@@ -633,6 +633,17 @@ class Renderer {
       ctx.fillRect(x - 1, y - 1, 2, 2);
     }
 
+    // Alert pings — fading pulsing rings
+    for (const a of game.alerts) {
+      const age = game.gameTime - a.t;
+      const [ax, ay] = mp(a.x, a.y);
+      ctx.strokeStyle = `rgba(255,64,48,${Math.max(0, 0.9 - age / 8)})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(ax, ay, 3 + (age % 1.2) * 5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     // Camera viewport — exact: the screen rect mapped into zoom-1 projected space
     ctx.save();
     ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();

@@ -27,6 +27,12 @@ class InputHandler {
     // Middle-drag pan state
     this._panStart = null;
 
+    // Minimap drag-to-pan state
+    this._minimapDrag = false;
+
+    // Camera bookmarks: F1-F4, {x, y, zoom} set with Shift, jumped to plain
+    this.bookmarks = [];
+
     // Edge scrolling arms only on a click in the hot zone (hover alone is annoying)
     this._edgeScrollArmed = false;
 
@@ -84,6 +90,19 @@ class InputHandler {
     return x >= MX && x <= MX + MINIMAP_W && y >= MY && y <= MY + MINIMAP_H;
   }
 
+  // Map minimap pixel -> world point, center the camera there
+  _centerFromMinimap(sx, sy) {
+    const MX = window.innerWidth - MINIMAP_W - 10;
+    const MY = window.innerHeight - 110 - MINIMAP_H - 10;
+    const b = mapScreenBounds(1);
+    const s = MINIMAP_W / (b.maxX - b.minX);
+    const px = (sx - MX) / s + b.minX;
+    const py = (sy - MY) / s;
+    const w = screenToWorld(px, py, { x: 0, y: 0, zoom: 1 });
+    centerCameraOn(this.game.camera, w.x, w.y, window.innerWidth, window.innerHeight);
+    clampCamera(this.game.camera, window.innerWidth, window.innerHeight);
+  }
+
   // Edge-scroll hot zone: the screen borders, minus bottom panel and minimap
   _inEdgeZone(x, y) {
     const W = window.innerWidth, H = window.innerHeight, M = EDGE_SCROLL_MARGIN;
@@ -106,15 +125,8 @@ class InputHandler {
 
     // Minimap click — minimap is drawn in zoom-1 projected space (see renderer)
     if (this._isInMinimap(e.clientX, e.clientY)) {
-      const MX = window.innerWidth - MINIMAP_W - 10;
-      const MY = window.innerHeight - 110 - MINIMAP_H - 10;
-      const b = mapScreenBounds(1);
-      const s = MINIMAP_W / (b.maxX - b.minX);
-      const px = (e.clientX - MX) / s + b.minX;
-      const py = (e.clientY - MY) / s;
-      const w = screenToWorld(px, py, { x: 0, y: 0, zoom: 1 });
-      centerCameraOn(game.camera, w.x, w.y, window.innerWidth, window.innerHeight);
-      clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      this._minimapDrag = true;
+      this._centerFromMinimap(e.clientX, e.clientY);
       return;
     }
 
@@ -163,6 +175,10 @@ class InputHandler {
   }
 
   _onMouseMove(e) {
+    if (this._minimapDrag) {
+      if (!(e.buttons & 1)) this._minimapDrag = false;
+      else { this._centerFromMinimap(e.clientX, e.clientY); return; }
+    }
     if (this._panStart) {
       if (!(e.buttons & 4)) {
         this._panStart = null;
@@ -241,6 +257,7 @@ class InputHandler {
     this._dragStart = null;
     this._dragging = false;
     this._clickHandled = false;
+    this._minimapDrag = false;
     this.selectBox = null;
   }
 
@@ -352,6 +369,36 @@ class InputHandler {
         u.moveTarget = null;
         u.atkTarget = null;
       }
+    }
+
+    // Space: center on HQ
+    if (e.code === 'Space') {
+      e.preventDefault();
+      const hq = game.buildings.find(b => b.type === 'hq' && !b.dead);
+      if (hq) {
+        centerCameraOn(game.camera, hq.x, hq.y, window.innerWidth, window.innerHeight);
+        clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      }
+    }
+
+    // F1–F4: camera bookmarks (Shift sets, plain jumps)
+    const fm = /^F([1-4])$/.exec(e.code);
+    if (fm) {
+      e.preventDefault();
+      const i = fm[1] - 1;
+      if (e.shiftKey) {
+        this.bookmarks[i] = { x: game.camera.x, y: game.camera.y, zoom: game.camera.zoom };
+      } else if (this.bookmarks[i]) {
+        Object.assign(game.camera, this.bookmarks[i]);
+        clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      }
+    }
+
+    // N: jump to the most recent alert
+    if (e.code === 'KeyN' && game.alerts.length > 0) {
+      const a = game.alerts[game.alerts.length - 1];
+      centerCameraOn(game.camera, a.x, a.y, window.innerWidth, window.innerHeight);
+      clampCamera(game.camera, window.innerWidth, window.innerHeight);
     }
   }
 
