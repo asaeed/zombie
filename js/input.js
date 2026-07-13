@@ -116,6 +116,14 @@ class InputHandler {
   }
 
   _onMouseDown(e) {
+    if (this.game.status !== 'playing') {
+      const r = endScreenButtonRect(window.innerWidth, window.innerHeight);
+      if (e.button === 0 && e.clientX >= r.x && e.clientX <= r.x + r.w &&
+          e.clientY >= r.y && e.clientY <= r.y + r.h) {
+        window._newGame();
+      }
+      return;
+    }
     if (e.button === 1) {                    // middle: start drag-pan
       e.preventDefault();
       this._panStart = { mx: e.clientX, my: e.clientY,
@@ -328,6 +336,10 @@ class InputHandler {
 
   _onKeyDown(e) {
     this.keys[e.code] = true;
+    if (this.game.status !== 'playing') {
+      if (e.code === 'Enter') window._newGame();
+      return;
+    }
     const game = this.game;
 
     // Escape: cancel attack-move arm / build mode / deselect
@@ -480,6 +492,7 @@ class InputHandler {
       const y = BY;
       if (sx >= x && sx <= x + BW && sy >= y && sy <= y + BH) {
         game.buildMode = game.buildMode === type ? null : type;
+        if (game.buildMode) { this.attackMoveArm = false; this.canvas.style.cursor = ''; }
       }
     });
 

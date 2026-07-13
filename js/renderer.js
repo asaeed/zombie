@@ -703,7 +703,7 @@ class Renderer {
     ctx.fillText('Your base has fallen to the horde.', this.W/2, this.H/2 + 20);
     ctx.fillStyle = '#ffdd44';
     ctx.font = '18px monospace';
-    ctx.fillText('Press F5 to restart', this.W/2, this.H/2 + 55);
+    this._drawRestartButton(ctx);
   }
 
   _drawVictory(ctx) {
@@ -721,6 +721,21 @@ class Renderer {
     ctx.font = '20px monospace';
     ctx.fillText(`Final Score: ${window._game ? window._game.score : 0}`, this.W/2, this.H/2 + 55);
     ctx.font = '16px monospace';
-    ctx.fillText('Press F5 to play again', this.W/2, this.H/2 + 88);
+    this._drawRestartButton(ctx);
+  }
+
+  _drawRestartButton(ctx) {
+    const r = endScreenButtonRect(this.W, this.H);
+    ctx.fillStyle = 'rgba(255,221,68,0.15)';
+    roundRect(ctx, r.x, r.y, r.w, r.h, 6); ctx.fill();
+    ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 2;
+    roundRect(ctx, r.x, r.y, r.w, r.h, 6); ctx.stroke();
+    ctx.fillStyle = '#ffdd44';
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('PLAY AGAIN', r.x + r.w / 2, r.y + r.h / 2);
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#aa9944';
+    ctx.fillText('[Enter]', r.x + r.w / 2, r.y + r.h + 14);
   }
 }
