@@ -16,6 +16,11 @@ class InputHandler {
     this._dragStart = null;   // screen coords
     this._dragging = false;
 
+    // Set by mousedown paths that fully handle a click (train button,
+    // building select, attack-move) so the paired mouseup's fallback
+    // deselect logic must not run.
+    this._clickHandled = false;
+
     // Keyboard state
     this.keys = {};
 
@@ -41,6 +46,7 @@ class InputHandler {
 
   _onWheel(e) {
     e.preventDefault();
+    if (this._isInMinimap(e.clientX, e.clientY) || this._isInBottomPanel(e.clientY)) return;
     const cam = this.game.camera;
     const before = screenToWorld(e.clientX, e.clientY, cam);
     cam.zoom = clamp(cam.zoom * Math.pow(1.0015, -e.deltaY), ZOOM_MIN, ZOOM_MAX);
@@ -135,13 +141,7 @@ class InputHandler {
       const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
       if (trainResult) {
         game.trainUnit(game._selectedBuilding, trainResult);
-        // ponytail: pre-existing bug independent of the iso migration — this
-        // mousedown returns without arming a drag, so the paired mouseup fell
-        // into the "single click, no unit here" branch and immediately cleared
-        // _selectedBuilding back to null. Mark dragging so mouseup's branches
-        // (both gated on _dragging) no-op for this click and the selection sticks.
-        // Same sentinel used below for the building-select click.
-        this._dragging = true;
+        this._clickHandled = true;
         return;
       }
     }
@@ -152,7 +152,7 @@ class InputHandler {
       game._selectedBuilding = building;
       game.selected = [];
       for (const u of game.units) u.selected = false;
-      this._dragging = true;
+      this._clickHandled = true;
       return;
     }
 
@@ -176,16 +176,20 @@ class InputHandler {
     this._updateMouseState(e);
 
     if (this._dragStart) {
-      const dx = e.clientX - this._dragStart.x;
-      const dy = e.clientY - this._dragStart.y;
-      if (!this._dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
-        this._dragging = true;
-      }
-      if (this._dragging) {
-        this.selectBox = {
-          x1: this._dragStart.x, y1: this._dragStart.y,
-          x2: e.clientX,          y2: e.clientY,
-        };
+      if (!(e.buttons & 1)) {
+        this._dragStart = null; this._dragging = false; this.selectBox = null;
+      } else {
+        const dx = e.clientX - this._dragStart.x;
+        const dy = e.clientY - this._dragStart.y;
+        if (!this._dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+          this._dragging = true;
+        }
+        if (this._dragging) {
+          this.selectBox = {
+            x1: this._dragStart.x, y1: this._dragStart.y,
+            x2: e.clientX,          y2: e.clientY,
+          };
+        }
       }
     }
   }
@@ -212,7 +216,7 @@ class InputHandler {
         u.selected = true;
         if (!game.selected.includes(u)) game.selected.push(u);
       }
-    } else if (!this._dragging) {
+    } else if (!this._dragging && !this._clickHandled) {
       // Single click - select unit
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
         // Already handled in mousedown
@@ -236,6 +240,7 @@ class InputHandler {
 
     this._dragStart = null;
     this._dragging = false;
+    this._clickHandled = false;
     this.selectBox = null;
   }
 
@@ -253,10 +258,7 @@ class InputHandler {
 
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
-    // ponytail: same raised-body screen-vs-world offset as the Fix-4 unit
-    // hit-test exists here too (game.zombieAt hit-tests the world-space
-    // ground point) — deferred to phase 2, not touching game.js/zombieAt now.
-    const zombie = game.zombieAt(wx, wy);
+    const zombie = this._getZombieAt(e.clientX, e.clientY);
     if (zombie) {
       for (const u of game.selected) u.attackTarget(zombie);
       return;
@@ -395,6 +397,19 @@ class InputHandler {
     return null;
   }
 
+  // Screen-space hit-test against the drawn (raised) zombie body — mirrors
+  // _getUnitAt above.
+  _getZombieAt(sx, sy) {
+    const cam = this.game.camera, z = cam.zoom;
+    for (const zb of this.game.zombies) {
+      if (zb.dead) continue;
+      const s = worldToScreen(zb.x, zb.y, cam);
+      const r = zb.def.radius * z;
+      if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return zb;
+    }
+    return null;
+  }
+
   _getBuildingAt(wx, wy) {
     for (const b of this.game.buildings) {
       if (b.dead) continue;
@@ -412,10 +427,10 @@ class InputHandler {
 
     let dx = 0, dy = 0;
 
-    if (this.keys['ArrowLeft']  || this.keys['KeyA'] && game.selected.length === 0) dx -= 1;
-    if (this.keys['ArrowRight'] || this.keys['KeyD'] && game.selected.length === 0) dx += 1;
-    if (this.keys['ArrowUp']    || this.keys['KeyW'] && game.selected.length === 0) dy -= 1;
-    if (this.keys['ArrowDown']  || this.keys['KeyS'] && game.selected.length === 0) dy += 1;
+    if (this.keys['ArrowLeft'])  dx -= 1;
+    if (this.keys['ArrowRight']) dx += 1;
+    if (this.keys['ArrowUp'])    dy -= 1;
+    if (this.keys['ArrowDown'])  dy += 1;
 
     // Edge scrolling — armed by a click in the hot zone, disarmed on leaving it
     const mx = this.mouseX, my = this.mouseY;

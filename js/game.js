@@ -194,14 +194,6 @@ class Game {
     return null;
   }
 
-  zombieAt(wx, wy) {
-    for (const z of this.zombies) {
-      if (z.dead) continue;
-      if (dist2(wx, wy, z.x, z.y) < z.def.radius * z.def.radius * 2) return z;
-    }
-    return null;
-  }
-
   // Box-select against projected positions: what you see is what you select
   unitsInScreenRect(x1, y1, x2, y2) {
     const lx = Math.min(x1, x2), rx = Math.max(x1, x2);
