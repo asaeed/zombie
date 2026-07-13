@@ -15,6 +15,9 @@
   const renderer = new Renderer(canvas);
   const input    = new InputHandler(canvas, game);
 
+  // Keep renderer.W/H (used by HUD/minimap layout) in sync with the canvas
+  window.addEventListener('resize', () => renderer.resize());
+
   // Expose for debug / victory screen score
   window._game = game;
 

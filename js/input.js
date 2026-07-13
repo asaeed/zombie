@@ -42,8 +42,9 @@ class InputHandler {
     const before = screenToWorld(e.clientX, e.clientY, cam);
     cam.zoom = clamp(cam.zoom * Math.pow(1.0015, -e.deltaY), ZOOM_MIN, ZOOM_MAX);
     // Keep the world point under the cursor fixed while zooming
-    cam.x = (before.x - before.y) * ISO_X * cam.zoom - e.clientX;
-    cam.y = (before.x + before.y) * ISO_Y * cam.zoom - e.clientY;
+    const s = worldToScreen(before.x, before.y, { x: 0, y: 0, zoom: cam.zoom });
+    cam.x = s.x - e.clientX;
+    cam.y = s.y - e.clientY;
     clampCamera(cam, window.innerWidth, window.innerHeight);
   }
 
@@ -119,6 +120,13 @@ class InputHandler {
       const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
       if (trainResult) {
         game.trainUnit(game._selectedBuilding, trainResult);
+        // ponytail: pre-existing bug independent of the iso migration — this
+        // mousedown returns without arming a drag, so the paired mouseup fell
+        // into the "single click, no unit here" branch and immediately cleared
+        // _selectedBuilding back to null. Mark dragging so mouseup's branches
+        // (both gated on _dragging) no-op for this click and the selection sticks.
+        // Same sentinel used below for the building-select click.
+        this._dragging = true;
         return;
       }
     }
@@ -129,11 +137,6 @@ class InputHandler {
       game._selectedBuilding = building;
       game.selected = [];
       for (const u of game.units) u.selected = false;
-      // ponytail: pre-existing bug independent of the iso migration — this
-      // mousedown returns without arming a drag, so the paired mouseup fell
-      // into the "single click, no unit here" branch and immediately cleared
-      // _selectedBuilding back to null. Mark dragging so mouseup's branches
-      // (both gated on _dragging) no-op for this click and the selection sticks.
       this._dragging = true;
       return;
     }
@@ -146,10 +149,14 @@ class InputHandler {
 
   _onMouseMove(e) {
     if (this._panStart) {
-      const cam = this.game.camera;
-      cam.x = this._panStart.cx - (e.clientX - this._panStart.mx);
-      cam.y = this._panStart.cy - (e.clientY - this._panStart.my);
-      clampCamera(cam, window.innerWidth, window.innerHeight);
+      if (!(e.buttons & 4)) {
+        this._panStart = null;
+      } else {
+        const cam = this.game.camera;
+        cam.x = this._panStart.cx - (e.clientX - this._panStart.mx);
+        cam.y = this._panStart.cy - (e.clientY - this._panStart.my);
+        clampCamera(cam, window.innerWidth, window.innerHeight);
+      }
     }
     this._updateMouseState(e);
 
@@ -195,7 +202,7 @@ class InputHandler {
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
         // Already handled in mousedown
       } else if (!game.buildMode) {
-        const unit = this._getUnitAt(wx, wy);
+        const unit = this._getUnitAt(e.clientX, e.clientY);
         if (unit) {
           if (!e.shiftKey) {
             for (const u of game.units) u.selected = false;
@@ -231,7 +238,9 @@ class InputHandler {
 
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
-    // Check if right-clicking a zombie
+    // ponytail: same raised-body screen-vs-world offset as the Fix-4 unit
+    // hit-test exists here too (game.zombieAt hit-tests the world-space
+    // ground point) — deferred to phase 2, not touching game.js/zombieAt now.
     const zombie = game.zombieAt(wx, wy);
     if (zombie) {
       for (const u of game.selected) u.attackTarget(zombie);
@@ -358,10 +367,15 @@ class InputHandler {
     return null;
   }
 
-  _getUnitAt(wx, wy) {
+  // Hit-tests in screen space against the projected, raised body (renderer
+  // draws units at s.y - r*1.2, not at their ground point).
+  _getUnitAt(sx, sy) {
+    const cam = this.game.camera, z = cam.zoom;
     for (const u of this.game.units) {
       if (u.dead) continue;
-      if (dist2(wx, wy, u.x, u.y) < (u.def.radius + 4) ** 2) return u;
+      const s = worldToScreen(u.x, u.y, cam);
+      const r = u.def.radius * z;
+      if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return u;
     }
     return null;
   }

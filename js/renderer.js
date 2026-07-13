@@ -92,6 +92,8 @@ class Renderer {
     for (const b of game.buildings) {
       if (b.dead) continue;
       const ts = b.def.tileSize;
+      // ponytail: scalar far-corner key; units beside tall E/W faces can be
+      // overdrawn at footprint edges — exact per-tile sort lands with phase-7 sprites
       drawables.push({ key: (b.tileX + ts) * TILE + (b.tileY + ts) * TILE,
                        draw: () => this._drawBuilding(ctx, game, b) });
     }
