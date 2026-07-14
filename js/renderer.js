@@ -490,7 +490,8 @@ class Renderer {
     // ── Building selected ──────────────────────────────────────────────────
     if (selB && !selB.dead) {
       const def = BUILDING_DEFS[selB.type];
-      const PH = 68, PW = 220, PX = 10;
+      const isBarracks = selB.type === 'barracks';
+      const PH = isBarracks ? 84 : 68, PW = 260, PX = 10;
       const PY = this.H - 110 - PH - 8;
 
       ctx.fillStyle = 'rgba(0,0,0,0.85)';
@@ -504,6 +505,10 @@ class Renderer {
       ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
       ctx.fillText(`HP: ${Math.ceil(selB.hp)} / ${selB.maxHp}`, PX + 10, PY + 28);
       this._drawHealthBar(ctx, PX + 10, PY + 46, PW - 20, 6, selB.hp / selB.maxHp);
+      if (isBarracks) {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('Right-click ground: set rally · Z/X/C: train', PX + 10, PY + 62);
+      }
       ctx.fillStyle = '#555'; ctx.font = '9px monospace';
       ctx.textAlign = 'right';
       ctx.fillText('[Del] sell 50%', PX + PW - 8, PY + 10);
@@ -531,6 +536,9 @@ class Renderer {
       if (u.type === 'builder') {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
         ctx.fillText('R: repair nearest building', PX + 10, PY + 60);
+      } else {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('A + click: attack-move · S: stop', PX + 10, PY + 60);
       }
     } else {
       ctx.fillStyle = '#eee'; ctx.font = 'bold 13px monospace';
@@ -543,6 +551,8 @@ class Renderer {
         ctx.fillText(`${UNIT_DEFS[type].name}: ${n}`, PX + 10, PY + row);
         row += 16;
       }
+      ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+      ctx.fillText('A + click: attack-move · S: stop · Shift+1-9: group', PX + 10, PY + PH - 16);
     }
   }
 
