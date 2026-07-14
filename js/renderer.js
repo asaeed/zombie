@@ -6,6 +6,10 @@ class Renderer {
     this.ctx = canvas.getContext('2d');
     this.resize();
     this._tileSprites = this._makeTileSprites();
+
+    this._mmLayer = document.createElement('canvas');
+    this._mmLayer.width = MINIMAP_W; this._mmLayer.height = MINIMAP_H;
+    this._mmLayerAt = -1;   // gameTime of last rebuild
   }
 
   resize() {
@@ -39,6 +43,15 @@ class Renderer {
       [TILE_WATER]: [mk('#1a3a5c', '#4a7ab0'), mk('#163352', '#4a7ab0')],
     };
     sprites.waste = [mk('#1c2415'), mk('#171e11')]; // off-map wasteland skirt
+    sprites.unexplored = [mk('#0a0d08'), mk('#0a0d08')];   // in-map, never seen
+    const dim = document.createElement('canvas');
+    dim.width = 64; dim.height = 32;
+    const dg = dim.getContext('2d');
+    dg.fillStyle = 'rgba(8,10,24,0.45)';
+    dg.beginPath();
+    dg.moveTo(32, 0); dg.lineTo(64, 16); dg.lineTo(32, 32); dg.lineTo(0, 16);
+    dg.closePath(); dg.fill();
+    sprites.dim = dim;                                     // explored-not-visible overlay
     return sprites;
   }
 
@@ -87,10 +100,19 @@ class Renderer {
       for (let tx = tx0; tx < tx1; tx++) {
         const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
         const shade = (((tx + ty) % 2) + 2) % 2;
-        const spr = inMap ? this._tileSprites[game.tiles[ty][tx]][shade]
-                          : this._tileSprites.waste[shade];
-        const s = worldToScreen(tx * TILE, ty * TILE, cam); // north corner of the diamond
-        ctx.drawImage(spr, s.x - w / 2, s.y, w, h);
+        const s = worldToScreen(tx * TILE, ty * TILE, cam);
+        if (!inMap) {
+          ctx.drawImage(this._tileSprites.waste[shade], s.x - w / 2, s.y, w, h);
+          continue;
+        }
+        if (!game.tileExplored(tx, ty)) {
+          ctx.drawImage(this._tileSprites.unexplored[shade], s.x - w / 2, s.y, w, h);
+          continue;
+        }
+        ctx.drawImage(this._tileSprites[game.tiles[ty][tx]][shade], s.x - w / 2, s.y, w, h);
+        if (!game.tileVisible(tx, ty)) {
+          ctx.drawImage(this._tileSprites.dim, s.x - w / 2, s.y, w, h);
+        }
       }
     }
   }
@@ -100,6 +122,7 @@ class Renderer {
   _drawEntities(ctx, game) {
     const drawables = [];
     for (const c of game.caches) {
+      if (!game.tileExplored(c.tileX, c.tileY)) continue;
       drawables.push({ key: (c.tileX + 1) * TILE + (c.tileY + 1) * TILE,
                        draw: () => this._drawCache(ctx, game, c) });
     }
@@ -117,6 +140,7 @@ class Renderer {
     }
     for (const z of game.zombies) {
       if (z.dead) continue;
+      if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       drawables.push({ key: z.x + z.y, draw: () => this._drawZombie(ctx, game, z) });
     }
     drawables.sort((a, b) => a.key - b.key);
@@ -321,6 +345,7 @@ class Renderer {
   _drawBundles(ctx, game) {
     const cam = game.camera, z = cam.zoom;
     for (const bd of game.bundles) {
+      if (!game.tileVisible(Math.floor(bd.x / TILE), Math.floor(bd.y / TILE))) continue;
       const s = worldToScreen(bd.x, bd.y, cam);
       ctx.fillStyle = '#b08040';
       ctx.beginPath(); ctx.arc(s.x, s.y - 3 * z, 5 * z, 0, Math.PI * 2); ctx.fill();
@@ -683,27 +708,38 @@ class Renderer {
       return [MX + (p.x - b.minX) * s, MY + p.y * s];
     };
 
-    // Backdrop + map diamond
+    // Backdrop
     ctx.fillStyle = '#0c0e14';
     ctx.fillRect(MX, MY, MINIMAP_W, MINIMAP_H);
-    const cs = [[0, 0], [MAP_W * TILE, 0], [MAP_W * TILE, MAP_H * TILE], [0, MAP_H * TILE]]
-      .map(([wx, wy]) => mp(wx, wy));
-    ctx.fillStyle = '#1a2a1a';
-    ctx.beginPath();
-    ctx.moveTo(cs[0][0], cs[0][1]);
-    for (let i = 1; i < 4; i++) ctx.lineTo(cs[i][0], cs[i][1]);
-    ctx.closePath(); ctx.fill();
 
-    // Water tiles
-    ctx.fillStyle = '#163352';
-    for (let ty = 0; ty < MAP_H; ty++) {
-      for (let tx = 0; tx < MAP_W; tx++) {
-        if (game.tiles[ty][tx] === TILE_WATER) {
-          const [x, y] = mp(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
-          ctx.fillRect(x - 1, y - 1, 3, 2);
+    // Fog-masked static layer: unexplored dark diamond + explored terrain/water,
+    // rebuilt at most 4×/sim-second rather than filled fresh every frame
+    if (game.gameTime - this._mmLayerAt > 0.25 || this._mmLayerAt < 0) {
+      this._mmLayerAt = game.gameTime;
+      const g = this._mmLayer.getContext('2d');
+      g.clearRect(0, 0, MINIMAP_W, MINIMAP_H);
+      const lmp = (wx, wy) => {           // layer-local mp (no MX/MY offset)
+        const p = worldToScreen(wx, wy, cam1);
+        return [(p.x - b.minX) * s, p.y * s];
+      };
+      // Map diamond, dark (unexplored base)
+      const lcs = [[0, 0], [MAP_W * TILE, 0], [MAP_W * TILE, MAP_H * TILE], [0, MAP_H * TILE]]
+        .map(([wx, wy]) => lmp(wx, wy));
+      g.fillStyle = '#0a0d08';
+      g.beginPath(); g.moveTo(lcs[0][0], lcs[0][1]);
+      for (let i = 1; i < 4; i++) g.lineTo(lcs[i][0], lcs[i][1]);
+      g.closePath(); g.fill();
+      // Explored tiles: terrain green / water blue
+      for (let ty = 0; ty < MAP_H; ty++) {
+        for (let tx = 0; tx < MAP_W; tx++) {
+          if (!game.tileExplored(tx, ty)) continue;
+          g.fillStyle = game.tiles[ty][tx] === TILE_WATER ? '#163352' : '#1a2a1a';
+          const [x, y] = lmp(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
+          g.fillRect(x - 1, y - 1, 3, 2);
         }
       }
     }
+    ctx.drawImage(this._mmLayer, MX, MY);
 
     // Buildings
     for (const bd of game.buildings) {
@@ -715,6 +751,7 @@ class Renderer {
 
     // Caches
     for (const c of game.caches) {
+      if (!game.tileExplored(c.tileX, c.tileY)) continue;
       ctx.fillStyle = c.empty ? '#555555' : '#c9a94a';
       const [x, y] = mp(c.x, c.y);
       ctx.fillRect(x - 1, y - 1, 2, 2);
@@ -732,6 +769,7 @@ class Renderer {
     ctx.fillStyle = '#ff3322';
     for (const z of game.zombies) {
       if (z.dead) continue;
+      if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const [x, y] = mp(z.x, z.y);
       ctx.fillRect(x - 1, y - 1, 2, 2);
     }

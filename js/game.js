@@ -12,6 +12,10 @@ class Game {
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
 
+    this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
+    this.fogExplored = new Uint8Array(MAP_W * MAP_H);
+    this._fogTimer   = 0;
+
     this.supplies    = STARTING_SUPPLIES;
     this.score       = 0;
     this.waveNum     = 0;
@@ -46,6 +50,8 @@ class Game {
       centerCameraOn(this.camera, hq.x, hq.y, window.innerWidth, window.innerHeight);
       clampCamera(this.camera, window.innerWidth, window.innerHeight);
     }
+
+    this._recomputeFog();
   }
 
   _generateMap() {
@@ -235,6 +241,34 @@ class Game {
     return false;
   }
 
+  // ── Fog of war ─────────────────────────────────────────────────────────────────
+  tileVisible(tx, ty)  { return tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H && this.fogVisible[ty * MAP_W + tx] === 1; }
+  tileExplored(tx, ty) { return tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H && this.fogExplored[ty * MAP_W + tx] === 1; }
+
+  _markVision(wx, wy, radiusTiles) {
+    const ctx0 = Math.floor(wx / TILE), cty0 = Math.floor(wy / TILE);
+    const r = Math.ceil(radiusTiles);
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (dx * dx + dy * dy > radiusTiles * radiusTiles) continue;
+        const tx = ctx0 + dx, ty = cty0 + dy;
+        if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) continue;
+        this.fogVisible[ty * MAP_W + tx] = 1;
+        this.fogExplored[ty * MAP_W + tx] = 1;
+      }
+    }
+  }
+
+  _recomputeFog() {
+    this.fogVisible.fill(0);
+    for (const u of this.units) {
+      if (!u.dead) this._markVision(u.x, u.y, VISION[u.type]);
+    }
+    for (const b of this.buildings) {
+      if (!b.dead) this._markVision(b.x, b.y, VISION[b.type] ?? 4);
+    }
+  }
+
   // ── Waves ─────────────────────────────────────────────────────────────────────
   _scheduleWave() {
     this.waveNum++;
@@ -337,6 +371,12 @@ class Game {
     // Rebuild flow field if dirty
     if (this.flowDirty) {
       this._rebuildFlowField();
+    }
+
+    this._fogTimer -= dt;
+    if (this._fogTimer <= 0) {
+      this._fogTimer = FOG_INTERVAL;
+      this._recomputeFog();
     }
 
     // Wave timer
