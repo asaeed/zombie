@@ -264,7 +264,6 @@ class Game {
   // ── Events ───────────────────────────────────────────────────────────────────
   onEntityDied(entity) {
     if (entity instanceof Zombie) {
-      this.supplies += entity.def.reward;
       this.score += entity.def.reward * 10;
     } else if (entity instanceof Building && entity.type === 'hq') {
       this.status = 'gameover';
@@ -339,6 +338,7 @@ class Game {
       }
       if (this.zombiesToSpawn.length === 0 && this.zombies.filter(z => !z.dead).length === 0) {
         this.waveActive = false;
+        this.supplies += 25 + 10 * this.waveNum;   // wave-clear bonus
       }
     }
 

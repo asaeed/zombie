@@ -79,9 +79,6 @@ class Building {
     this.trainQueue = [];
     this.trainProgress = 0;
 
-    // Income (depot)
-    this.incomeTimer = 0;
-
     // Rally point for trained units (barracks)
     this.rally = null;
   }
@@ -112,15 +109,6 @@ class Building {
           this.x, this.y, this.atkTarget, this.def.atkDmg, 380, '#ffdd44'
         ));
         game.spawnMuzzleFlash(this.x, this.y);
-      }
-    }
-
-    // Depot income
-    if (this.type === 'depot') {
-      this.incomeTimer += dt;
-      if (this.incomeTimer >= 1) {
-        this.incomeTimer -= 1;
-        game.supplies += this.def.income;
       }
     }
 
@@ -236,8 +224,9 @@ class Unit {
           this._moveToward(this.repairTarget.x, this.repairTarget.y, dt, game);
         } else {
           this.repairCooldown -= dt;
-          if (this.repairCooldown <= 0) {
+          if (this.repairCooldown <= 0 && game.supplies >= REPAIR_TICK_COST) {
             this.repairCooldown = 0.5;
+            game.supplies -= REPAIR_TICK_COST;
             this.repairTarget.hp = Math.min(this.repairTarget.maxHp, this.repairTarget.hp + 20);
           }
         }
