@@ -132,6 +132,64 @@ class Building {
   }
 }
 
+// ─── Cache (searchable scavenge site) ─────────────────────────────────────────
+class Cache {
+  constructor(kind, tileX, tileY) {
+    this.id = nextId();
+    this.kind = kind;                 // 'car' | 'cabin' | 'bin' (cosmetic)
+    this.tileX = tileX; this.tileY = tileY;
+    this.x = tileCenterX(tileX); this.y = tileCenterY(tileY);
+    this.searched = false;
+    this.empty = false;
+    this.amount = 0;                  // rolled at search time
+    this.searchProgress = 0;
+  }
+
+  update(dt, game) {
+    if (this.empty) return;
+    const nearby = game.units.filter(u => !u.dead &&
+      dist2(u.x, u.y, this.x, this.y) < (SEARCH_RADIUS * TILE) ** 2);
+    if (nearby.length === 0) return;
+
+    if (!this.searched) {
+      this.searchProgress += dt;
+      if (this.searchProgress >= SEARCH_TIME) {
+        this.searched = true;
+        this.amount = this._rollContents();
+        if (this.amount === 0) this.empty = true;
+      }
+      return;
+    }
+
+    // Searched with contents: adjacent units auto-load up to capacity
+    for (const u of nearby) {
+      if (this.amount <= 0) break;
+      const cap = CARRY_CAPACITY[u.type] - u.carrying;
+      if (cap <= 0) continue;
+      const take = Math.min(cap, this.amount);
+      u.carrying += take;
+      this.amount -= take;
+    }
+    if (this.amount <= 0) this.empty = true;
+  }
+
+  // Distance-weighted roll: farther from center = richer
+  _rollContents() {
+    const cx = MAP_W * TILE / 2, cy = MAP_H * TILE / 2;
+    const f = clamp(dist(this.x, this.y, cx, cy) / (MAP_W * TILE / 2), 0, 1);
+    const weights = [
+      [30 - 10 * f, () => 0],
+      [45 - 20 * f, () => randInt(30, 60)],
+      [20 + 15 * f, () => randInt(80, 150)],
+      [5 + 15 * f,  () => randInt(200, 280)],
+    ];
+    const total = weights.reduce((s, [w]) => s + w, 0);
+    let r = randFloat(0, total);
+    for (const [w, roll] of weights) { if ((r -= w) <= 0) return roll(); }
+    return 0;
+  }
+}
+
 // ─── Unit ─────────────────────────────────────────────────────────────────────
 class Unit {
   constructor(type, x, y) {
@@ -149,6 +207,7 @@ class Unit {
     this.atkCooldown = 0;
     this.moveTarget = null;    // {x, y} destination
     this.attackMove = false;   // pause at enemies encountered en route
+    this.carrying = 0;         // scavenged supplies being hauled
 
     // Slight random offset for formation
     this.formationOffset = { x: 0, y: 0 };
@@ -191,6 +250,28 @@ class Unit {
     if (this.dead) return;
 
     this.atkCooldown -= dt;
+
+    // Bank carried supplies at any drop point
+    if (this.carrying > 0) {
+      for (const b of game.buildings) {
+        if (b.dead || (b.type !== 'hq' && b.type !== 'depot')) continue;
+        if (dist2(this.x, this.y, b.x, b.y) < (DROP_RADIUS * TILE) ** 2) {
+          game.supplies += this.carrying;
+          this.carrying = 0;
+          break;
+        }
+      }
+    }
+
+    // Pick up dropped bundles on contact
+    for (const bd of game.bundles) {
+      if (bd.amount <= 0) continue;
+      if (dist2(this.x, this.y, bd.x, bd.y) < (SEARCH_RADIUS * TILE) ** 2) {
+        const take = Math.min(CARRY_CAPACITY[this.type] - this.carrying, bd.amount);
+        bd.amount -= take;
+        this.carrying += take;
+      }
+    }
 
     // If attack target is dead, clear it
     if (this.atkTarget && this.atkTarget.dead) {

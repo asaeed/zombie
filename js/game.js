@@ -9,6 +9,8 @@ class Game {
     this.projectiles = [];
     this.particles   = [];
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
+    this.caches      = [];
+    this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
 
     this.supplies    = STARTING_SUPPLIES;
     this.score       = 0;
@@ -35,6 +37,7 @@ class Game {
   start() {
     this._generateMap();
     this._placeStartingEntities();
+    this._placeCaches();
     this._rebuildFlowField();
 
     // Center camera on HQ
@@ -94,6 +97,20 @@ class Game {
     this.spawnUnit('soldier', tileCenterX(cx + 3), tileCenterY(cy));
     this.spawnUnit('soldier', tileCenterX(cx),     tileCenterY(cy - 3));
     this.spawnUnit('builder', tileCenterX(cx - 2), tileCenterY(cy + 3));
+  }
+
+  _placeCaches() {
+    const cx = MAP_W / 2, cy = MAP_H / 2;
+    let attempts = 0;
+    while (this.caches.length < CACHE_COUNT && attempts++ < 2000) {
+      const tx = randInt(2, MAP_W - 3), ty = randInt(2, MAP_H - 3);
+      const df = Math.hypot(tx - cx, ty - cy);
+      if (df < CACHE_MIN_CENTER_DIST) continue;
+      if (randFloat(0, 1) > df / (MAP_W / 2)) continue;          // density rises outward
+      if (this.tiles[ty][tx] === TILE_WATER) continue;
+      if (this.caches.some(c => Math.hypot(c.tileX - tx, c.tileY - ty) < 3)) continue;
+      this.caches.push(new Cache(CACHE_TYPES[randInt(0, 2)], tx, ty));
+    }
   }
 
   // ── Flow Field ──────────────────────────────────────────────────────────────
@@ -356,6 +373,13 @@ class Game {
     // Update zombies
     for (const z of this.zombies) z.update(dt, this);
 
+    // Update caches (auto-search + auto-load on adjacency)
+    for (const c of this.caches) c.update(dt, this);
+
+    // Bundle expiry
+    for (const bd of this.bundles) bd.t += dt;
+    this.bundles = this.bundles.filter(bd => bd.amount > 0 && bd.t < BUNDLE_TTL);
+
     // Update projectiles (may kill zombies)
     for (const p of this.projectiles) p.update(dt);
 
@@ -370,6 +394,14 @@ class Game {
 
     // Update particles
     for (const p of this.particles) p.update(dt);
+
+    // Death-drop: dying units spill their carried supplies as a bundle
+    for (const u of this.units) {
+      if (u.dead && u.carrying > 0) {
+        this.bundles.push({ x: u.x, y: u.y, amount: u.carrying, t: 0 });
+        u.carrying = 0;
+      }
+    }
 
     // Cleanup dead entities
     this.buildings   = this.buildings.filter(b => !b.dead);
