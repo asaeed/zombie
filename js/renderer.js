@@ -175,6 +175,18 @@ class Renderer {
         this._drawHealthBar(ctx, cx - barW / 2, topY - 24 * z, barW, 4, pct, '#44aaff');
       }
     }
+
+    if (b.type === 'barracks' && b.rally && game._selectedBuilding === b) {
+      const rp = worldToScreen(b.rally.x, b.rally.y, cam);
+      this._groundEllipse(ctx, rp, 8, z);
+      ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.strokeStyle = '#ffdd44';
+      ctx.beginPath(); ctx.moveTo(rp.x, rp.y); ctx.lineTo(rp.x, rp.y - 18 * z); ctx.stroke();
+      ctx.fillStyle = '#ffdd44';
+      ctx.beginPath();
+      ctx.moveTo(rp.x, rp.y - 18 * z); ctx.lineTo(rp.x + 10 * z, rp.y - 14 * z); ctx.lineTo(rp.x, rp.y - 10 * z);
+      ctx.closePath(); ctx.fill();
+    }
   }
 
   _drawUnit(ctx, game, u) {
@@ -292,7 +304,7 @@ class Renderer {
       ctx.fillText(`$${udef.cost}`, rc.x + 26, rc.y + 32);
       ctx.fillStyle = '#666';
       ctx.font = '10px monospace';
-      ctx.fillText(`${udef.trainTime}s  [${i + 6}]`, rc.x + 26, rc.y + 47);
+      ctx.fillText(`${udef.trainTime}s  [${['Z','X','C'][i]}]`, rc.x + 26, rc.y + 47);
     }
 
     if (b.trainQueue.length > 0) {
@@ -395,6 +407,13 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 12, 22);
 
+    if (input.attackMoveArm) {
+      ctx.fillStyle = '#ff8866';
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('ATTACK-MOVE — click target (Esc cancels)', this.W / 2, 58);
+    }
+
     // Bottom panel
     this._drawBottomPanel(ctx, game);
 
@@ -450,7 +469,8 @@ class Renderer {
       // Hotkey hint
       ctx.fillStyle = '#888';
       ctx.font = '9px monospace';
-      ctx.fillText(`[${i+1}]`, x + BW - 14, y + 12);
+      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D' };
+      ctx.fillText(`[${hotkeys[type]}]`, x + BW - 14, y + 12);
       ctx.font = 'bold 12px monospace';
     });
 
@@ -458,9 +478,9 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('BUILD (1-4) | ESC: cancel | Right-click: move/attack | Box-select: drag', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('R: builder repair  |  Del: sell selected building  |  Arrows: scroll, click edge: auto-scroll', BX + buildables.length * (BW + gap) + 8, PY + 48);
-    ctx.fillText('Click a Barracks building to open TRAIN panel (keys 6/7/8)', BX + buildables.length * (BW + gap) + 8, PY + 66);
+    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
+    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 
   _drawSelectionPanel(ctx, game) {
@@ -470,7 +490,8 @@ class Renderer {
     // ── Building selected ──────────────────────────────────────────────────
     if (selB && !selB.dead) {
       const def = BUILDING_DEFS[selB.type];
-      const PH = 68, PW = 220, PX = 10;
+      const isBarracks = selB.type === 'barracks';
+      const PH = isBarracks ? 84 : 68, PW = 260, PX = 10;
       const PY = this.H - 110 - PH - 8;
 
       ctx.fillStyle = 'rgba(0,0,0,0.85)';
@@ -484,6 +505,10 @@ class Renderer {
       ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
       ctx.fillText(`HP: ${Math.ceil(selB.hp)} / ${selB.maxHp}`, PX + 10, PY + 28);
       this._drawHealthBar(ctx, PX + 10, PY + 46, PW - 20, 6, selB.hp / selB.maxHp);
+      if (isBarracks) {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('Right-click ground: set rally · Z/X/C: train', PX + 10, PY + 62);
+      }
       ctx.fillStyle = '#555'; ctx.font = '9px monospace';
       ctx.textAlign = 'right';
       ctx.fillText('[Del] sell 50%', PX + PW - 8, PY + 10);
@@ -511,6 +536,9 @@ class Renderer {
       if (u.type === 'builder') {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
         ctx.fillText('R: repair nearest building', PX + 10, PY + 60);
+      } else {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('A + click: attack-move · S: stop', PX + 10, PY + 60);
       }
     } else {
       ctx.fillStyle = '#eee'; ctx.font = 'bold 13px monospace';
@@ -523,6 +551,8 @@ class Renderer {
         ctx.fillText(`${UNIT_DEFS[type].name}: ${n}`, PX + 10, PY + row);
         row += 16;
       }
+      ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+      ctx.fillText('A + click: attack-move · S: stop · Shift+1-9: group', PX + 10, PY + PH - 16);
     }
   }
 
@@ -633,6 +663,17 @@ class Renderer {
       ctx.fillRect(x - 1, y - 1, 2, 2);
     }
 
+    // Alert pings — fading pulsing rings
+    for (const a of game.alerts) {
+      const age = game.gameTime - a.t;
+      const [ax, ay] = mp(a.x, a.y);
+      ctx.strokeStyle = `rgba(255,64,48,${Math.max(0, 0.9 - age / 8)})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(ax, ay, 3 + (age % 1.2) * 5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     // Camera viewport — exact: the screen rect mapped into zoom-1 projected space
     ctx.save();
     ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();
@@ -672,7 +713,7 @@ class Renderer {
     ctx.fillText('Your base has fallen to the horde.', this.W/2, this.H/2 + 20);
     ctx.fillStyle = '#ffdd44';
     ctx.font = '18px monospace';
-    ctx.fillText('Press F5 to restart', this.W/2, this.H/2 + 55);
+    this._drawRestartButton(ctx);
   }
 
   _drawVictory(ctx) {
@@ -689,7 +730,21 @@ class Renderer {
     ctx.fillStyle = '#ffdd44';
     ctx.font = '20px monospace';
     ctx.fillText(`Final Score: ${window._game ? window._game.score : 0}`, this.W/2, this.H/2 + 55);
-    ctx.font = '16px monospace';
-    ctx.fillText('Press F5 to play again', this.W/2, this.H/2 + 88);
+    this._drawRestartButton(ctx);
+  }
+
+  _drawRestartButton(ctx) {
+    const r = endScreenButtonRect(this.W, this.H);
+    ctx.fillStyle = 'rgba(255,221,68,0.15)';
+    roundRect(ctx, r.x, r.y, r.w, r.h, 6); ctx.fill();
+    ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 2;
+    roundRect(ctx, r.x, r.y, r.w, r.h, 6); ctx.stroke();
+    ctx.fillStyle = '#ffdd44';
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('PLAY AGAIN', r.x + r.w / 2, r.y + r.h / 2);
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#aa9944';
+    ctx.fillText('[Enter]', r.x + r.w / 2, r.y + r.h + 14);
   }
 }

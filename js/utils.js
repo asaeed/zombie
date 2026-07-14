@@ -99,6 +99,12 @@ function shadeColor(hex, f) {
   return `rgb(${r},${g},${b})`;
 }
 
+// Screen-space "play again" button on the end screens
+// (renderer draws it, input hit-tests it)
+function endScreenButtonRect(W, H) {
+  return { x: W / 2 - 90, y: H / 2 + 80, w: 180, h: 44 };
+}
+
 // Screen-space rects for the barracks train buttons, anchored under the
 // building's projected south corner. Renderer draws these; input hit-tests
 // them — keep this the single source of truth for that layout.

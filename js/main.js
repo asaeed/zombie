@@ -11,7 +11,7 @@
   resize();
   window.addEventListener('resize', resize);
 
-  const game     = new Game();
+  let game       = new Game();
   const renderer = new Renderer(canvas);
   const input    = new InputHandler(canvas, game);
 
@@ -22,6 +22,18 @@
   window._game = game;
 
   game.start();
+
+  window._newGame = function () {
+    game = new Game();
+    input.game = game;
+    input.attackMoveArm = false;
+    input.canvas.style.cursor = '';
+    input.groups = {};
+    input._lastGroupTap = null;
+    input._panStart = null;
+    window._game = game;
+    game.start();
+  };
 
   let lastTime = 0;
 

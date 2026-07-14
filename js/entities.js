@@ -81,6 +81,9 @@ class Building {
 
     // Income (depot)
     this.incomeTimer = 0;
+
+    // Rally point for trained units (barracks)
+    this.rally = null;
   }
 
   get def() { return BUILDING_DEFS[this.type]; }
@@ -132,7 +135,10 @@ class Building {
         // Spawn near barracks
         const spawnX = this.x + randFloat(-TILE, TILE);
         const spawnY = this.y + this.height / 2 + TILE * 1.5;
-        game.spawnUnit(unitType, spawnX, spawnY);
+        const u = game.spawnUnit(unitType, spawnX, spawnY);
+        if (this.rally) {
+          u.moveTo(this.rally.x + randFloat(-20, 20), this.rally.y + randFloat(-20, 20), game);
+        }
       }
     }
   }
@@ -154,6 +160,7 @@ class Unit {
     this.atkTarget = null;     // attack target (zombie)
     this.atkCooldown = 0;
     this.moveTarget = null;    // {x, y} destination
+    this.attackMove = false;   // pause at enemies encountered en route
 
     // Slight random offset for formation
     this.formationOffset = { x: 0, y: 0 };
@@ -178,6 +185,7 @@ class Unit {
     this.moveTarget = { x: wx, y: wy };
     this.atkTarget = null;
     this.repairTarget = null;
+    this.attackMove = false;
     // Compute A* path
     const path = findPath(this.x, this.y, wx, wy, (tx, ty) => game.isTileBlockedForUnits(tx, ty));
     this.waypoints = path || [];
@@ -239,15 +247,21 @@ class Unit {
       }
     }
 
-    // Follow waypoints
+    // Follow waypoints (attack-move pauses while an enemy is in range)
     if (this.waypoints.length > 0) {
-      const wp = this.waypoints[0];
-      const d = dist(this.x, this.y, wp.x, wp.y);
-      if (d < 4) {
-        this.waypoints.shift();
+      if (this.attackMove && game.nearestZombie(this.x, this.y, this.def.atkRange)) {
+        // hold position; the auto-attack block below does the shooting
       } else {
-        this._moveToward(wp.x, wp.y, dt, game);
+        const wp = this.waypoints[0];
+        const d = dist(this.x, this.y, wp.x, wp.y);
+        if (d < 4) {
+          this.waypoints.shift();
+        } else {
+          this._moveToward(wp.x, wp.y, dt, game);
+        }
       }
+    } else {
+      this.attackMove = false;
     }
 
     // Auto-attack nearest zombie in range
@@ -359,6 +373,8 @@ class Zombie {
         if (this.atkCooldown <= 0) {
           this.atkCooldown = 1 / this.def.atkRate;
           this.atkTarget.takeDamage(this.def.atkDmg);
+          game.addAlert(this.atkTarget.x, this.atkTarget.y,
+                        this.atkTarget instanceof Building ? 'building' : 'unit');
           if (this.atkTarget.dead) {
             game.onEntityDied(this.atkTarget);
           }

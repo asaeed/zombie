@@ -16,14 +16,30 @@ class InputHandler {
     this._dragStart = null;   // screen coords
     this._dragging = false;
 
+    // Set by mousedown paths that fully handle a click (train button,
+    // building select, attack-move) so the paired mouseup's fallback
+    // deselect logic must not run.
+    this._clickHandled = false;
+
     // Keyboard state
     this.keys = {};
 
     // Middle-drag pan state
     this._panStart = null;
 
+    // Minimap drag-to-pan state
+    this._minimapDrag = false;
+
+    // Camera bookmarks: F1-F4, {x, y, zoom} set with Shift, jumped to plain
+    this.bookmarks = [];
+
     // Edge scrolling arms only on a click in the hot zone (hover alone is annoying)
     this._edgeScrollArmed = false;
+
+    // Control groups + attack-move arm state
+    this.groups = {};            // digit -> unit array
+    this._lastGroupTap = null;   // { d, t } for double-tap detection
+    this.attackMoveArm = false;
 
     this._bind();
   }
@@ -41,6 +57,7 @@ class InputHandler {
 
   _onWheel(e) {
     e.preventDefault();
+    if (this._isInMinimap(e.clientX, e.clientY) || this._isInBottomPanel(e.clientY)) return;
     const cam = this.game.camera;
     const before = screenToWorld(e.clientX, e.clientY, cam);
     cam.zoom = clamp(cam.zoom * Math.pow(1.0015, -e.deltaY), ZOOM_MIN, ZOOM_MAX);
@@ -78,6 +95,19 @@ class InputHandler {
     return x >= MX && x <= MX + MINIMAP_W && y >= MY && y <= MY + MINIMAP_H;
   }
 
+  // Map minimap pixel -> world point, center the camera there
+  _centerFromMinimap(sx, sy) {
+    const MX = window.innerWidth - MINIMAP_W - 10;
+    const MY = window.innerHeight - 110 - MINIMAP_H - 10;
+    const b = mapScreenBounds(1);
+    const s = MINIMAP_W / (b.maxX - b.minX);
+    const px = (sx - MX) / s + b.minX;
+    const py = (sy - MY) / s;
+    const w = screenToWorld(px, py, { x: 0, y: 0, zoom: 1 });
+    centerCameraOn(this.game.camera, w.x, w.y, window.innerWidth, window.innerHeight);
+    clampCamera(this.game.camera, window.innerWidth, window.innerHeight);
+  }
+
   // Edge-scroll hot zone: the screen borders, minus bottom panel and minimap
   _inEdgeZone(x, y) {
     const W = window.innerWidth, H = window.innerHeight, M = EDGE_SCROLL_MARGIN;
@@ -86,6 +116,14 @@ class InputHandler {
   }
 
   _onMouseDown(e) {
+    if (this.game.status !== 'playing') {
+      const r = endScreenButtonRect(window.innerWidth, window.innerHeight);
+      if (e.button === 0 && e.clientX >= r.x && e.clientX <= r.x + r.w &&
+          e.clientY >= r.y && e.clientY <= r.y + r.h) {
+        window._newGame();
+      }
+      return;
+    }
     if (e.button === 1) {                    // middle: start drag-pan
       e.preventDefault();
       this._panStart = { mx: e.clientX, my: e.clientY,
@@ -100,15 +138,8 @@ class InputHandler {
 
     // Minimap click — minimap is drawn in zoom-1 projected space (see renderer)
     if (this._isInMinimap(e.clientX, e.clientY)) {
-      const MX = window.innerWidth - MINIMAP_W - 10;
-      const MY = window.innerHeight - 110 - MINIMAP_H - 10;
-      const b = mapScreenBounds(1);
-      const s = MINIMAP_W / (b.maxX - b.minX);
-      const px = (e.clientX - MX) / s + b.minX;
-      const py = (e.clientY - MY) / s;
-      const w = screenToWorld(px, py, { x: 0, y: 0, zoom: 1 });
-      centerCameraOn(game.camera, w.x, w.y, window.innerWidth, window.innerHeight);
-      clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      this._minimapDrag = true;
+      this._centerFromMinimap(e.clientX, e.clientY);
       return;
     }
 
@@ -130,18 +161,26 @@ class InputHandler {
       return;
     }
 
+    // Armed attack-move: this click is the order
+    if (this.attackMoveArm) {
+      this.attackMoveArm = false;
+      this.canvas.style.cursor = '';
+      const count = game.selected.length;
+      game.selected.forEach((u, i) => {
+        const row = Math.floor(i / 5), col = i % 5;
+        u.moveTo(wx + (col - Math.min(count, 5) / 2) * 22, wy + row * 22, game);
+        u.attackMove = true;
+      });
+      this._clickHandled = true;
+      return;
+    }
+
     // Check barracks train buttons FIRST (screen-space buttons on the building)
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
       const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
       if (trainResult) {
         game.trainUnit(game._selectedBuilding, trainResult);
-        // ponytail: pre-existing bug independent of the iso migration — this
-        // mousedown returns without arming a drag, so the paired mouseup fell
-        // into the "single click, no unit here" branch and immediately cleared
-        // _selectedBuilding back to null. Mark dragging so mouseup's branches
-        // (both gated on _dragging) no-op for this click and the selection sticks.
-        // Same sentinel used below for the building-select click.
-        this._dragging = true;
+        this._clickHandled = true;
         return;
       }
     }
@@ -152,7 +191,7 @@ class InputHandler {
       game._selectedBuilding = building;
       game.selected = [];
       for (const u of game.units) u.selected = false;
-      this._dragging = true;
+      this._clickHandled = true;
       return;
     }
 
@@ -163,6 +202,10 @@ class InputHandler {
   }
 
   _onMouseMove(e) {
+    if (this._minimapDrag) {
+      if (!(e.buttons & 1)) this._minimapDrag = false;
+      else { this._centerFromMinimap(e.clientX, e.clientY); return; }
+    }
     if (this._panStart) {
       if (!(e.buttons & 4)) {
         this._panStart = null;
@@ -176,16 +219,20 @@ class InputHandler {
     this._updateMouseState(e);
 
     if (this._dragStart) {
-      const dx = e.clientX - this._dragStart.x;
-      const dy = e.clientY - this._dragStart.y;
-      if (!this._dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
-        this._dragging = true;
-      }
-      if (this._dragging) {
-        this.selectBox = {
-          x1: this._dragStart.x, y1: this._dragStart.y,
-          x2: e.clientX,          y2: e.clientY,
-        };
+      if (!(e.buttons & 1)) {
+        this._dragStart = null; this._dragging = false; this.selectBox = null;
+      } else {
+        const dx = e.clientX - this._dragStart.x;
+        const dy = e.clientY - this._dragStart.y;
+        if (!this._dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+          this._dragging = true;
+        }
+        if (this._dragging) {
+          this.selectBox = {
+            x1: this._dragStart.x, y1: this._dragStart.y,
+            x2: e.clientX,          y2: e.clientY,
+          };
+        }
       }
     }
   }
@@ -212,7 +259,7 @@ class InputHandler {
         u.selected = true;
         if (!game.selected.includes(u)) game.selected.push(u);
       }
-    } else if (!this._dragging) {
+    } else if (!this._dragging && !this._clickHandled && !this._minimapDrag) {
       // Single click - select unit
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
         // Already handled in mousedown
@@ -236,6 +283,8 @@ class InputHandler {
 
     this._dragStart = null;
     this._dragging = false;
+    this._clickHandled = false;
+    this._minimapDrag = false;
     this.selectBox = null;
   }
 
@@ -249,14 +298,18 @@ class InputHandler {
       return;
     }
 
+    // Selected barracks: right-click sets its rally point
+    const sb = game._selectedBuilding;
+    if (sb && sb.type === 'barracks' && !sb.dead) {
+      sb.rally = { x: this.mouseWorld.x, y: this.mouseWorld.y };
+      return;
+    }
+
     if (game.selected.length === 0) return;
 
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
-    // ponytail: same raised-body screen-vs-world offset as the Fix-4 unit
-    // hit-test exists here too (game.zombieAt hit-tests the world-space
-    // ground point) — deferred to phase 2, not touching game.js/zombieAt now.
-    const zombie = game.zombieAt(wx, wy);
+    const zombie = this._getZombieAt(e.clientX, e.clientY);
     if (zombie) {
       for (const u of game.selected) u.attackTarget(zombie);
       return;
@@ -283,11 +336,18 @@ class InputHandler {
 
   _onKeyDown(e) {
     this.keys[e.code] = true;
+    if (this.game.status !== 'playing') {
+      if (e.code === 'Enter') window._newGame();
+      return;
+    }
     const game = this.game;
 
-    // Escape: cancel build mode / deselect
+    // Escape: cancel attack-move arm / build mode / deselect
     if (e.code === 'Escape') {
-      if (game.buildMode) {
+      if (this.attackMoveArm) {
+        this.attackMoveArm = false;
+        this.canvas.style.cursor = '';
+      } else if (game.buildMode) {
         game.buildMode = null;
       } else {
         for (const u of game.units) u.selected = false;
@@ -296,21 +356,56 @@ class InputHandler {
       }
     }
 
-    // Number keys 1-4 for build mode
-    const buildables = Object.entries(BUILDING_DEFS).filter(([,d]) => d.canBuild);
-    const numKey = parseInt(e.key);
-    if (!isNaN(numKey) && numKey >= 1 && numKey <= buildables.length) {
-      const type = buildables[numKey - 1][0];
+    // Build hotkeys: mnemonic letters (digits are control groups now)
+    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot' };
+    if (buildKeys[e.code] && !e.shiftKey) {
+      const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
+      if (game.buildMode) {          // last intent wins: entering build mode disarms attack-move
+        this.attackMoveArm = false;
+        this.canvas.style.cursor = '';
+      }
     }
 
-    // Keys 6/7/8: train from selected barracks
-    const trainable = ['soldier', 'builder', 'scout'];
-    if (!isNaN(numKey) && numKey >= 6 && numKey <= 8) {
+    // Barracks train: Z/X/C
+    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout' };
+    if (trainKeys[e.code]) {
       const b = game._selectedBuilding;
-      if (b && b.type === 'barracks' && !b.dead) {
-        game.trainUnit(b, trainable[numKey - 6]);
+      if (b && b.type === 'barracks' && !b.dead) game.trainUnit(b, trainKeys[e.code]);
+    }
+
+    // Control groups: digit selects, Shift+digit assigns, double-tap centers
+    const dm = /^Digit([1-9])$/.exec(e.code);
+    if (dm) {
+      const d = dm[1];
+      if (e.shiftKey) {
+        if (game.selected.length > 0) this.groups[d] = [...game.selected];
+      } else {
+        const grp = (this.groups[d] || []).filter(u => !u.dead);
+        this.groups[d] = grp;
+        for (const u of game.units) u.selected = false;
+        game.selected = [...grp];
+        for (const u of grp) u.selected = true;
+        if (grp.length > 0) game._selectedBuilding = null;
+        const now = performance.now();
+        if (this._lastGroupTap && this._lastGroupTap.d === d &&
+            now - this._lastGroupTap.t < 400 && grp.length > 0) {
+          const cx = grp.reduce((s, u) => s + u.x, 0) / grp.length;
+          const cy = grp.reduce((s, u) => s + u.y, 0) / grp.length;
+          centerCameraOn(game.camera, cx, cy, window.innerWidth, window.innerHeight);
+          clampCamera(game.camera, window.innerWidth, window.innerHeight);
+        }
+        this._lastGroupTap = { d, t: now };
       }
+    }
+
+    // H: select all idle military units (soldiers/scouts standing around)
+    if (e.code === 'KeyH') {
+      for (const u of game.units) u.selected = false;
+      game.selected = game.units.filter(u => !u.dead && u.type !== 'builder' &&
+        !u.atkTarget && u.waypoints.length === 0 && !u.repairTarget);
+      for (const u of game.selected) u.selected = true;
+      if (game.selected.length > 0) game._selectedBuilding = null;
     }
 
     // Delete: sell selected building
@@ -335,12 +430,11 @@ class InputHandler {
       }
     }
 
-    // A: stop/attack-move (stop current movement)
-    if (e.code === 'KeyA') {
-      for (const u of game.selected) {
-        u.waypoints = [];
-        u.moveTarget = null;
-      }
+    // A: arm attack-move — next left-click orders move-and-engage
+    if (e.code === 'KeyA' && game.selected.length > 0) {
+      this.attackMoveArm = true;
+      this.canvas.style.cursor = 'crosshair';
+      game.buildMode = null;         // last intent wins: arming cancels build mode
     }
 
     // S: stop all
@@ -349,7 +443,40 @@ class InputHandler {
         u.waypoints = [];
         u.moveTarget = null;
         u.atkTarget = null;
+        u.attackMove = false;
       }
+      this.attackMoveArm = false;
+      this.canvas.style.cursor = '';
+    }
+
+    // Space: center on HQ
+    if (e.code === 'Space') {
+      e.preventDefault();
+      const hq = game.buildings.find(b => b.type === 'hq' && !b.dead);
+      if (hq) {
+        centerCameraOn(game.camera, hq.x, hq.y, window.innerWidth, window.innerHeight);
+        clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      }
+    }
+
+    // F1–F4: camera bookmarks (Shift sets, plain jumps)
+    const fm = /^F([1-4])$/.exec(e.code);
+    if (fm) {
+      e.preventDefault();
+      const i = fm[1] - 1;
+      if (e.shiftKey) {
+        this.bookmarks[i] = { x: game.camera.x, y: game.camera.y, zoom: game.camera.zoom };
+      } else if (this.bookmarks[i]) {
+        Object.assign(game.camera, this.bookmarks[i]);
+        clampCamera(game.camera, window.innerWidth, window.innerHeight);
+      }
+    }
+
+    // N: jump to the most recent alert
+    if (e.code === 'KeyN' && game.alerts.length > 0) {
+      const a = game.alerts[game.alerts.length - 1];
+      centerCameraOn(game.camera, a.x, a.y, window.innerWidth, window.innerHeight);
+      clampCamera(game.camera, window.innerWidth, window.innerHeight);
     }
   }
 
@@ -365,6 +492,7 @@ class InputHandler {
       const y = BY;
       if (sx >= x && sx <= x + BW && sy >= y && sy <= y + BH) {
         game.buildMode = game.buildMode === type ? null : type;
+        if (game.buildMode) { this.attackMoveArm = false; this.canvas.style.cursor = ''; }
       }
     });
 
@@ -395,6 +523,19 @@ class InputHandler {
     return null;
   }
 
+  // Screen-space hit-test against the drawn (raised) zombie body — mirrors
+  // _getUnitAt above.
+  _getZombieAt(sx, sy) {
+    const cam = this.game.camera, z = cam.zoom;
+    for (const zb of this.game.zombies) {
+      if (zb.dead) continue;
+      const s = worldToScreen(zb.x, zb.y, cam);
+      const r = zb.def.radius * z;
+      if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return zb;
+    }
+    return null;
+  }
+
   _getBuildingAt(wx, wy) {
     for (const b of this.game.buildings) {
       if (b.dead) continue;
@@ -412,10 +553,10 @@ class InputHandler {
 
     let dx = 0, dy = 0;
 
-    if (this.keys['ArrowLeft']  || this.keys['KeyA'] && game.selected.length === 0) dx -= 1;
-    if (this.keys['ArrowRight'] || this.keys['KeyD'] && game.selected.length === 0) dx += 1;
-    if (this.keys['ArrowUp']    || this.keys['KeyW'] && game.selected.length === 0) dy -= 1;
-    if (this.keys['ArrowDown']  || this.keys['KeyS'] && game.selected.length === 0) dy += 1;
+    if (this.keys['ArrowLeft'])  dx -= 1;
+    if (this.keys['ArrowRight']) dx += 1;
+    if (this.keys['ArrowUp'])    dy -= 1;
+    if (this.keys['ArrowDown'])  dy += 1;
 
     // Edge scrolling — armed by a click in the hot zone, disarmed on leaving it
     const mx = this.mouseX, my = this.mouseY;
