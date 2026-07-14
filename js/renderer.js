@@ -713,8 +713,10 @@ class Renderer {
     ctx.fillRect(MX, MY, MINIMAP_W, MINIMAP_H);
 
     // Fog-masked static layer: unexplored dark diamond + explored terrain/water,
-    // rebuilt at most 4×/sim-second rather than filled fresh every frame
-    if (game.gameTime - this._mmLayerAt > 0.25 || this._mmLayerAt < 0) {
+    // rebuilt at most 4×/sim-second rather than filled fresh every frame.
+    // gameTime < _mmLayerAt ⇒ clock regressed (restart reuses the renderer) — force rebuild;
+    // first frame (_mmLayerAt = -1) is caught by 0 - (-1) > 0.25.
+    if (game.gameTime < this._mmLayerAt || game.gameTime - this._mmLayerAt > 0.25) {
       this._mmLayerAt = game.gameTime;
       const g = this._mmLayer.getContext('2d');
       g.clearRect(0, 0, MINIMAP_W, MINIMAP_H);
