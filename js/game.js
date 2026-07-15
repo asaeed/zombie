@@ -177,6 +177,10 @@ class Game {
         const tx = tileX + dx, ty = tileY + dy;
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
         if (this.tiles[ty][tx] === TILE_WATER) return false;
+        // Caches can't be built over (buried loot)
+        for (const c of this.caches) {
+          if (c.tileX === tx && c.tileY === ty) return false;
+        }
         // Check for existing buildings
         for (const b of this.buildings) {
           if (b.dead) continue;

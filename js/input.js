@@ -531,7 +531,8 @@ class InputHandler {
       if (zb.dead) continue;
       const s = worldToScreen(zb.x, zb.y, cam);
       const r = zb.def.radius * z;
-      if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return zb;
+      const raise = zb.dormant ? 0.5 : 1.2;
+      if (dist2(sx, sy, s.x, s.y - r * raise) < (r + 6) * (r + 6)) return zb;
     }
     return null;
   }

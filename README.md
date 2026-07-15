@@ -36,6 +36,6 @@ and open localhost) and play.
 
 ## Project docs
 - Design spec: `docs/superpowers/specs/2026-07-13-overhaul-design.md`
-- Current plan: `docs/superpowers/plans/2026-07-13-phase1-iso-foundation.md`
-  (phase 1 of 7 — iso foundation)
+- Current plan: `docs/superpowers/plans/2026-07-15-phase3-economy.md`
+  (phase 3 of 7 — scavenging economy; phases 1-2 complete)
 - Visual mockups: `docs/mockups/visual-directions.html`

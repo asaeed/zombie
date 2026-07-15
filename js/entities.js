@@ -412,7 +412,6 @@ class Zombie {
         if (u.dead) continue;
         if (dist2(this.x, this.y, u.x, u.y) < GUARD_WAKE_RADIUS * GUARD_WAKE_RADIUS) {
           this.dormant = false;
-          this.atkTarget = u;          // aggro the intruder first
           break;
         }
       }
