@@ -9,6 +9,12 @@ class Game {
     this.projectiles = [];
     this.particles   = [];
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
+    this.caches      = [];
+    this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
+
+    this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
+    this.fogExplored = new Uint8Array(MAP_W * MAP_H);
+    this._fogTimer   = 0;
 
     this.supplies    = STARTING_SUPPLIES;
     this.score       = 0;
@@ -35,6 +41,8 @@ class Game {
   start() {
     this._generateMap();
     this._placeStartingEntities();
+    this._placeCaches();
+    this._placeGuards();
     this._rebuildFlowField();
 
     // Center camera on HQ
@@ -43,6 +51,8 @@ class Game {
       centerCameraOn(this.camera, hq.x, hq.y, window.innerWidth, window.innerHeight);
       clampCamera(this.camera, window.innerWidth, window.innerHeight);
     }
+
+    this._recomputeFog();
   }
 
   _generateMap() {
@@ -96,6 +106,45 @@ class Game {
     this.spawnUnit('builder', tileCenterX(cx - 2), tileCenterY(cy + 3));
   }
 
+  _placeCaches() {
+    const cx = MAP_W / 2, cy = MAP_H / 2;
+    let attempts = 0;
+    while (this.caches.length < CACHE_COUNT && attempts++ < 2000) {
+      const tx = randInt(2, MAP_W - 3), ty = randInt(2, MAP_H - 3);
+      const df = Math.hypot(tx - cx, ty - cy);
+      if (df < CACHE_MIN_CENTER_DIST) continue;
+      if (randFloat(0, 1) > df / (MAP_W / 2)) continue;          // density rises outward
+      if (this.tiles[ty][tx] === TILE_WATER) continue;
+      if (this.caches.some(c => Math.hypot(c.tileX - tx, c.tileY - ty) < 3)) continue;
+      this.caches.push(new Cache(CACHE_TYPES[randInt(0, 2)], tx, ty));
+    }
+  }
+
+  _placeGuards() {
+    const cx = MAP_W * TILE / 2, cy = MAP_H * TILE / 2;
+    const spawnDormant = (wx, wy) => {
+      const type = randFloat(0, 1) < 0.85 ? 'walker' : 'runner';
+      const z = new Zombie(type, wx, wy);
+      z.dormant = true;
+      this.zombies.push(z);
+    };
+    for (const c of this.caches) {
+      const f = clamp(dist(c.x, c.y, cx, cy) / (MAP_W * TILE / 2), 0, 1);
+      const n = clamp(Math.floor(f * 3 + randFloat(0, 1.5)), 0, 3);
+      for (let i = 0; i < n; i++) {
+        spawnDormant(c.x + randFloat(-2, 2) * TILE, c.y + randFloat(-2, 2) * TILE);
+      }
+    }
+    for (let i = 0; i < GUARD_STRAYS; i++) {
+      let wx, wy, tries = 0;
+      do {
+        wx = randFloat(2 * TILE, (MAP_W - 2) * TILE);
+        wy = randFloat(2 * TILE, (MAP_H - 2) * TILE);
+      } while (dist(wx, wy, cx, cy) < 18 * TILE && ++tries < 50);
+      spawnDormant(wx, wy);
+    }
+  }
+
   // ── Flow Field ──────────────────────────────────────────────────────────────
   _rebuildFlowField() {
     this.flowField = buildFlowField(this.buildings, this.tiles);
@@ -128,6 +177,10 @@ class Game {
         const tx = tileX + dx, ty = tileY + dy;
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
         if (this.tiles[ty][tx] === TILE_WATER) return false;
+        // Caches can't be built over (buried loot)
+        for (const c of this.caches) {
+          if (c.tileX === tx && c.tileY === ty) return false;
+        }
         // Check for existing buildings
         for (const b of this.buildings) {
           if (b.dead) continue;
@@ -170,14 +223,21 @@ class Game {
   }
 
   // ── Queries ──────────────────────────────────────────────────────────────────
-  nearestZombie(x, y, range) {
+  nearestZombie(x, y, range, includeDormant = false) {
     let best = null, bestD2 = range * range;
     for (const z of this.zombies) {
-      if (z.dead) continue;
+      if (z.dead || (!includeDormant && z.dormant)) continue;
       const d2 = dist2(x, y, z.x, z.y);
       if (d2 < bestD2) { bestD2 = d2; best = z; }
     }
     return best;
+  }
+
+  wakeDormantNear(x, y, radius) {
+    for (const z of this.zombies) {
+      if (z.dead || !z.dormant) continue;
+      if (dist2(x, y, z.x, z.y) < radius * radius) z.dormant = false;
+    }
   }
 
   entityAt(wx, wy) {
@@ -216,6 +276,34 @@ class Game {
           ty >= b.tileY && ty < b.tileY + ts) return true;
     }
     return false;
+  }
+
+  // ── Fog of war ─────────────────────────────────────────────────────────────────
+  tileVisible(tx, ty)  { return tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H && this.fogVisible[ty * MAP_W + tx] === 1; }
+  tileExplored(tx, ty) { return tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H && this.fogExplored[ty * MAP_W + tx] === 1; }
+
+  _markVision(wx, wy, radiusTiles) {
+    const ctx0 = Math.floor(wx / TILE), cty0 = Math.floor(wy / TILE);
+    const r = Math.ceil(radiusTiles);
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (dx * dx + dy * dy > radiusTiles * radiusTiles) continue;
+        const tx = ctx0 + dx, ty = cty0 + dy;
+        if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) continue;
+        this.fogVisible[ty * MAP_W + tx] = 1;
+        this.fogExplored[ty * MAP_W + tx] = 1;
+      }
+    }
+  }
+
+  _recomputeFog() {
+    this.fogVisible.fill(0);
+    for (const u of this.units) {
+      if (!u.dead) this._markVision(u.x, u.y, VISION[u.type]);
+    }
+    for (const b of this.buildings) {
+      if (!b.dead) this._markVision(b.x, b.y, VISION[b.type] ?? 4);
+    }
   }
 
   // ── Waves ─────────────────────────────────────────────────────────────────────
@@ -264,7 +352,6 @@ class Game {
   // ── Events ───────────────────────────────────────────────────────────────────
   onEntityDied(entity) {
     if (entity instanceof Zombie) {
-      this.supplies += entity.def.reward;
       this.score += entity.def.reward * 10;
     } else if (entity instanceof Building && entity.type === 'hq') {
       this.status = 'gameover';
@@ -280,6 +367,7 @@ class Game {
   }
 
   spawnMuzzleFlash(x, y) {
+    this.wakeDormantNear(x, y, GUARD_GUNFIRE_RADIUS);
     for (let i = 0; i < 4; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = randFloat(30, 120);
@@ -323,6 +411,12 @@ class Game {
       this._rebuildFlowField();
     }
 
+    this._fogTimer -= dt;
+    if (this._fogTimer <= 0) {
+      this._fogTimer = FOG_INTERVAL;
+      this._recomputeFog();
+    }
+
     // Wave timer
     if (!this.waveActive) {
       this.waveTimer -= dt;
@@ -337,8 +431,10 @@ class Game {
         this.spawnTimer = 0.35;
         this._spawnZombieFromEdge(this.zombiesToSpawn.shift());
       }
-      if (this.zombiesToSpawn.length === 0 && this.zombies.filter(z => !z.dead).length === 0) {
+      if (this.zombiesToSpawn.length === 0 &&
+          this.zombies.filter(z => !z.dead && !z.dormant).length === 0) {
         this.waveActive = false;
+        this.supplies += 25 + 10 * this.waveNum;   // wave-clear bonus
       }
     }
 
@@ -356,6 +452,13 @@ class Game {
     // Update zombies
     for (const z of this.zombies) z.update(dt, this);
 
+    // Update caches (auto-search + auto-load on adjacency)
+    for (const c of this.caches) c.update(dt, this);
+
+    // Bundle expiry
+    for (const bd of this.bundles) bd.t += dt;
+    this.bundles = this.bundles.filter(bd => bd.amount > 0 && bd.t < BUNDLE_TTL);
+
     // Update projectiles (may kill zombies)
     for (const p of this.projectiles) p.update(dt);
 
@@ -370,6 +473,14 @@ class Game {
 
     // Update particles
     for (const p of this.particles) p.update(dt);
+
+    // Death-drop: dying units spill their carried supplies as a bundle
+    for (const u of this.units) {
+      if (u.dead && u.carrying > 0) {
+        this.bundles.push({ x: u.x, y: u.y, amount: u.carrying, t: 0 });
+        u.carrying = 0;
+      }
+    }
 
     // Cleanup dead entities
     this.buildings   = this.buildings.filter(b => !b.dead);

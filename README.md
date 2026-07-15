@@ -15,6 +15,18 @@ and open localhost) and play.
 - `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert
 - Game over / victory: click PLAY AGAIN or press Enter
 
+## Gameplay
+- Supplies come from scavenging: search the wrecked cars, cabins and bins
+  scattered across the map (walk a unit onto one; contents are unknown until
+  searched), then haul the loot back to the HQ or a depot to bank it
+- Farther caches are richer — and more likely to be guarded by dormant
+  zombies that wake on proximity or gunfire. Units drop their cargo when
+  they die; the bundle can be recovered for 60 seconds
+- Fog of war: the map starts dark. Scout to find caches; explored ground
+  stays on the map, but zombies are only visible where you have vision
+- Kills score points but pay nothing; each cleared wave pays a small bonus;
+  repairs cost supplies. Depots are cheap drop-off points for long hauls
+
 ## Architecture
 - Simulation runs on a square 80×80 tile grid in world coordinates
   (`js/game.js`, `js/entities.js`, `js/pathfinding.js`) — unchanged by rendering
@@ -24,6 +36,6 @@ and open localhost) and play.
 
 ## Project docs
 - Design spec: `docs/superpowers/specs/2026-07-13-overhaul-design.md`
-- Current plan: `docs/superpowers/plans/2026-07-13-phase1-iso-foundation.md`
-  (phase 1 of 7 — iso foundation)
+- Current plan: `docs/superpowers/plans/2026-07-15-phase3-economy.md`
+  (phase 3 of 7 — scavenging economy; phases 1-2 complete)
 - Visual mockups: `docs/mockups/visual-directions.html`

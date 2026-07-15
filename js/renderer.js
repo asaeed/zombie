@@ -6,6 +6,10 @@ class Renderer {
     this.ctx = canvas.getContext('2d');
     this.resize();
     this._tileSprites = this._makeTileSprites();
+
+    this._mmLayer = document.createElement('canvas');
+    this._mmLayer.width = MINIMAP_W; this._mmLayer.height = MINIMAP_H;
+    this._mmLayerAt = -1;   // gameTime of last rebuild
   }
 
   resize() {
@@ -39,6 +43,15 @@ class Renderer {
       [TILE_WATER]: [mk('#1a3a5c', '#4a7ab0'), mk('#163352', '#4a7ab0')],
     };
     sprites.waste = [mk('#1c2415'), mk('#171e11')]; // off-map wasteland skirt
+    sprites.unexplored = [mk('#0a0d08'), mk('#0a0d08')];   // in-map, never seen
+    const dim = document.createElement('canvas');
+    dim.width = 64; dim.height = 32;
+    const dg = dim.getContext('2d');
+    dg.fillStyle = 'rgba(8,10,24,0.45)';
+    dg.beginPath();
+    dg.moveTo(32, 0); dg.lineTo(64, 16); dg.lineTo(32, 32); dg.lineTo(0, 16);
+    dg.closePath(); dg.fill();
+    sprites.dim = dim;                                     // explored-not-visible overlay
     return sprites;
   }
 
@@ -52,6 +65,7 @@ class Renderer {
     this._drawEntities(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
+    this._drawBundles(ctx, game);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
       this._drawBarracksButtons(ctx, game, game._selectedBuilding);
@@ -86,10 +100,19 @@ class Renderer {
       for (let tx = tx0; tx < tx1; tx++) {
         const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
         const shade = (((tx + ty) % 2) + 2) % 2;
-        const spr = inMap ? this._tileSprites[game.tiles[ty][tx]][shade]
-                          : this._tileSprites.waste[shade];
-        const s = worldToScreen(tx * TILE, ty * TILE, cam); // north corner of the diamond
-        ctx.drawImage(spr, s.x - w / 2, s.y, w, h);
+        const s = worldToScreen(tx * TILE, ty * TILE, cam);
+        if (!inMap) {
+          ctx.drawImage(this._tileSprites.waste[shade], s.x - w / 2, s.y, w, h);
+          continue;
+        }
+        if (!game.tileExplored(tx, ty)) {
+          ctx.drawImage(this._tileSprites.unexplored[shade], s.x - w / 2, s.y, w, h);
+          continue;
+        }
+        ctx.drawImage(this._tileSprites[game.tiles[ty][tx]][shade], s.x - w / 2, s.y, w, h);
+        if (!game.tileVisible(tx, ty)) {
+          ctx.drawImage(this._tileSprites.dim, s.x - w / 2, s.y, w, h);
+        }
       }
     }
   }
@@ -98,6 +121,11 @@ class Renderer {
   // Back-to-front by (worldX + worldY): what's "behind" in iso draws first
   _drawEntities(ctx, game) {
     const drawables = [];
+    for (const c of game.caches) {
+      if (!game.tileExplored(c.tileX, c.tileY)) continue;
+      drawables.push({ key: (c.tileX + 1) * TILE + (c.tileY + 1) * TILE,
+                       draw: () => this._drawCache(ctx, game, c) });
+    }
     for (const b of game.buildings) {
       if (b.dead) continue;
       const ts = b.def.tileSize;
@@ -112,6 +140,7 @@ class Renderer {
     }
     for (const z of game.zombies) {
       if (z.dead) continue;
+      if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       drawables.push({ key: z.x + z.y, draw: () => this._drawZombie(ctx, game, z) });
     }
     drawables.sort((a, b) => a.key - b.key);
@@ -189,6 +218,47 @@ class Renderer {
     }
   }
 
+  _drawCache(ctx, game, c) {
+    const cam = game.camera, z = cam.zoom;
+    const x0 = c.tileX * TILE, y0 = c.tileY * TILE;
+    const x1 = x0 + TILE, y1 = y0 + TILE;
+    const looks = { car:   { color: '#8a4a30', h: 12 },
+                    cabin: { color: '#7a5c3e', h: 26 },
+                    bin:   { color: '#3e5e46', h: 10 } };
+    const { color, h: hBase } = looks[c.kind];
+    const h = hBase * z;
+    const base = c.empty ? shadeColor(color, 0.45) : color;
+    const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
+          S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+    const face = (p1, p2, col) => {
+      ctx.fillStyle = col; ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(p2.x, p2.y - h); ctx.lineTo(p1.x, p1.y - h);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+    };
+    face(E, S, shadeColor(base, 0.72));
+    face(S, W, shadeColor(base, 0.52));
+    ctx.fillStyle = base; ctx.beginPath();
+    ctx.moveTo(N.x, N.y - h); ctx.lineTo(E.x, E.y - h);
+    ctx.lineTo(S.x, S.y - h); ctx.lineTo(W.x, W.y - h);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.stroke();
+
+    const cx = (N.x + S.x) / 2, topY = N.y - h;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (!c.searched) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = `bold ${Math.max(10, 12 * z)}px monospace`;
+      ctx.fillText('?', cx, topY - 8 * z);
+      if (c.searchProgress > 0) {
+        this._drawHealthBar(ctx, cx - 16 * z, topY - 18 * z, 32 * z, 4, c.searchProgress / SEARCH_TIME, '#ffdd44');
+      }
+    } else if (!c.empty) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = `${Math.max(9, 10 * z)}px monospace`;
+      ctx.fillText(`${c.amount}`, cx, topY - 8 * z);
+    }
+  }
+
   _drawUnit(ctx, game, u) {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(u.x, u.y, cam);
@@ -209,6 +279,13 @@ class Renderer {
 
     this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 6 * z, r * 2, 4, u.hp / u.maxHp);
 
+    if (u.carrying > 0) {
+      ctx.fillStyle = '#b08040';
+      ctx.fillRect(s.x + r * 0.7, s.y - r * 1.6, 5 * z, 5 * z);
+      ctx.fillStyle = '#ffdd44'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`${u.carrying}`, s.x + r * 0.7 + 2 * z, s.y - r * 2.0);
+    }
+
     if (u.type === 'builder' && u.repairTarget) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('⚙', s.x, s.y - r * 2.4 - 12 * z);
@@ -219,6 +296,16 @@ class Renderer {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(zb.x, zb.y, cam);
     const r = zb.def.radius * z;
+
+    if (zb.dormant) {
+      this._groundEllipse(ctx, s, zb.def.radius, z);
+      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y - r * 0.5, r * 1.1, r * 0.7, 0, 0, Math.PI * 2);
+      ctx.fillStyle = shadeColor(zb.def.color, 0.55); ctx.fill();
+      ctx.strokeStyle = '#003300'; ctx.lineWidth = 1.5; ctx.stroke();
+      return;   // no eyes, no health bar — it's scenery until it isn't
+    }
 
     this._groundEllipse(ctx, s, zb.def.radius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
@@ -262,6 +349,20 @@ class Renderer {
       ctx.fillStyle = p.color; ctx.fill();
     }
     ctx.globalAlpha = 1;
+  }
+
+  // ── Bundles (death-drop supply sacks) ─────────────────────────────────────
+  _drawBundles(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
+    for (const bd of game.bundles) {
+      if (!game.tileVisible(Math.floor(bd.x / TILE), Math.floor(bd.y / TILE))) continue;
+      const s = worldToScreen(bd.x, bd.y, cam);
+      ctx.fillStyle = '#b08040';
+      ctx.beginPath(); ctx.arc(s.x, s.y - 3 * z, 5 * z, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#ffdd44'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`${bd.amount}`, s.x, s.y - 12 * z);
+    }
   }
 
   // ── Barracks Train Buttons (screen space, anchored under the building) ───
@@ -390,7 +491,7 @@ class Renderer {
       ctx.fillStyle = warning ? (Math.floor(Date.now()/400)%2===0 ? '#ff4444' : '#ff8844') : '#cccccc';
       ctx.fillText(`Wave ${game.waveNum + 1} in ${Math.ceil(timeLeft)}s`, this.W / 2, 22);
     } else {
-      const remaining = game.zombiesToSpawn.length + game.zombies.filter(z=>!z.dead).length;
+      const remaining = game.zombiesToSpawn.length + game.zombies.filter(z => !z.dead && !z.dormant).length;
       ctx.fillStyle = '#ff4444';
       ctx.fillText(`WAVE ${game.waveNum} — ${remaining} zombies remaining`, this.W / 2, 22);
     }
@@ -617,27 +718,40 @@ class Renderer {
       return [MX + (p.x - b.minX) * s, MY + p.y * s];
     };
 
-    // Backdrop + map diamond
+    // Backdrop
     ctx.fillStyle = '#0c0e14';
     ctx.fillRect(MX, MY, MINIMAP_W, MINIMAP_H);
-    const cs = [[0, 0], [MAP_W * TILE, 0], [MAP_W * TILE, MAP_H * TILE], [0, MAP_H * TILE]]
-      .map(([wx, wy]) => mp(wx, wy));
-    ctx.fillStyle = '#1a2a1a';
-    ctx.beginPath();
-    ctx.moveTo(cs[0][0], cs[0][1]);
-    for (let i = 1; i < 4; i++) ctx.lineTo(cs[i][0], cs[i][1]);
-    ctx.closePath(); ctx.fill();
 
-    // Water tiles
-    ctx.fillStyle = '#163352';
-    for (let ty = 0; ty < MAP_H; ty++) {
-      for (let tx = 0; tx < MAP_W; tx++) {
-        if (game.tiles[ty][tx] === TILE_WATER) {
-          const [x, y] = mp(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
-          ctx.fillRect(x - 1, y - 1, 3, 2);
+    // Fog-masked static layer: unexplored dark diamond + explored terrain/water,
+    // rebuilt at most 4×/sim-second rather than filled fresh every frame.
+    // gameTime < _mmLayerAt ⇒ clock regressed (restart reuses the renderer) — force rebuild;
+    // first frame (_mmLayerAt = -1) is caught by 0 - (-1) > 0.25.
+    if (game.gameTime < this._mmLayerAt || game.gameTime - this._mmLayerAt > 0.25) {
+      this._mmLayerAt = game.gameTime;
+      const g = this._mmLayer.getContext('2d');
+      g.clearRect(0, 0, MINIMAP_W, MINIMAP_H);
+      const lmp = (wx, wy) => {           // layer-local mp (no MX/MY offset)
+        const p = worldToScreen(wx, wy, cam1);
+        return [(p.x - b.minX) * s, p.y * s];
+      };
+      // Map diamond, dark (unexplored base)
+      const lcs = [[0, 0], [MAP_W * TILE, 0], [MAP_W * TILE, MAP_H * TILE], [0, MAP_H * TILE]]
+        .map(([wx, wy]) => lmp(wx, wy));
+      g.fillStyle = '#0a0d08';
+      g.beginPath(); g.moveTo(lcs[0][0], lcs[0][1]);
+      for (let i = 1; i < 4; i++) g.lineTo(lcs[i][0], lcs[i][1]);
+      g.closePath(); g.fill();
+      // Explored tiles: terrain green / water blue
+      for (let ty = 0; ty < MAP_H; ty++) {
+        for (let tx = 0; tx < MAP_W; tx++) {
+          if (!game.tileExplored(tx, ty)) continue;
+          g.fillStyle = game.tiles[ty][tx] === TILE_WATER ? '#163352' : '#1a2a1a';
+          const [x, y] = lmp(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
+          g.fillRect(x - 1, y - 1, 3, 2);
         }
       }
     }
+    ctx.drawImage(this._mmLayer, MX, MY);
 
     // Buildings
     for (const bd of game.buildings) {
@@ -645,6 +759,14 @@ class Renderer {
       ctx.fillStyle = BUILDING_DEFS[bd.type].color;
       const [x, y] = mp(bd.x, bd.y);
       ctx.fillRect(x - 1, y - 1, 3, 3);
+    }
+
+    // Caches
+    for (const c of game.caches) {
+      if (!game.tileExplored(c.tileX, c.tileY)) continue;
+      ctx.fillStyle = c.empty ? '#555555' : '#c9a94a';
+      const [x, y] = mp(c.x, c.y);
+      ctx.fillRect(x - 1, y - 1, 2, 2);
     }
 
     // Units
@@ -659,6 +781,7 @@ class Renderer {
     ctx.fillStyle = '#ff3322';
     for (const z of game.zombies) {
       if (z.dead) continue;
+      if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const [x, y] = mp(z.x, z.y);
       ctx.fillRect(x - 1, y - 1, 2, 2);
     }
