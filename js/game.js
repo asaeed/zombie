@@ -202,9 +202,23 @@ class Game {
 
   sellBuilding(building) {
     if (building.type === 'hq') return;
-    this.supplies += Math.floor(BUILDING_DEFS[building.type].cost * 0.5);
+    this.addSupplies(Math.floor(BUILDING_DEFS[building.type].cost * 0.5));
     building.dead = true;
     this.flowDirty = true;
+  }
+
+  // Depots are the only supply storage. Supplies already banked above the cap
+  // persist (spend-only) — losing a depot never destroys what you have.
+  storageCap() {
+    return DEPOT_STORAGE * this.buildings.filter(b => !b.dead && b.type === 'depot').length;
+  }
+
+  // Add supplies up to the storage cap; returns the amount actually stored
+  addSupplies(n) {
+    const room = Math.max(0, this.storageCap() - this.supplies);
+    const added = Math.min(n, room);
+    this.supplies += added;
+    return added;
   }
 
   // ── Units ────────────────────────────────────────────────────────────────────
@@ -434,7 +448,8 @@ class Game {
       if (this.zombiesToSpawn.length === 0 &&
           this.zombies.filter(z => !z.dead && !z.dormant).length === 0) {
         this.waveActive = false;
-        this.supplies += 25 + 10 * this.waveNum;   // wave-clear bonus
+        // Wave-clear bonus is cap-exempt: it's the anti-softlock income floor
+        this.supplies += 25 + 10 * this.waveNum;
       }
     }
 
@@ -456,8 +471,8 @@ class Game {
     for (const c of this.caches) c.update(dt, this);
 
     // Bundle expiry
-    for (const bd of this.bundles) bd.t += dt;
-    this.bundles = this.bundles.filter(bd => bd.amount > 0 && bd.t < BUNDLE_TTL);
+    // Bundles persist until recovered (no decay)
+    this.bundles = this.bundles.filter(bd => bd.amount > 0);
 
     // Update projectiles (may kill zombies)
     for (const p of this.projectiles) p.update(dt);
@@ -477,7 +492,7 @@ class Game {
     // Death-drop: dying units spill their carried supplies as a bundle
     for (const u of this.units) {
       if (u.dead && u.carrying > 0) {
-        this.bundles.push({ x: u.x, y: u.y, amount: u.carrying, t: 0 });
+        this.bundles.push({ x: u.x, y: u.y, amount: u.carrying });
         u.carrying = 0;
       }
     }

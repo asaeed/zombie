@@ -251,13 +251,13 @@ class Unit {
 
     this.atkCooldown -= dt;
 
-    // Bank carried supplies at any drop point
+    // Bank carried supplies at any drop point — only as much as storage allows;
+    // the unit keeps the remainder until a depot has room
     if (this.carrying > 0) {
       for (const b of game.buildings) {
         if (b.dead || (b.type !== 'hq' && b.type !== 'depot')) continue;
         if (dist2(this.x, this.y, b.x, b.y) < (DROP_RADIUS * TILE) ** 2) {
-          game.supplies += this.carrying;
-          this.carrying = 0;
+          this.carrying -= game.addSupplies(this.carrying);
           break;
         }
       }

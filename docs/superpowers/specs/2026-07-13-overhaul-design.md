@@ -120,14 +120,18 @@ defense blind.
   the scout finally has a job)
 - Units bank carried supplies by returning within drop-off radius of the **HQ or a
   depot**. Carried amount shown as a small bag icon + number over the unit
-- If a carrying unit dies, the supplies drop on the ground as a lootable bundle
-  (despawns after 60s) — risk made visible
+- If a carrying unit dies, the supplies drop on the ground as a lootable bundle,
+  recoverable indefinitely (changed 2026-07-15 from a 60s despawn, user call);
+  bundles are remembered once seen (drawn in explored fog + on the minimap)
 
 ### 2.3 Income rebalance
 
 - **Removed:** depot passive income, per-kill rewards
-- **Depot re-role:** drop-off point (extends banking radius far from HQ) — enables
-  forward scavenging outposts. Cost drops to 75
+- **Depot re-role (extended 2026-07-15, user call):** depots are drop-off points
+  AND the only supply storage — each holds 250; banking clamps to the cap, so a
+  full stockpile forces building more depots. Supplies above cap (e.g. the
+  starting 500 before any depot exists) persist spend-only; the wave-clear bonus
+  is cap-exempt as the anti-softlock income floor. Cost drops to 75
 - **Wave-clear bonus:** small backstop payment (25 + 10×wave) so a picked-clean map
   doesn't hard-starve endless mode
 - Starting supplies stay 500; repair now costs supplies (1 per 4 HP restored)

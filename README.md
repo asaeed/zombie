@@ -21,11 +21,15 @@ and open localhost) and play.
   searched), then haul the loot back to the HQ or a depot to bank it
 - Farther caches are richer — and more likely to be guarded by dormant
   zombies that wake on proximity or gunfire. Units drop their cargo when
-  they die; the bundle can be recovered for 60 seconds
+  they die; the bundle stays where it fell until someone recovers it
 - Fog of war: the map starts dark. Scout to find caches; explored ground
   stays on the map, but zombies are only visible where you have vision
-- Kills score points but pay nothing; each cleared wave pays a small bonus;
-  repairs cost supplies. Depots are cheap drop-off points for long hauls
+- Depots are your storage: each holds 250 supplies, and banking stops when
+  storage is full — build more depots to grow the stockpile (your starting
+  supplies exceed the cap; spend them down or expand). Depots also serve as
+  drop-off points for long hauls
+- Kills score points but pay nothing; each cleared wave pays a small bonus
+  (always banked, even over cap); repairs cost supplies
 
 ## Architecture
 - Simulation runs on a square 80×80 tile grid in world coordinates

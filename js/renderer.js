@@ -355,7 +355,8 @@ class Renderer {
   _drawBundles(ctx, game) {
     const cam = game.camera, z = cam.zoom;
     for (const bd of game.bundles) {
-      if (!game.tileVisible(Math.floor(bd.x / TILE), Math.floor(bd.y / TILE))) continue;
+      // Remembered once seen: you know where your hauler fell
+      if (!game.tileExplored(Math.floor(bd.x / TILE), Math.floor(bd.y / TILE))) continue;
       const s = worldToScreen(bd.x, bd.y, cam);
       ctx.fillStyle = '#b08040';
       ctx.beginPath(); ctx.arc(s.x, s.y - 3 * z, 5 * z, 0, Math.PI * 2); ctx.fill();
@@ -474,14 +475,21 @@ class Renderer {
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
     ctx.fillRect(0, 0, this.W, 44);
 
-    ctx.fillStyle = '#ffdd44';
+    const cap = game.storageCap();
+    ctx.fillStyle = game.supplies >= cap ? '#ff8866' : '#ffdd44';
     ctx.font = 'bold 15px monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`Supplies: ${game.supplies}`, 12, 22);
+    ctx.fillText(`Supplies: ${game.supplies} / ${cap}`, 12, 22);
+    if (game.supplies >= cap) {
+      ctx.fillStyle = '#ff6644';
+      ctx.font = '10px monospace';
+      ctx.fillText('storage full — build a depot to bank more', 12, 37);
+      ctx.font = 'bold 15px monospace';
+    }
 
     ctx.fillStyle = '#aaffaa';
-    ctx.fillText(`Score: ${game.score}`, 180, 22);
+    ctx.fillText(`Score: ${game.score}`, 250, 22);
 
     // Wave info
     const timeLeft = game.waveTimer;
@@ -759,6 +767,14 @@ class Renderer {
       ctx.fillStyle = BUILDING_DEFS[bd.type].color;
       const [x, y] = mp(bd.x, bd.y);
       ctx.fillRect(x - 1, y - 1, 3, 3);
+    }
+
+    // Dropped bundles (remembered once seen — recoverable indefinitely)
+    ctx.fillStyle = '#ffdd44';
+    for (const bd of game.bundles) {
+      if (!game.tileExplored(Math.floor(bd.x / TILE), Math.floor(bd.y / TILE))) continue;
+      const [x, y] = mp(bd.x, bd.y);
+      ctx.fillRect(x - 1, y - 1, 2, 2);
     }
 
     // Caches
