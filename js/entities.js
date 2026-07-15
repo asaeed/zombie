@@ -389,11 +389,13 @@ class Zombie {
     this.dead = false;
     this.atkTarget = null;
     this.atkCooldown = 0;
+    this.dormant = false;
   }
 
   get def() { return ZOMBIE_DEFS[this.type]; }
 
   takeDamage(amount) {
+    this.dormant = false;
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;
@@ -403,6 +405,19 @@ class Zombie {
 
   update(dt, game) {
     if (this.dead) return;
+
+    if (this.dormant) {
+      // Sleeps until something comes close (gunfire wake is handled by the game)
+      for (const u of game.units) {
+        if (u.dead) continue;
+        if (dist2(this.x, this.y, u.x, u.y) < GUARD_WAKE_RADIUS * GUARD_WAKE_RADIUS) {
+          this.dormant = false;
+          this.atkTarget = u;          // aggro the intruder first
+          break;
+        }
+      }
+      if (this.dormant) return;
+    }
 
     this.atkCooldown -= dt;
 

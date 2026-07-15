@@ -42,6 +42,7 @@ class Game {
     this._generateMap();
     this._placeStartingEntities();
     this._placeCaches();
+    this._placeGuards();
     this._rebuildFlowField();
 
     // Center camera on HQ
@@ -119,6 +120,31 @@ class Game {
     }
   }
 
+  _placeGuards() {
+    const cx = MAP_W * TILE / 2, cy = MAP_H * TILE / 2;
+    const spawnDormant = (wx, wy) => {
+      const type = randFloat(0, 1) < 0.85 ? 'walker' : 'runner';
+      const z = new Zombie(type, wx, wy);
+      z.dormant = true;
+      this.zombies.push(z);
+    };
+    for (const c of this.caches) {
+      const f = clamp(dist(c.x, c.y, cx, cy) / (MAP_W * TILE / 2), 0, 1);
+      const n = clamp(Math.floor(f * 3 + randFloat(0, 1.5)), 0, 3);
+      for (let i = 0; i < n; i++) {
+        spawnDormant(c.x + randFloat(-2, 2) * TILE, c.y + randFloat(-2, 2) * TILE);
+      }
+    }
+    for (let i = 0; i < GUARD_STRAYS; i++) {
+      let wx, wy, tries = 0;
+      do {
+        wx = randFloat(2 * TILE, (MAP_W - 2) * TILE);
+        wy = randFloat(2 * TILE, (MAP_H - 2) * TILE);
+      } while (dist(wx, wy, cx, cy) < 18 * TILE && ++tries < 50);
+      spawnDormant(wx, wy);
+    }
+  }
+
   // ── Flow Field ──────────────────────────────────────────────────────────────
   _rebuildFlowField() {
     this.flowField = buildFlowField(this.buildings, this.tiles);
@@ -193,14 +219,21 @@ class Game {
   }
 
   // ── Queries ──────────────────────────────────────────────────────────────────
-  nearestZombie(x, y, range) {
+  nearestZombie(x, y, range, includeDormant = false) {
     let best = null, bestD2 = range * range;
     for (const z of this.zombies) {
-      if (z.dead) continue;
+      if (z.dead || (!includeDormant && z.dormant)) continue;
       const d2 = dist2(x, y, z.x, z.y);
       if (d2 < bestD2) { bestD2 = d2; best = z; }
     }
     return best;
+  }
+
+  wakeDormantNear(x, y, radius) {
+    for (const z of this.zombies) {
+      if (z.dead || !z.dormant) continue;
+      if (dist2(x, y, z.x, z.y) < radius * radius) z.dormant = false;
+    }
   }
 
   entityAt(wx, wy) {
@@ -330,6 +363,7 @@ class Game {
   }
 
   spawnMuzzleFlash(x, y) {
+    this.wakeDormantNear(x, y, GUARD_GUNFIRE_RADIUS);
     for (let i = 0; i < 4; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = randFloat(30, 120);
@@ -393,7 +427,8 @@ class Game {
         this.spawnTimer = 0.35;
         this._spawnZombieFromEdge(this.zombiesToSpawn.shift());
       }
-      if (this.zombiesToSpawn.length === 0 && this.zombies.filter(z => !z.dead).length === 0) {
+      if (this.zombiesToSpawn.length === 0 &&
+          this.zombies.filter(z => !z.dead && !z.dormant).length === 0) {
         this.waveActive = false;
         this.supplies += 25 + 10 * this.waveNum;   // wave-clear bonus
       }

@@ -297,6 +297,16 @@ class Renderer {
     const s = worldToScreen(zb.x, zb.y, cam);
     const r = zb.def.radius * z;
 
+    if (zb.dormant) {
+      this._groundEllipse(ctx, s, zb.def.radius, z);
+      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y - r * 0.5, r * 1.1, r * 0.7, 0, 0, Math.PI * 2);
+      ctx.fillStyle = shadeColor(zb.def.color, 0.55); ctx.fill();
+      ctx.strokeStyle = '#003300'; ctx.lineWidth = 1.5; ctx.stroke();
+      return;   // no eyes, no health bar — it's scenery until it isn't
+    }
+
     this._groundEllipse(ctx, s, zb.def.radius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
 
@@ -481,7 +491,7 @@ class Renderer {
       ctx.fillStyle = warning ? (Math.floor(Date.now()/400)%2===0 ? '#ff4444' : '#ff8844') : '#cccccc';
       ctx.fillText(`Wave ${game.waveNum + 1} in ${Math.ceil(timeLeft)}s`, this.W / 2, 22);
     } else {
-      const remaining = game.zombiesToSpawn.length + game.zombies.filter(z=>!z.dead).length;
+      const remaining = game.zombiesToSpawn.length + game.zombies.filter(z => !z.dead && !z.dormant).length;
       ctx.fillStyle = '#ff4444';
       ctx.fillText(`WAVE ${game.waveNum} — ${remaining} zombies remaining`, this.W / 2, 22);
     }
