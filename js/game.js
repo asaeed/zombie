@@ -313,11 +313,33 @@ class Game {
   _recomputeFog() {
     this.fogVisible.fill(0);
     for (const u of this.units) {
-      if (!u.dead) this._markVision(u.x, u.y, VISION[u.type]);
+      if (!u.dead) this._markVision(u.x, u.y, this.visionRadius(u.type));
     }
     for (const b of this.buildings) {
-      if (!b.dead) this._markVision(b.x, b.y, VISION[b.type] ?? 4);
+      if (!b.dead) this._markVision(b.x, b.y, this.visionRadius(b.type));
     }
+  }
+
+  // ── Day/night cycle ─────────────────────────────────────────────────────────
+  cycleTime() { return this.gameTime % (DAY_LENGTH + NIGHT_LENGTH); }
+
+  // 0 = full day, 1 = full night, linear ramps CYCLE_TRANSITION long at each edge
+  darkness() {
+    const t = this.cycleTime();
+    if (t < DAY_LENGTH - CYCLE_TRANSITION) return 0;
+    if (t < DAY_LENGTH) return (t - (DAY_LENGTH - CYCLE_TRANSITION)) / CYCLE_TRANSITION;
+    const nightEnd = DAY_LENGTH + NIGHT_LENGTH;
+    if (t < nightEnd - CYCLE_TRANSITION) return 1;
+    return (nightEnd - t) / CYCLE_TRANSITION;
+  }
+
+  isNight() { return this.darkness() > 0.5; }
+
+  // Fog AND the lighting layer both use this — lit and visible are the same set
+  visionRadius(type) {
+    const base = VISION[type] ?? 4;
+    if (type === 'light' || type === 'flare') return base;   // lights don't dim
+    return lerp(base, base * NIGHT_VISION_FACTOR, this.darkness());
   }
 
   // ── Waves ─────────────────────────────────────────────────────────────────────

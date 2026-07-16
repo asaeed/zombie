@@ -504,6 +504,14 @@ class Renderer {
       ctx.fillText(`WAVE ${game.waveNum} — ${remaining} zombies remaining`, this.W / 2, 22);
     }
 
+    // Day/night indicator
+    const t = game.cycleTime();
+    const night = t >= DAY_LENGTH;
+    const nextIn = Math.ceil(night ? DAY_LENGTH + NIGHT_LENGTH - t : DAY_LENGTH - t);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = night ? '#88aaff' : '#ffd870';
+    ctx.fillText(night ? `NIGHT — dawn in ${nextIn}s` : `Day — night in ${nextIn}s`, this.W - 340, 22);
+
     // Survive timer
     const surviveLeft = Math.max(0, game.surviveTarget - game.gameTime);
     ctx.fillStyle = '#88aaff';
