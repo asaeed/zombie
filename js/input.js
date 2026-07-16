@@ -453,7 +453,7 @@ class InputHandler {
     }
 
     // F: arm flare throw (next click is the target)
-    if (e.code === 'KeyF' && !e.ctrlKey) {
+    if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
       if (game.flareCooldown <= 0 && game.supplies >= FLARE_COST) {
         this.flareArm = true;
         this.attackMoveArm = false;

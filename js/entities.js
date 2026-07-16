@@ -428,14 +428,19 @@ class Zombie {
       }
       if (nf) {
         const engaged = this.atkTarget && !this.atkTarget.dead &&
-          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) <= this.def.atkRange + 10;
+          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) <=
+            this.def.atkRange + (this.atkTarget.width ? this.atkTarget.width / 2 - 4 : 0) + 10;
         if (!engaged) {
           this.atkTarget = null;
           const d = dist(this.x, this.y, nf.x, nf.y);
           if (d > TILE) {
             const nx = (nf.x - this.x) / d, ny = (nf.y - this.y) / d;
-            this.x = clamp(this.x + nx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
-            this.y = clamp(this.y + ny * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
+            const stepX = clamp(this.x + nx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
+            const stepY = clamp(this.y + ny * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
+            // Transfixed at the obstacle rather than phasing through walls/water
+            if (!game.isTileBlockedForUnits(Math.floor(stepX / TILE), Math.floor(stepY / TILE))) {
+              this.x = stepX; this.y = stepY;
+            }
           }
           return;  // transfixed while it burns
         }
