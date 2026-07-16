@@ -27,6 +27,7 @@
     game = new Game();
     input.game = game;
     input.attackMoveArm = false;
+    input.flareArm = false;
     input.canvas.style.cursor = '';
     input.groups = {};
     input._lastGroupTap = null;
