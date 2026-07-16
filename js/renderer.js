@@ -68,6 +68,7 @@ class Renderer {
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
     this._drawBundles(ctx, game);
+    this._drawFlares(ctx, game);
     this._drawLighting(ctx, game);
     if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
@@ -186,7 +187,7 @@ class Renderer {
 
     // Label on the roof
     const cx = (N.x + S.x) / 2, roofCy = (N.y + S.y) / 2 - h;
-    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D' };
+    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
     if (labels[b.type]) {
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.font = `bold ${Math.min(12, ts * 8)}px monospace`;
@@ -367,6 +368,19 @@ class Renderer {
       ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
       ctx.fillStyle = '#ffdd44'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
       ctx.fillText(`${bd.amount}`, s.x, s.y - 12 * z);
+    }
+  }
+
+  // ── Flares (thrown signal flares — ground stick + flickering flame) ────────
+  _drawFlares(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
+    for (const f of game.flares) {
+      const s = worldToScreen(f.x, f.y, cam);
+      const flicker = 0.75 + 0.25 * Math.sin(f.t * 30);
+      ctx.fillStyle = '#c03028';
+      ctx.fillRect(s.x - 1.5 * z, s.y - 6 * z, 3 * z, 6 * z);       // stick
+      ctx.fillStyle = `rgba(255,240,190,${flicker})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y - 7 * z, 2.5 * z, 0, Math.PI * 2); ctx.fill();
     }
   }
 
@@ -553,6 +567,10 @@ class Renderer {
     ctx.fillStyle = '#aaffaa';
     ctx.fillText(`Score: ${game.score}`, 250, 22);
 
+    ctx.fillStyle = game.flareCooldown > 0 ? '#777777'
+                   : game.supplies >= FLARE_COST ? '#ff8866' : '#775544';
+    ctx.fillText(game.flareCooldown > 0 ? `Flare ${Math.ceil(game.flareCooldown)}s` : 'Flare ready [F]', 385, 22);
+
     // Wave info
     const timeLeft = game.waveTimer;
     ctx.textAlign = 'center';
@@ -591,6 +609,13 @@ class Renderer {
       ctx.font = 'bold 13px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('ATTACK-MOVE — click target (Esc cancels)', this.W / 2, 58);
+    }
+
+    if (input.flareArm) {
+      ctx.fillStyle = '#ff8866';
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('FLARE — click target (Esc cancels)', this.W / 2, 58);
     }
 
     // Bottom panel
@@ -658,7 +683,7 @@ class Renderer {
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | F: flare | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
     ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 

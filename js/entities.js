@@ -419,6 +419,29 @@ class Zombie {
       if (this.dormant) return;
     }
 
+    // A burning flare is irresistible: drop long-range intent and shamble to it
+    if (game.flares.length > 0) {
+      let nf = null, nfD2 = (FLARE_PULL_RADIUS * TILE) ** 2;
+      for (const f of game.flares) {
+        const d2 = dist2(this.x, this.y, f.x, f.y);
+        if (d2 < nfD2) { nfD2 = d2; nf = f; }
+      }
+      if (nf) {
+        const engaged = this.atkTarget && !this.atkTarget.dead &&
+          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) <= this.def.atkRange + 10;
+        if (!engaged) {
+          this.atkTarget = null;
+          const d = dist(this.x, this.y, nf.x, nf.y);
+          if (d > TILE) {
+            const nx = (nf.x - this.x) / d, ny = (nf.y - this.y) / d;
+            this.x = clamp(this.x + nx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
+            this.y = clamp(this.y + ny * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
+          }
+          return;  // transfixed while it burns
+        }
+      }
+    }
+
     this.atkCooldown -= dt;
 
     // Clear dead attack target

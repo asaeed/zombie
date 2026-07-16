@@ -11,6 +11,8 @@ class Game {
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
+    this.flares      = [];   // {x, y, t} — thrown signal flares (light + zombie magnet)
+    this.flareCooldown = 0;  // seconds remaining before another throw
 
     this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
     this.fogExplored = new Uint8Array(MAP_W * MAP_H);
@@ -256,6 +258,17 @@ class Game {
     }
   }
 
+  // Throw a flare at an explored point: light + zombie magnet, wakes sleepers
+  throwFlare(wx, wy) {
+    if (this.flareCooldown > 0 || this.supplies < FLARE_COST) return false;
+    if (!this.tileExplored(Math.floor(wx / TILE), Math.floor(wy / TILE))) return false;
+    this.supplies -= FLARE_COST;
+    this.flareCooldown = FLARE_COOLDOWN;
+    this.flares.push({ x: wx, y: wy, t: 0 });
+    this.wakeDormantNear(wx, wy, FLARE_LIGHT_RADIUS * TILE);  // light wakes sleepers
+    return true;
+  }
+
   entityAt(wx, wy) {
     // Check units first
     for (const u of this.units) {
@@ -320,6 +333,7 @@ class Game {
     for (const b of this.buildings) {
       if (!b.dead) this._markVision(b.x, b.y, this.visionRadius(b.type));
     }
+    for (const f of this.flares) this._markVision(f.x, f.y, FLARE_LIGHT_RADIUS);
   }
 
   // ── Day/night cycle ─────────────────────────────────────────────────────────
@@ -455,6 +469,8 @@ class Game {
       this._recomputeFog();
     }
 
+    this.flareCooldown = Math.max(0, this.flareCooldown - dt);
+
     // Wave timer
     if (!this.waveActive) {
       this.waveTimer -= dt;
@@ -497,6 +513,10 @@ class Game {
     // Bundle expiry
     // Bundles persist until recovered (no decay)
     this.bundles = this.bundles.filter(bd => bd.amount > 0);
+
+    // Flare aging/expiry
+    for (const f of this.flares) f.t += dt;
+    this.flares = this.flares.filter(f => f.t < FLARE_DURATION);
 
     // Update projectiles (may kill zombies)
     for (const p of this.projectiles) p.update(dt);
