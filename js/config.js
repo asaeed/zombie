@@ -20,6 +20,7 @@ const BUILDING_DEFS = {
   tower:    { name:'Guard Tower',  maxHp:350,  tileSize:2, cost:150, color:'#cc9922', canBuild:true, atkRange:220, atkDmg:40, atkRate:1.0 },
   barracks: { name:'Barracks',     maxHp:500,  tileSize:2, cost:200, color:'#883322', canBuild:true },
   depot:    { name:'Supply Depot', maxHp:300,  tileSize:2, cost:75, color:'#445566', canBuild:true },
+  light:    { name:'Light Tower',  maxHp:200,  tileSize:1, cost:60,  color:'#ddcc66', canBuild:true },
 };
 
 const ZOMBIE_DEFS = {
@@ -54,7 +55,7 @@ const ISO_Y = 0.4;   // screen px per world px along (wx + wy)
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 2.0;
 // Building volume heights in screen px at zoom 1 (placeholder iso volumes)
-const ISO_HEIGHTS = { hq: 44, wall: 18, tower: 48, barracks: 34, depot: 26 };
+const ISO_HEIGHTS = { hq: 44, wall: 18, tower: 48, barracks: 34, depot: 26, light: 38 };
 
 // ── Phase 3: scavenging economy ───────────────────────────────────────────────
 const CACHE_COUNT = 44;
@@ -65,9 +66,20 @@ const SEARCH_TIME = 2;                   // seconds adjacent to an unsearched ca
 const SEARCH_RADIUS = 1.5;               // tiles
 const DROP_RADIUS = 3;                   // tiles from HQ/depot to bank carried supplies
 const DEPOT_STORAGE = 250;               // storage capacity per depot (the HQ stores nothing)
-const VISION = { soldier: 8, builder: 6, scout: 12, hq: 10, wall: 3, tower: 9, barracks: 6, depot: 6 };
+const VISION = { soldier: 8, builder: 6, scout: 12, hq: 10, wall: 3, tower: 9, barracks: 6, depot: 6, light: 14 };
 const FOG_INTERVAL = 0.1;                // seconds between visibility recomputes
 const GUARD_STRAYS = 10;
 const GUARD_WAKE_RADIUS = 3 * TILE;      // proximity wake
 const GUARD_GUNFIRE_RADIUS = 6 * TILE;   // gunfire wake (from the shooter)
 const REPAIR_TICK_COST = 5;              // supplies per 20 HP repair tick
+
+// ── Phase 4: light & dark ─────────────────────────────────────────────────────
+const DAY_LENGTH = 180;                  // seconds of daylight per cycle
+const NIGHT_LENGTH = 120;                // seconds of night per cycle
+const CYCLE_TRANSITION = 15;             // dusk/dawn ramp seconds
+const NIGHT_VISION_FACTOR = 0.4;         // vision radii shrink to this at full night
+const FLARE_COST = 50;
+const FLARE_COOLDOWN = 60;               // seconds
+const FLARE_DURATION = 10;               // seconds burning
+const FLARE_LIGHT_RADIUS = 9;            // tiles of light/vision while burning
+const FLARE_PULL_RADIUS = 12;            // tiles: zombies aggro to the flare

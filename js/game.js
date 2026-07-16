@@ -11,6 +11,8 @@ class Game {
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
+    this.flares      = [];   // {x, y, t} — thrown signal flares (light + zombie magnet)
+    this.flareCooldown = 0;  // seconds remaining before another throw
 
     this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
     this.fogExplored = new Uint8Array(MAP_W * MAP_H);
@@ -238,9 +240,11 @@ class Game {
 
   // ── Queries ──────────────────────────────────────────────────────────────────
   nearestZombie(x, y, range, includeDormant = false) {
+    const nightRule = this.isNight();
     let best = null, bestD2 = range * range;
     for (const z of this.zombies) {
       if (z.dead || (!includeDormant && z.dormant)) continue;
+      if (nightRule && !this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const d2 = dist2(x, y, z.x, z.y);
       if (d2 < bestD2) { bestD2 = d2; best = z; }
     }
@@ -252,6 +256,17 @@ class Game {
       if (z.dead || !z.dormant) continue;
       if (dist2(x, y, z.x, z.y) < radius * radius) z.dormant = false;
     }
+  }
+
+  // Throw a flare at an explored point: light + zombie magnet, wakes sleepers
+  throwFlare(wx, wy) {
+    if (this.flareCooldown > 0 || this.supplies < FLARE_COST) return false;
+    if (!this.tileExplored(Math.floor(wx / TILE), Math.floor(wy / TILE))) return false;
+    this.supplies -= FLARE_COST;
+    this.flareCooldown = FLARE_COOLDOWN;
+    this.flares.push({ x: wx, y: wy, t: 0 });
+    this.wakeDormantNear(wx, wy, FLARE_LIGHT_RADIUS * TILE);  // light wakes sleepers
+    return true;
   }
 
   entityAt(wx, wy) {
@@ -313,11 +328,34 @@ class Game {
   _recomputeFog() {
     this.fogVisible.fill(0);
     for (const u of this.units) {
-      if (!u.dead) this._markVision(u.x, u.y, VISION[u.type]);
+      if (!u.dead) this._markVision(u.x, u.y, this.visionRadius(u.type));
     }
     for (const b of this.buildings) {
-      if (!b.dead) this._markVision(b.x, b.y, VISION[b.type] ?? 4);
+      if (!b.dead) this._markVision(b.x, b.y, this.visionRadius(b.type));
     }
+    for (const f of this.flares) this._markVision(f.x, f.y, FLARE_LIGHT_RADIUS);
+  }
+
+  // ── Day/night cycle ─────────────────────────────────────────────────────────
+  cycleTime() { return this.gameTime % (DAY_LENGTH + NIGHT_LENGTH); }
+
+  // 0 = full day, 1 = full night, linear ramps CYCLE_TRANSITION long at each edge
+  darkness() {
+    const t = this.cycleTime();
+    if (t < DAY_LENGTH - CYCLE_TRANSITION) return 0;
+    if (t < DAY_LENGTH) return (t - (DAY_LENGTH - CYCLE_TRANSITION)) / CYCLE_TRANSITION;
+    const nightEnd = DAY_LENGTH + NIGHT_LENGTH;
+    if (t < nightEnd - CYCLE_TRANSITION) return 1;
+    return (nightEnd - t) / CYCLE_TRANSITION;
+  }
+
+  isNight() { return this.darkness() > 0.5; }
+
+  // Fog AND the lighting layer both use this — lit and visible are the same set
+  visionRadius(type) {
+    const base = VISION[type] ?? 4;
+    if (type === 'light' || type === 'flare') return base;   // lights don't dim
+    return lerp(base, base * NIGHT_VISION_FACTOR, this.darkness());
   }
 
   // ── Waves ─────────────────────────────────────────────────────────────────────
@@ -431,6 +469,8 @@ class Game {
       this._recomputeFog();
     }
 
+    this.flareCooldown = Math.max(0, this.flareCooldown - dt);
+
     // Wave timer
     if (!this.waveActive) {
       this.waveTimer -= dt;
@@ -473,6 +513,10 @@ class Game {
     // Bundle expiry
     // Bundles persist until recovered (no decay)
     this.bundles = this.bundles.filter(bd => bd.amount > 0);
+
+    // Flare aging/expiry
+    for (const f of this.flares) f.t += dt;
+    this.flares = this.flares.filter(f => f.t < FLARE_DURATION);
 
     // Update projectiles (may kill zombies)
     for (const p of this.projectiles) p.update(dt);

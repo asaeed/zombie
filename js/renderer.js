@@ -4,6 +4,7 @@ class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this._lightCanvas = document.createElement('canvas');   // offscreen; sized in resize()
     this.resize();
     this._tileSprites = this._makeTileSprites();
 
@@ -17,6 +18,8 @@ class Renderer {
     this.canvas.height = window.innerHeight;
     this.W = this.canvas.width;
     this.H = this.canvas.height;
+    this._lightCanvas.width = this.W;
+    this._lightCanvas.height = this.H;
   }
 
   // Pre-render one 64×32 diamond per tile type × 2 checker shades
@@ -61,11 +64,13 @@ class Renderer {
     ctx.fillRect(0, 0, this.W, this.H);
 
     this._drawTiles(ctx, game);
-    if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     this._drawEntities(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
     this._drawBundles(ctx, game);
+    this._drawFlares(ctx, game);
+    this._drawLighting(ctx, game);
+    if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
       this._drawBarracksButtons(ctx, game, game._selectedBuilding);
@@ -182,7 +187,7 @@ class Renderer {
 
     // Label on the roof
     const cx = (N.x + S.x) / 2, roofCy = (N.y + S.y) / 2 - h;
-    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D' };
+    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
     if (labels[b.type]) {
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.font = `bold ${Math.min(12, ts * 8)}px monospace`;
@@ -366,6 +371,77 @@ class Renderer {
     }
   }
 
+  // ── Flares (thrown signal flares — ground stick + flickering flame) ────────
+  _drawFlares(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
+    for (const f of game.flares) {
+      const s = worldToScreen(f.x, f.y, cam);
+      const flicker = 0.75 + 0.25 * Math.sin(f.t * 30);
+      ctx.fillStyle = '#c03028';
+      ctx.fillRect(s.x - 1.5 * z, s.y - 6 * z, 3 * z, 6 * z);       // stick
+      ctx.fillStyle = `rgba(255,240,190,${flicker})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y - 7 * z, 2.5 * z, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // ── Darkness + light pools (night only) ────────────────────────────────────
+  _drawLighting(ctx, game) {
+    const dk = game.darkness();
+    if (dk < 0.02) return;
+    const cam = game.camera, z = cam.zoom;
+    const lc = this._lightCanvas;
+    const g = lc.getContext('2d');
+
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, this.W, this.H);
+    g.fillStyle = `rgba(7, 10, 32, ${0.82 * dk})`;
+    g.fillRect(0, 0, this.W, this.H);
+
+    // Punch light pools out of the darkness — same radii the fog uses
+    g.globalCompositeOperation = 'destination-out';
+    const punch = (wx, wy, radiusTiles, coreAlpha = 1) => {
+      const s = worldToScreen(wx, wy, cam);
+      const r = tilesToScreenRadius(radiusTiles, z);
+      const grad = g.createRadialGradient(s.x, s.y, r * 0.15, s.x, s.y, r);
+      grad.addColorStop(0, `rgba(0,0,0,${coreAlpha})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(s.x, s.y, r, 0, Math.PI * 2); g.fill();
+    };
+    for (const u of game.units) {
+      if (!u.dead) punch(u.x, u.y, game.visionRadius(u.type));
+    }
+    for (const b of game.buildings) {
+      if (!b.dead) punch(b.x, b.y, game.visionRadius(b.type));
+    }
+    for (const f of (game.flares || [])) punch(f.x, f.y, FLARE_LIGHT_RADIUS);
+
+    ctx.drawImage(lc, 0, 0);
+
+    // Warm glows on the strongest sources
+    ctx.globalCompositeOperation = 'lighter';
+    const warm = (wx, wy, radiusTiles, color) => {
+      const s = worldToScreen(wx, wy, cam);
+      const r = tilesToScreenRadius(radiusTiles, z) * 0.6;
+      const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI * 2); ctx.fill();
+    };
+    for (const b of game.buildings) {
+      if (b.dead) continue;
+      if (b.type === 'hq')    warm(b.x, b.y, VISION.hq,    `rgba(255,170,70,${0.16 * dk})`);
+      if (b.type === 'light') warm(b.x, b.y, VISION.light, `rgba(255,225,140,${0.14 * dk})`);
+    }
+    for (const f of (game.flares || [])) warm(f.x, f.y, FLARE_LIGHT_RADIUS, `rgba(255,120,40,${0.4 * dk})`);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Cold night tint
+    ctx.fillStyle = `rgba(40, 60, 140, ${0.08 * dk})`;
+    ctx.fillRect(0, 0, this.W, this.H);
+  }
+
   // ── Barracks Train Buttons (screen space, anchored under the building) ───
   _drawBarracksButtons(ctx, game, b) {
     const rects = barracksButtonRects(b, game.camera);
@@ -491,6 +567,10 @@ class Renderer {
     ctx.fillStyle = '#aaffaa';
     ctx.fillText(`Score: ${game.score}`, 250, 22);
 
+    ctx.fillStyle = game.flareCooldown > 0 ? '#777777'
+                   : game.supplies >= FLARE_COST ? '#ff8866' : '#775544';
+    ctx.fillText(game.flareCooldown > 0 ? `Flare ${Math.ceil(game.flareCooldown)}s` : 'Flare ready [F]', 385, 22);
+
     // Wave info
     const timeLeft = game.waveTimer;
     ctx.textAlign = 'center';
@@ -503,6 +583,14 @@ class Renderer {
       ctx.fillStyle = '#ff4444';
       ctx.fillText(`WAVE ${game.waveNum} — ${remaining} zombies remaining`, this.W / 2, 22);
     }
+
+    // Day/night indicator
+    const t = game.cycleTime();
+    const night = t >= DAY_LENGTH;
+    const nextIn = Math.ceil(night ? DAY_LENGTH + NIGHT_LENGTH - t : DAY_LENGTH - t);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = night ? '#88aaff' : '#ffd870';
+    ctx.fillText(night ? `NIGHT — dawn in ${nextIn}s` : `Day — night in ${nextIn}s`, this.W - 340, 22);
 
     // Survive timer
     const surviveLeft = Math.max(0, game.surviveTarget - game.gameTime);
@@ -521,6 +609,13 @@ class Renderer {
       ctx.font = 'bold 13px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('ATTACK-MOVE — click target (Esc cancels)', this.W / 2, 58);
+    }
+
+    if (input.flareArm) {
+      ctx.fillStyle = '#ff8866';
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('FLARE — click target (Esc cancels)', this.W / 2, 58);
     }
 
     // Bottom panel
@@ -578,7 +673,7 @@ class Renderer {
       // Hotkey hint
       ctx.fillStyle = '#888';
       ctx.font = '9px monospace';
-      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D' };
+      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
       ctx.fillText(`[${hotkeys[type]}]`, x + BW - 14, y + 12);
       ctx.font = 'bold 12px monospace';
     });
@@ -587,8 +682,8 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
+    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | F: flare | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
     ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 

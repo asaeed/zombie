@@ -6,10 +6,11 @@ and open localhost) and play.
 
 ## Controls
 - Left click / drag: select units · Right click: move / attack / repair
-- Build: `W`all, `T`ower, `B`arracks, `D`epot · Esc: cancel · Del: sell
+- Build: `W`all, `T`ower, `B`arracks, `D`epot, `L`ight tower · Esc: cancel · Del: sell
 - `A` + click: attack-move · `S`: stop · `R`: builder repair · `H`: select idle units
 - `1–9`: control groups (`Shift+digit` assigns, double-tap centers)
 - Barracks: click → train panel (`Z`/`X`/`C`) · right-click sets rally point
+- `F` + click: throw a signal flare (50 supplies, 60s cooldown) — lures the horde, wakes sleepers
 - Camera: wheel zoom · middle-drag / arrows / minimap click: pan
 - Click a screen edge to arm auto-scroll; moving off the edge stops it
 - `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert
@@ -30,6 +31,10 @@ and open localhost) and play.
   drop-off points for long hauls
 - Kills score points but pay nothing; each cleared wave pays a small bonus
   (always banked, even over cap); repairs cost supplies
+- Night falls every 3 minutes (2 minutes long): vision shrinks to flashlight
+  range and your defenders can only shoot zombies that are LIT. Light towers
+  (60 supplies, no weapon) push the lit perimeter outward — keep the camp lit
+  or your towers go silent right when the horde arrives
 
 ## Architecture
 - Simulation runs on a square 80×80 tile grid in world coordinates
@@ -40,6 +45,6 @@ and open localhost) and play.
 
 ## Project docs
 - Design spec: `docs/superpowers/specs/2026-07-13-overhaul-design.md`
-- Current plan: `docs/superpowers/plans/2026-07-15-phase3-economy.md`
-  (phase 3 of 7 — scavenging economy; phases 1-2 complete)
+- Current plan: `docs/superpowers/plans/2026-07-16-phase4-light.md`
+  (phase 4 of 7 — light & dark; phases 1–3 complete)
 - Visual mockups: `docs/mockups/visual-directions.html`

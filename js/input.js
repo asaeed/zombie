@@ -40,6 +40,7 @@ class InputHandler {
     this.groups = {};            // digit -> unit array
     this._lastGroupTap = null;   // { d, t } for double-tap detection
     this.attackMoveArm = false;
+    this.flareArm = false;
 
     this._bind();
   }
@@ -158,6 +159,15 @@ class InputHandler {
         game.placeBuilding(game.buildMode, this.mouseTile.tx, this.mouseTile.ty);
         // Keep build mode active for quick placement
       }
+      return;
+    }
+
+    // Armed flare: this click throws it
+    if (this.flareArm) {
+      this.flareArm = false;
+      this.canvas.style.cursor = '';
+      game.throwFlare(wx, wy);
+      this._clickHandled = true;
       return;
     }
 
@@ -342,9 +352,12 @@ class InputHandler {
     }
     const game = this.game;
 
-    // Escape: cancel attack-move arm / build mode / deselect
+    // Escape: cancel flare arm / attack-move arm / build mode / deselect
     if (e.code === 'Escape') {
-      if (this.attackMoveArm) {
+      if (this.flareArm) {
+        this.flareArm = false;
+        this.canvas.style.cursor = '';
+      } else if (this.attackMoveArm) {
         this.attackMoveArm = false;
         this.canvas.style.cursor = '';
       } else if (game.buildMode) {
@@ -357,12 +370,13 @@ class InputHandler {
     }
 
     // Build hotkeys: mnemonic letters (digits are control groups now)
-    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot' };
+    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light' };
     if (buildKeys[e.code] && !e.shiftKey) {
       const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
-      if (game.buildMode) {          // last intent wins: entering build mode disarms attack-move
+      if (game.buildMode) {          // last intent wins: entering build mode disarms attack-move/flare
         this.attackMoveArm = false;
+        this.flareArm = false;
         this.canvas.style.cursor = '';
       }
     }
@@ -433,8 +447,19 @@ class InputHandler {
     // A: arm attack-move — next left-click orders move-and-engage
     if (e.code === 'KeyA' && game.selected.length > 0) {
       this.attackMoveArm = true;
+      this.flareArm = false;         // last intent wins: arming cancels flare arm
       this.canvas.style.cursor = 'crosshair';
       game.buildMode = null;         // last intent wins: arming cancels build mode
+    }
+
+    // F: arm flare throw (next click is the target)
+    if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
+      if (game.flareCooldown <= 0 && game.supplies >= FLARE_COST) {
+        this.flareArm = true;
+        this.attackMoveArm = false;
+        game.buildMode = null;
+        this.canvas.style.cursor = 'crosshair';
+      }
     }
 
     // S: stop all
@@ -492,7 +517,7 @@ class InputHandler {
       const y = BY;
       if (sx >= x && sx <= x + BW && sy >= y && sy <= y + BH) {
         game.buildMode = game.buildMode === type ? null : type;
-        if (game.buildMode) { this.attackMoveArm = false; this.canvas.style.cursor = ''; }
+        if (game.buildMode) { this.attackMoveArm = false; this.flareArm = false; this.canvas.style.cursor = ''; }
       }
     });
 
