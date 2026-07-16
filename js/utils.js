@@ -64,6 +64,9 @@ function screenToWorld(sx, sy, cam) {
   return { x: (iy + ix) / 2, y: (iy - ix) / 2 };
 }
 
+// Screen-px radius of a ground circle r tiles wide (approximation for light pools)
+function tilesToScreenRadius(tiles, zoom) { return tiles * TILE * ISO_X * zoom; }
+
 // Projected bounding box of the full map diamond at a given zoom
 function mapScreenBounds(zoom) {
   const wpx = MAP_W * TILE, hpx = MAP_H * TILE;

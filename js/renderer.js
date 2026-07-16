@@ -4,6 +4,7 @@ class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this._lightCanvas = document.createElement('canvas');   // offscreen; sized in resize()
     this.resize();
     this._tileSprites = this._makeTileSprites();
 
@@ -17,6 +18,8 @@ class Renderer {
     this.canvas.height = window.innerHeight;
     this.W = this.canvas.width;
     this.H = this.canvas.height;
+    this._lightCanvas.width = this.W;
+    this._lightCanvas.height = this.H;
   }
 
   // Pre-render one 64×32 diamond per tile type × 2 checker shades
@@ -61,11 +64,12 @@ class Renderer {
     ctx.fillRect(0, 0, this.W, this.H);
 
     this._drawTiles(ctx, game);
-    if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     this._drawEntities(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
     this._drawBundles(ctx, game);
+    this._drawLighting(ctx, game);
+    if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
     if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
       this._drawBarracksButtons(ctx, game, game._selectedBuilding);
@@ -364,6 +368,64 @@ class Renderer {
       ctx.fillStyle = '#ffdd44'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
       ctx.fillText(`${bd.amount}`, s.x, s.y - 12 * z);
     }
+  }
+
+  // ── Darkness + light pools (night only) ────────────────────────────────────
+  _drawLighting(ctx, game) {
+    const dk = game.darkness();
+    if (dk < 0.02) return;
+    const cam = game.camera, z = cam.zoom;
+    const lc = this._lightCanvas;
+    const g = lc.getContext('2d');
+
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, this.W, this.H);
+    g.fillStyle = `rgba(7, 10, 32, ${0.82 * dk})`;
+    g.fillRect(0, 0, this.W, this.H);
+
+    // Punch light pools out of the darkness — same radii the fog uses
+    g.globalCompositeOperation = 'destination-out';
+    const punch = (wx, wy, radiusTiles, coreAlpha = 1) => {
+      const s = worldToScreen(wx, wy, cam);
+      const r = tilesToScreenRadius(radiusTiles, z);
+      const grad = g.createRadialGradient(s.x, s.y, r * 0.15, s.x, s.y, r);
+      grad.addColorStop(0, `rgba(0,0,0,${coreAlpha})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(s.x, s.y, r, 0, Math.PI * 2); g.fill();
+    };
+    for (const u of game.units) {
+      if (!u.dead) punch(u.x, u.y, game.visionRadius(u.type));
+    }
+    for (const b of game.buildings) {
+      if (!b.dead) punch(b.x, b.y, game.visionRadius(b.type));
+    }
+    for (const f of (game.flares || [])) punch(f.x, f.y, FLARE_LIGHT_RADIUS);
+
+    ctx.drawImage(lc, 0, 0);
+
+    // Warm glows on the strongest sources
+    ctx.globalCompositeOperation = 'lighter';
+    const warm = (wx, wy, radiusTiles, color) => {
+      const s = worldToScreen(wx, wy, cam);
+      const r = tilesToScreenRadius(radiusTiles, z) * 0.6;
+      const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI * 2); ctx.fill();
+    };
+    for (const b of game.buildings) {
+      if (b.dead) continue;
+      if (b.type === 'hq')    warm(b.x, b.y, VISION.hq,    `rgba(255,170,70,${0.16 * dk})`);
+      if (b.type === 'light') warm(b.x, b.y, VISION.light, `rgba(255,225,140,${0.14 * dk})`);
+    }
+    for (const f of (game.flares || [])) warm(f.x, f.y, FLARE_LIGHT_RADIUS, `rgba(255,120,40,${0.4 * dk})`);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Cold night tint
+    ctx.fillStyle = `rgba(40, 60, 140, ${0.08 * dk})`;
+    ctx.fillRect(0, 0, this.W, this.H);
   }
 
   // ── Barracks Train Buttons (screen space, anchored under the building) ───
