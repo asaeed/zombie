@@ -357,7 +357,7 @@ class InputHandler {
     }
 
     // Build hotkeys: mnemonic letters (digits are control groups now)
-    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot' };
+    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light' };
     if (buildKeys[e.code] && !e.shiftKey) {
       const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;

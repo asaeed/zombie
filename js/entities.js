@@ -100,7 +100,8 @@ class Building {
     if (this.type === 'tower') {
       this.atkCooldown -= dt;
       if (!this.atkTarget || this.atkTarget.dead ||
-          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) > this.def.atkRange) {
+          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) > this.def.atkRange ||
+          (game.isNight() && !game.tileVisible(Math.floor(this.atkTarget.x / TILE), Math.floor(this.atkTarget.y / TILE)))) {
         this.atkTarget = game.nearestZombie(this.x, this.y, this.def.atkRange);
       }
       if (this.atkTarget && !this.atkTarget.dead && this.atkCooldown <= 0) {

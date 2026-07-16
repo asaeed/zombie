@@ -238,9 +238,11 @@ class Game {
 
   // ── Queries ──────────────────────────────────────────────────────────────────
   nearestZombie(x, y, range, includeDormant = false) {
+    const nightRule = this.isNight();
     let best = null, bestD2 = range * range;
     for (const z of this.zombies) {
       if (z.dead || (!includeDormant && z.dormant)) continue;
+      if (nightRule && !this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const d2 = dist2(x, y, z.x, z.y);
       if (d2 < bestD2) { bestD2 = d2; best = z; }
     }

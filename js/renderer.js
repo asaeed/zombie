@@ -648,7 +648,7 @@ class Renderer {
       // Hotkey hint
       ctx.fillStyle = '#888';
       ctx.font = '9px monospace';
-      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D' };
+      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
       ctx.fillText(`[${hotkeys[type]}]`, x + BW - 14, y + 12);
       ctx.font = 'bold 12px monospace';
     });
@@ -657,7 +657,7 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
+    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
     ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
     ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
