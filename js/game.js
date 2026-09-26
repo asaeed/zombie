@@ -9,9 +9,11 @@ class Game {
     this.projectiles = [];
     this.particles   = [];
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
+    this.toasts      = [];   // {text, kind, t, life} — attention messages
+    this._toastLast  = {};
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
-    this.flares      = [];   // {x, y, t} — thrown signal flares (light + zombie magnet)
+    this.flares      = [];   // {x, y, t} — thrown flare: light + zombie magnet + fire source
     this.flareCooldown = 0;  // seconds remaining before another throw
 
     this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
@@ -30,13 +32,14 @@ class Game {
     this.flowDirty   = true;
 
     this.selected    = [];       // selected units
+    this._selectedBuilding = null;
     this.buildMode   = null;     // string: building type being placed
 
     this.camera      = { x: 0, y: 0, zoom: 1 };
 
-    this.status      = 'playing'; // 'playing' | 'gameover' | 'victory'
+    this.status      = 'playing'; // 'playing' | 'gameover'
+    this.paused      = false;
     this.gameTime    = 0;
-    this.surviveTarget = 600; // 10 minutes to "win"
   }
 
   // ── Initialise ──────────────────────────────────────────────────────────────
@@ -55,6 +58,255 @@ class Game {
     }
 
     this._recomputeFog();
+  }
+
+  toSaveData() {
+    const targetId = target => (target && !target.dead) ? target.id : null;
+    const point = p => p ? { x: p.x, y: p.y } : null;
+    return {
+      version: SAVE_VERSION,
+      savedAt: Date.now(),
+      tiles: this.tiles.map(row => Array.from(row)),
+      fogVisible: Array.from(this.fogVisible),
+      fogExplored: Array.from(this.fogExplored),
+      fogTimer: this._fogTimer,
+      supplies: this.supplies,
+      score: this.score,
+      waveNum: this.waveNum,
+      waveTimer: this.waveTimer,
+      waveActive: this.waveActive,
+      zombiesToSpawn: [...this.zombiesToSpawn],
+      spawnTimer: this.spawnTimer,
+      flareCooldown: this.flareCooldown,
+      status: this.status,
+      gameTime: this.gameTime,
+      camera: { ...this.camera },
+      buildMode: this.buildMode,
+      selectedIds: this.selected.filter(u => !u.dead).map(u => u.id),
+      selectedBuildingId: targetId(this._selectedBuilding),
+      buildings: this.buildings.map(b => ({
+        id: b.id, type: b.type, tileX: b.tileX, tileY: b.tileY,
+        hp: b.hp, dead: b.dead, atkCooldown: b.atkCooldown,
+        atkTargetId: targetId(b.atkTarget),
+        trainQueue: [...b.trainQueue], trainProgress: b.trainProgress,
+        rally: point(b.rally),
+      })),
+      units: this.units.map(u => ({
+        id: u.id, type: u.type, x: u.x, y: u.y, hp: u.hp, dead: u.dead,
+        selected: u.selected, atkCooldown: u.atkCooldown,
+        atkTargetId: targetId(u.atkTarget), moveTarget: point(u.moveTarget),
+        waypoints: u.waypoints.map(point), attackMove: u.attackMove,
+        settledAt: u._settledAt,
+        carrying: u.carrying, gatherTargetId: targetId(u.gatherTarget),
+        gatherCenter: point(u.gatherCenter),
+        returnCargoTargetId: targetId(u.returnCargoTarget),
+        gatherReturning: u._gatherReturning,
+        bundleGatherCenter: point(u.bundleGatherCenter),
+        bundleGatherRadius: u.bundleGatherRadius,
+        bundleTargetId: targetId(u.bundleTarget),
+        bundleGatherReturning: u._bundleGatherReturning,
+        resourceLoadBuffer: u._resourceLoadBuffer,
+        resourceUnloadBuffer: u._resourceUnloadBuffer,
+        repairTargetId: targetId(u.repairTarget), repairCooldown: u.repairCooldown,
+        healCooldown: u.healCooldown,
+        supportHome: point(u.supportHome), supportReturning: u._supportReturning,
+        formationOffset: { ...u.formationOffset },
+      })),
+      zombies: this.zombies.map(z => ({
+        id: z.id, type: z.type, x: z.x, y: z.y, hp: z.hp, dead: z.dead,
+        atkTargetId: targetId(z.atkTarget), atkCooldown: z.atkCooldown,
+        dormant: z.dormant, burnTime: z.burnTime, burnMax: z.burnMax,
+        burnParticleTimer: z._burnParticleTimer,
+      })),
+      projectiles: this.projectiles.map(p => ({
+        id: p.id, x: p.x, y: p.y, targetId: targetId(p.target),
+        damage: p.damage, speed: p.speed, color: p.color, dead: p.dead,
+      })),
+      caches: this.caches.map(c => ({
+        id: c.id, kind: c.kind, tileX: c.tileX, tileY: c.tileY,
+        searched: c.searched, empty: c.empty, amount: c.amount,
+        searchProgress: c.searchProgress,
+      })),
+      bundles: this.bundles.map(bd => {
+        if (bd.id == null) bd.id = nextId();
+        return { id: bd.id, x: bd.x, y: bd.y, amount: bd.amount };
+      }),
+      flares: this.flares.map(f => ({ x: f.x, y: f.y, t: f.t })),
+      alerts: this.alerts.map(a => ({ x: a.x, y: a.y, t: a.t, kind: a.kind })),
+    };
+  }
+
+  static fromSaveData(data) {
+    if (!data || data.version !== SAVE_VERSION) throw new Error('Unsupported save version');
+
+    const game = new Game();
+    const entityById = new Map();
+    const cacheById = new Map();
+    const bundleById = new Map();
+    const addEntity = e => {
+      if (!e || e.id == null) return;
+      rememberId(e.id);
+      entityById.set(e.id, e);
+    };
+    const copyPoint = p => p ? { x: p.x, y: p.y } : null;
+
+    game.tiles = (data.tiles || []).map(row => Uint8Array.from(row));
+    if (game.tiles.length !== MAP_H || game.tiles.some(row => row.length !== MAP_W)) {
+      throw new Error('Save map dimensions do not match this build');
+    }
+    game.fogVisible = Uint8Array.from(data.fogVisible || []);
+    game.fogExplored = Uint8Array.from(data.fogExplored || []);
+    if (game.fogVisible.length !== MAP_W * MAP_H) game.fogVisible = new Uint8Array(MAP_W * MAP_H);
+    if (game.fogExplored.length !== MAP_W * MAP_H) game.fogExplored = new Uint8Array(MAP_W * MAP_H);
+    game._fogTimer = data.fogTimer ?? 0;
+
+    game.supplies = data.supplies ?? STARTING_SUPPLIES;
+    game.score = data.score ?? 0;
+    game.waveNum = data.waveNum ?? 0;
+    game.waveTimer = data.waveTimer ?? FIRST_WAVE_DELAY;
+    game.waveActive = !!data.waveActive;
+    game.zombiesToSpawn = [...(data.zombiesToSpawn || [])];
+    game.spawnTimer = data.spawnTimer ?? 0;
+    game.flareCooldown = data.flareCooldown ?? 0;
+    game.status = data.status || 'playing';
+    game.gameTime = data.gameTime ?? 0;
+    game.camera = {
+      x: data.camera?.x ?? 0,
+      y: data.camera?.y ?? 0,
+      zoom: data.camera?.zoom ?? 1,
+    };
+    game.buildMode = data.buildMode || null;
+
+    game.buildings = (data.buildings || []).map(s => {
+      const b = new Building(s.type, s.tileX, s.tileY);
+      b.id = s.id;
+      b.hp = s.hp ?? b.maxHp;
+      b.dead = !!s.dead;
+      b.atkCooldown = s.atkCooldown ?? 0;
+      b.trainQueue = [...(s.trainQueue || [])].filter(type => UNIT_DEFS[type]);
+      b.trainProgress = s.trainProgress ?? 0;
+      b.rally = copyPoint(s.rally);
+      b._saveAtkTargetId = s.atkTargetId ?? null;
+      addEntity(b);
+      return b;
+    });
+
+    game.caches = (data.caches || []).map(s => {
+      const c = new Cache(s.kind, s.tileX, s.tileY);
+      c.id = s.id;
+      c.searched = !!s.searched;
+      c.empty = !!s.empty;
+      c.amount = s.amount ?? 0;
+      c.searchProgress = s.searchProgress ?? 0;
+      rememberId(c.id);
+      cacheById.set(c.id, c);
+      return c;
+    });
+
+    game.bundles = (data.bundles || []).map(bd => {
+      const bundle = { id: bd.id ?? nextId(), x: bd.x, y: bd.y, amount: bd.amount };
+      rememberId(bundle.id);
+      bundleById.set(bundle.id, bundle);
+      return bundle;
+    });
+
+    game.units = (data.units || []).map(s => {
+      const u = new Unit(s.type, s.x, s.y);
+      u.id = s.id;
+      u.hp = s.hp ?? u.maxHp;
+      u.dead = !!s.dead;
+      u.selected = false;
+      u.atkCooldown = s.atkCooldown ?? 0;
+      u.moveTarget = copyPoint(s.moveTarget);
+      u.waypoints = (s.waypoints || []).map(copyPoint).filter(Boolean);
+      u._settledAt = s.settledAt ?? u._settledAt;
+      rememberSettleOrder(u._settledAt);
+      u.attackMove = !!s.attackMove;
+      u.carrying = s.carrying ?? 0;
+      u._gatherReturning = !!s.gatherReturning;
+      u.gatherCenter = copyPoint(s.gatherCenter);
+      u.bundleGatherCenter = copyPoint(s.bundleGatherCenter);
+      u.bundleGatherRadius = s.bundleGatherRadius ?? BUNDLE_GATHER_RADIUS;
+      u._bundleGatherReturning = !!s.bundleGatherReturning;
+      u._resourceLoadBuffer = s.resourceLoadBuffer ?? 0;
+      u._resourceUnloadBuffer = s.resourceUnloadBuffer ?? 0;
+      u.repairCooldown = s.repairCooldown ?? 0;
+      u.healCooldown = s.healCooldown ?? 0;
+      u.supportHome = copyPoint(s.supportHome);
+      u._supportReturning = !!s.supportReturning && !!u.supportHome;
+      u.formationOffset = s.formationOffset || { x: 0, y: 0 };
+      u._saveAtkTargetId = s.atkTargetId ?? null;
+      u._saveGatherTargetId = s.gatherTargetId ?? null;
+      u._saveReturnCargoTargetId = s.returnCargoTargetId ?? null;
+      u._saveBundleTargetId = s.bundleTargetId ?? null;
+      u._saveRepairTargetId = s.repairTargetId ?? null;
+      addEntity(u);
+      return u;
+    });
+
+    game.zombies = (data.zombies || []).map(s => {
+      const z = new Zombie(s.type, s.x, s.y);
+      z.id = s.id;
+      z.hp = s.hp ?? z.maxHp;
+      z.dead = !!s.dead;
+      z.atkCooldown = s.atkCooldown ?? 0;
+      z.dormant = !!s.dormant;
+      z.burnTime = s.burnTime ?? 0;
+      z.burnMax = s.burnMax ?? z.burnTime;
+      z._burnParticleTimer = s.burnParticleTimer ?? 0;
+      z._saveAtkTargetId = s.atkTargetId ?? null;
+      addEntity(z);
+      return z;
+    });
+
+    for (const b of game.buildings) {
+      b.atkTarget = entityById.get(b._saveAtkTargetId) || null;
+      delete b._saveAtkTargetId;
+    }
+    for (const u of game.units) {
+      u.atkTarget = entityById.get(u._saveAtkTargetId) || null;
+      u.gatherTarget = cacheById.get(u._saveGatherTargetId) || null;
+      if (!u.gatherCenter && u.gatherTarget) {
+        u.gatherCenter = { x: u.gatherTarget.x, y: u.gatherTarget.y };
+      }
+      u.returnCargoTarget = entityById.get(u._saveReturnCargoTargetId) || null;
+      u.bundleTarget = bundleById.get(u._saveBundleTargetId) || null;
+      u.repairTarget = entityById.get(u._saveRepairTargetId) || null;
+      delete u._saveAtkTargetId;
+      delete u._saveGatherTargetId;
+      delete u._saveReturnCargoTargetId;
+      delete u._saveBundleTargetId;
+      delete u._saveRepairTargetId;
+    }
+    for (const z of game.zombies) {
+      z.atkTarget = entityById.get(z._saveAtkTargetId) || null;
+      delete z._saveAtkTargetId;
+    }
+
+    game.projectiles = (data.projectiles || []).map(s => {
+      const target = entityById.get(s.targetId);
+      if (!target) return null;
+      const p = new Projectile(s.x, s.y, target, s.damage, s.speed, s.color);
+      p.id = s.id;
+      p.dead = !!s.dead;
+      rememberId(p.id);
+      return p;
+    }).filter(Boolean);
+
+    const selectedIds = new Set(data.selectedIds || []);
+    game.selected = [];
+    for (const u of game.units) {
+      u.selected = selectedIds.has(u.id);
+      if (u.selected && !u.dead) game.selected.push(u);
+    }
+    game._selectedBuilding = entityById.get(data.selectedBuildingId) || null;
+    game.flares = (data.flares || []).map(f => ({ x: f.x, y: f.y, t: f.t }));
+    game.alerts = (data.alerts || []).map(a => ({ x: a.x, y: a.y, t: a.t, kind: a.kind }));
+    game.projectiles = game.projectiles.filter(p => !p.dead);
+    game.particles = [];
+    game.flowDirty = true;
+    game._rebuildFlowField();
+    return game;
   }
 
   _generateMap() {
@@ -209,18 +461,33 @@ class Game {
     this.flowDirty = true;
   }
 
-  // Depots are the only supply storage. Supplies already banked above the cap
+  // HQ plus depots define supply storage. Supplies already banked above the cap
   // persist (spend-only) — losing a depot never destroys what you have.
   storageCap() {
-    return DEPOT_STORAGE * this.buildings.filter(b => !b.dead && b.type === 'depot').length;
+    const hqCap = this.buildings.some(b => !b.dead && b.type === 'hq') ? HQ_STORAGE : 0;
+    const depotCap = DEPOT_STORAGE * this.buildings.filter(b => !b.dead && b.type === 'depot').length;
+    return hqCap + depotCap;
+  }
+
+  supplyRoom() {
+    return Math.max(0, this.storageCap() - this.supplies);
   }
 
   // Add supplies up to the storage cap; returns the amount actually stored
   addSupplies(n) {
-    const room = Math.max(0, this.storageCap() - this.supplies);
+    const room = this.supplyRoom();
     const added = Math.min(n, room);
     this.supplies += added;
     return added;
+  }
+
+  addToast(text, kind = 'info', key = text, cooldown = 5) {
+    const now = this.gameTime;
+    if (this._toastLast[key] != null && now - this._toastLast[key] < cooldown) return false;
+    this._toastLast[key] = now;
+    this.toasts.push({ text, kind, t: 0, life: 4 });
+    if (this.toasts.length > 5) this.toasts.shift();
+    return true;
   }
 
   // ── Units ────────────────────────────────────────────────────────────────────
@@ -251,6 +518,16 @@ class Game {
     return best;
   }
 
+  nearestDropoff(x, y) {
+    let best = null, bestD2 = Infinity;
+    for (const b of this.buildings) {
+      if (b.dead || (b.type !== 'hq' && b.type !== 'depot')) continue;
+      const d2 = dist2(x, y, b.x, b.y);
+      if (d2 < bestD2) { bestD2 = d2; best = b; }
+    }
+    return best;
+  }
+
   wakeDormantNear(x, y, radius) {
     for (const z of this.zombies) {
       if (z.dead || !z.dormant) continue;
@@ -258,15 +535,34 @@ class Game {
     }
   }
 
-  // Throw a flare at an explored point: light + zombie magnet, wakes sleepers
+  // Throw a flare at an explored point: light + zombie magnet + fire source
   throwFlare(wx, wy) {
-    if (this.flareCooldown > 0 || this.supplies < FLARE_COST) return false;
-    if (!this.tileExplored(Math.floor(wx / TILE), Math.floor(wy / TILE))) return false;
+    if (this.flareCooldown > 0) {
+      this.addToast(`Flare recharging: ${Math.ceil(this.flareCooldown)}s`, 'warning', 'flare-cooldown', 1);
+      return false;
+    }
+    if (this.supplies < FLARE_COST) {
+      this.addToast(`Need ${FLARE_COST} supplies for a flare`, 'warning', 'flare-supplies', 2);
+      return false;
+    }
+    if (!this.tileExplored(Math.floor(wx / TILE), Math.floor(wy / TILE))) {
+      this.addToast('Flares can only be thrown onto explored ground', 'warning', 'flare-unexplored', 2);
+      return false;
+    }
     this.supplies -= FLARE_COST;
     this.flareCooldown = FLARE_COOLDOWN;
     this.flares.push({ x: wx, y: wy, t: 0 });
     this.wakeDormantNear(wx, wy, FLARE_LIGHT_RADIUS * TILE);  // light wakes sleepers
+    this.igniteZombiesNear(wx, wy, FLARE_FIRE_RADIUS * TILE);
+    this.addToast('Flare thrown', 'info', 'flare-thrown', 1);
     return true;
+  }
+
+  igniteZombiesNear(x, y, radius) {
+    for (const z of this.zombies) {
+      if (z.dead) continue;
+      if (dist2(x, y, z.x, z.y) <= radius * radius) z.ignite();
+    }
   }
 
   entityAt(wx, wy) {
@@ -334,6 +630,9 @@ class Game {
       if (!b.dead) this._markVision(b.x, b.y, this.visionRadius(b.type));
     }
     for (const f of this.flares) this._markVision(f.x, f.y, FLARE_LIGHT_RADIUS);
+    for (const z of this.zombies) {
+      if (!z.dead && z.burning) this._markVision(z.x, z.y, FIRE_LIGHT_RADIUS);
+    }
   }
 
   // ── Day/night cycle ─────────────────────────────────────────────────────────
@@ -382,6 +681,7 @@ class Game {
     this.waveActive = true;
     this.spawnTimer = 0;
     this._waveAlerted = false;
+    this.addToast(`Wave ${this.waveNum} begins`, 'danger', `wave-start-${this.waveNum}`, 0);
   }
 
   _spawnZombieFromEdge(type) {
@@ -405,8 +705,12 @@ class Game {
   onEntityDied(entity) {
     if (entity instanceof Zombie) {
       this.score += entity.def.reward * 10;
-    } else if (entity instanceof Building && entity.type === 'hq') {
-      this.status = 'gameover';
+    } else if (entity instanceof Building) {
+      this.flowDirty = true;
+      for (const z of this.zombies) {
+        if (z.atkTarget === entity) z.atkTarget = null;
+      }
+      if (entity.type === 'hq') this.status = 'gameover';
     }
   }
 
@@ -446,17 +750,37 @@ class Game {
     }
   }
 
+  spawnHealEffect(x, y) {
+    for (let i = 0; i < 4; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = randFloat(15, 45);
+      this.particles.push(new Particle(
+        x, y,
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed - 20,
+        `hsl(${randInt(315,345)}, 90%, 72%)`,
+        randFloat(0.25, 0.45)
+      ));
+    }
+  }
+
+  spawnFireEffect(x, y) {
+    const angle = randFloat(-Math.PI, 0);
+    const speed = randFloat(10, 45);
+    this.particles.push(new Particle(
+      x, y,
+      Math.cos(angle) * speed,
+      Math.sin(angle) * speed - randFloat(20, 50),
+      `hsl(${randInt(20,45)}, 100%, ${randInt(55,75)}%)`,
+      randFloat(0.18, 0.35)
+    ));
+  }
+
   // ── Main Update ──────────────────────────────────────────────────────────────
   update(dt) {
     if (this.status !== 'playing') return;
 
     this.gameTime += dt;
-
-    // Victory condition
-    if (this.gameTime >= this.surviveTarget) {
-      this.status = 'victory';
-      return;
-    }
 
     // Rebuild flow field if dirty
     if (this.flowDirty) {
@@ -469,7 +793,11 @@ class Game {
       this._recomputeFog();
     }
 
+    const prevFlareCooldown = this.flareCooldown;
     this.flareCooldown = Math.max(0, this.flareCooldown - dt);
+    if (prevFlareCooldown > 0 && this.flareCooldown === 0) {
+      this.addToast('Flare ready', 'info', 'flare-ready', 5);
+    }
 
     // Wave timer
     if (!this.waveActive) {
@@ -490,6 +818,7 @@ class Game {
         this.waveActive = false;
         // Wave-clear bonus is cap-exempt: it's the anti-softlock income floor
         this.supplies += 25 + 10 * this.waveNum;
+        this.addToast(`Wave ${this.waveNum} eliminated`, 'success', `wave-clear-${this.waveNum}`, 0);
       }
     }
 
@@ -516,6 +845,7 @@ class Game {
 
     // Flare aging/expiry
     for (const f of this.flares) f.t += dt;
+    for (const f of this.flares) this.igniteZombiesNear(f.x, f.y, FLARE_FIRE_RADIUS * TILE);
     this.flares = this.flares.filter(f => f.t < FLARE_DURATION);
 
     // Update projectiles (may kill zombies)
@@ -533,10 +863,14 @@ class Game {
     // Update particles
     for (const p of this.particles) p.update(dt);
 
+    // Update attention toasts
+    for (const toast of this.toasts) toast.t += dt;
+    this.toasts = this.toasts.filter(toast => toast.t < toast.life);
+
     // Death-drop: dying units spill their carried supplies as a bundle
     for (const u of this.units) {
       if (u.dead && u.carrying > 0) {
-        this.bundles.push({ x: u.x, y: u.y, amount: u.carrying });
+        this.bundles.push({ id: nextId(), x: u.x, y: u.y, amount: u.carrying });
         u.carrying = 0;
       }
     }

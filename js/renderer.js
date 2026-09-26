@@ -64,6 +64,7 @@ class Renderer {
     ctx.fillRect(0, 0, this.W, this.H);
 
     this._drawTiles(ctx, game);
+    this._drawSupportRanges(ctx, game);
     this._drawEntities(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
@@ -72,15 +73,48 @@ class Renderer {
     this._drawLighting(ctx, game);
     if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
-    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
-      this._drawBarracksButtons(ctx, game, game._selectedBuilding);
-    }
 
     this._drawEdgeScrollHint(ctx, input);
     this._drawHUD(ctx, game, input);
+    this._drawToasts(ctx, game);
     this._drawMinimap(ctx, game);
+    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
+      this._drawBarracksButtons(ctx, game, game._selectedBuilding);
+    }
     if (game.status === 'gameover') this._drawGameOver(ctx);
-    if (game.status === 'victory') this._drawVictory(ctx);
+    this._drawMainMenuButton(ctx, input);
+    if (input.menuOpen) this._drawMainMenu(ctx, input);
+    if (input.menuNotice) this._drawMenuNotice(ctx, input);
+  }
+
+  _drawSupportRanges(ctx, game) {
+    const z = game.camera.zoom;
+    ctx.save();
+    ctx.lineWidth = 1;
+    for (const u of game.selected) {
+      if (u.dead || (u.type !== 'medic' && u.type !== 'builder')) continue;
+      const radius = u.type === 'medic' ? MEDIC_HEAL_RADIUS : BUILDER_REPAIR_RADIUS;
+      const r = Math.ceil(radius / TILE);
+      const ux = Math.floor(u.x / TILE), uy = Math.floor(u.y / TILE);
+      ctx.fillStyle = u.type === 'medic' ? 'rgba(255,119,170,0.13)' : 'rgba(255,170,0,0.13)';
+      ctx.strokeStyle = u.type === 'medic' ? 'rgba(255,119,170,0.38)' : 'rgba(255,170,0,0.38)';
+      for (let ty = uy - r; ty <= uy + r; ty++) {
+        for (let tx = ux - r; tx <= ux + r; tx++) {
+          if (!game.tileExplored(tx, ty) ||
+              dist2(u.x, u.y, tileCenterX(tx), tileCenterY(ty)) > radius * radius) continue;
+          const s = worldToScreen(tx * TILE, ty * TILE, game.camera);
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(s.x + 32 * z, s.y + 16 * z);
+          ctx.lineTo(s.x, s.y + 32 * z);
+          ctx.lineTo(s.x - 32 * z, s.y + 16 * z);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.restore();
   }
 
   // ── Tiles ──────────────────────────────────────────────────────────────────
@@ -126,6 +160,7 @@ class Renderer {
   // Back-to-front by (worldX + worldY): what's "behind" in iso draws first
   _drawEntities(ctx, game) {
     const drawables = [];
+    this._unitDepths = new Map();
     for (const c of game.caches) {
       if (!game.tileExplored(c.tileX, c.tileY)) continue;
       drawables.push({ key: (c.tileX + 1) * TILE + (c.tileY + 1) * TILE,
@@ -134,14 +169,15 @@ class Renderer {
     for (const b of game.buildings) {
       if (b.dead) continue;
       const ts = b.def.tileSize;
-      // ponytail: scalar far-corner key; units beside tall E/W faces can be
-      // overdrawn at footprint edges — exact per-tile sort lands with phase-7 sprites
+      // Draw the shell at its far corner; front-adjacent units get a later key.
       drawables.push({ key: (b.tileX + ts) * TILE + (b.tileY + ts) * TILE,
                        draw: () => this._drawBuilding(ctx, game, b) });
     }
     for (const u of game.units) {
       if (u.dead) continue;
-      drawables.push({ key: u.x + u.y, draw: () => this._drawUnit(ctx, game, u) });
+      const key = this._unitDrawKey(game, u);
+      this._unitDepths.set(u, key);
+      drawables.push({ key, draw: () => this._drawUnit(ctx, game, u) });
     }
     for (const z of game.zombies) {
       if (z.dead) continue;
@@ -150,6 +186,54 @@ class Renderer {
     }
     drawables.sort((a, b) => a.key - b.key);
     for (const d of drawables) d.draw();
+    this._unitDepths = null;
+  }
+
+  _unitDrawKey(game, u) {
+    let key = u.x + u.y;
+    const inFrontOf = (tx, ty, size) => {
+      const x0 = tx * TILE, y0 = ty * TILE;
+      const x1 = x0 + size * TILE, y1 = y0 + size * TILE;
+      const r = u.def.radius;
+      return (u.x >= x1 && u.x <= x1 + TILE && u.y >= y0 - r && u.y <= y1 + r) ||
+        (u.y >= y1 && u.y <= y1 + TILE && u.x >= x0 - r && u.x <= x1 + r);
+    };
+    for (const b of game.buildings) {
+      if (!b.dead && inFrontOf(b.tileX, b.tileY, b.def.tileSize)) {
+        key = Math.max(key, (b.tileX + b.def.tileSize + b.tileY + b.def.tileSize) * TILE + 0.1);
+      }
+    }
+    for (const c of game.caches) {
+      if (inFrontOf(c.tileX, c.tileY, 1)) {
+        key = Math.max(key, (c.tileX + c.tileY + 2) * TILE + 0.1);
+      }
+    }
+    return key;
+  }
+
+  _unitOcclusionAlpha(game, poly, drawKey) {
+    const cam = game.camera;
+    for (const u of game.units) {
+      if (u.dead || (this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)) >= drawKey) continue;
+
+      const s = worldToScreen(u.x, u.y, cam);
+      const r = Math.max(4, u.def.radius * cam.zoom);
+      const bodyY = s.y - r * 1.2;
+      const samples = [
+        [s.x, bodyY],
+        [s.x - r * 0.7, bodyY],
+        [s.x + r * 0.7, bodyY],
+        [s.x, bodyY - r * 0.7],
+        [s.x, bodyY + r * 0.7],
+        [s.x - r * 0.5, bodyY - r * 0.5],
+        [s.x + r * 0.5, bodyY - r * 0.5],
+        [s.x - r * 0.5, bodyY + r * 0.5],
+        [s.x + r * 0.5, bodyY + r * 0.5],
+      ];
+      const covered = samples.filter(([x, y]) => pointInPolygon(x, y, poly)).length;
+      if (covered > samples.length / 2) return 0.42;
+    }
+    return 1;
   }
 
   // Ground-plane circle of world radius r at world point (via projected s)
@@ -166,6 +250,16 @@ class Renderer {
     const h = ISO_HEIGHTS[b.type] * z;
     const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
           S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+    const shell = [
+      { x: N.x, y: N.y - h },
+      { x: E.x, y: E.y - h },
+      { x: E.x, y: E.y },
+      { x: S.x, y: S.y },
+      { x: W.x, y: W.y },
+      { x: W.x, y: W.y - h },
+    ];
+    const drawKey = (b.tileX + ts) * TILE + (b.tileY + ts) * TILE;
+    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey);
 
     const face = (p1, p2, color) => {
       ctx.fillStyle = color;
@@ -175,6 +269,10 @@ class Renderer {
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
     };
+    if (occlusionAlpha < 1) {
+      ctx.save();
+      ctx.globalAlpha *= occlusionAlpha;
+    }
     face(E, S, shadeColor(def.color, 0.72)); // sun-side face
     face(S, W, shadeColor(def.color, 0.52)); // shade-side face
 
@@ -194,6 +292,7 @@ class Renderer {
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(labels[b.type], cx, roofCy);
     }
+    if (occlusionAlpha < 1) ctx.restore();
 
     // Health bar above the top corner
     const barW = 36 * ts * z;
@@ -225,16 +324,12 @@ class Renderer {
 
   _drawCache(ctx, game, c) {
     const cam = game.camera, z = cam.zoom;
-    const x0 = c.tileX * TILE, y0 = c.tileY * TILE;
-    const x1 = x0 + TILE, y1 = y0 + TILE;
-    const looks = { car:   { color: '#8a4a30', h: 12 },
-                    cabin: { color: '#7a5c3e', h: 26 },
-                    bin:   { color: '#3e5e46', h: 10 } };
-    const { color, h: hBase } = looks[c.kind];
-    const h = hBase * z;
+    const colors = { car: '#8a4a30', cabin: '#7a5c3e', bin: '#3e5e46' };
+    const color = colors[c.kind];
     const base = c.empty ? shadeColor(color, 0.45) : color;
-    const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
-          S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+    const { N, E, S, W, h, shell } = cacheScreenShape(c, cam);
+    const drawKey = (c.tileX + c.tileY + 2) * TILE;
+    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey);
     const face = (p1, p2, col) => {
       ctx.fillStyle = col; ctx.beginPath();
       ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
@@ -242,6 +337,10 @@ class Renderer {
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.stroke();
     };
+    if (occlusionAlpha < 1) {
+      ctx.save();
+      ctx.globalAlpha *= occlusionAlpha;
+    }
     face(E, S, shadeColor(base, 0.72));
     face(S, W, shadeColor(base, 0.52));
     ctx.fillStyle = base; ctx.beginPath();
@@ -249,6 +348,7 @@ class Renderer {
     ctx.lineTo(S.x, S.y - h); ctx.lineTo(W.x, W.y - h);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.stroke();
+    if (occlusionAlpha < 1) ctx.restore();
 
     const cx = (N.x + S.x) / 2, topY = N.y - h;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -282,18 +382,57 @@ class Renderer {
     ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
 
-    this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 6 * z, r * 2, 4, u.hp / u.maxHp);
+    const barX = s.x - r;
+    const healthY = s.y - r * 2.4 - 6 * z;
+    const barW = r * 2;
+    this._drawHealthBar(ctx, barX, healthY, barW, 4, u.hp / u.maxHp);
+
+    const cargoY = healthY + 6 * z;
+    const cargoH = Math.max(2, 3 * z);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(barX, cargoY, barW, cargoH);
+    if (u.carryCapacity > 0 && u.carrying > 0) {
+      ctx.fillStyle = '#ffdd44';
+      ctx.fillRect(barX, cargoY, barW * u.cargoRatio, cargoH);
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.65)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, cargoY, barW, cargoH);
 
     if (u.carrying > 0) {
       ctx.fillStyle = '#b08040';
       ctx.fillRect(s.x + r * 0.7, s.y - r * 1.6, 5 * z, 5 * z);
-      ctx.fillStyle = '#ffdd44'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(`${u.carrying}`, s.x + r * 0.7 + 2 * z, s.y - r * 2.0);
+    }
+
+    for (const p of u.resourcePopups) {
+      const alpha = clamp(1 - p.t / p.life, 0, 1);
+      const y = healthY - 11 * z - p.t * 22 * z;
+      const text = `${p.amount > 0 ? '+' : ''}${p.amount}`;
+      ctx.globalAlpha = alpha;
+      ctx.font = `bold ${Math.max(12, 13 * z)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.lineWidth = Math.max(2, 2 * z);
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+      ctx.strokeText(text, s.x, y);
+      ctx.fillStyle = '#ffdd44';
+      ctx.fillText(text, s.x, y);
+      ctx.globalAlpha = 1;
     }
 
     if (u.type === 'builder' && u.repairTarget) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('⚙', s.x, s.y - r * 2.4 - 12 * z);
+    } else if (u.type === 'medic') {
+      ctx.fillStyle = '#ffffff'; ctx.font = `bold ${Math.max(10, 12 * z)}px monospace`; ctx.textAlign = 'center';
+      ctx.fillText('+', s.x, s.y - r * 1.2);
+    }
+
+    if (u.gatherCenter) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('G', s.x, s.y - r * 2.4 - 12 * z);
+    } else if (u.bundleGatherCenter) {
+      ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('S', s.x, s.y - r * 2.4 - 12 * z);
     }
   }
 
@@ -325,6 +464,25 @@ class Renderer {
     ctx.arc(s.x - r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
     ctx.arc(s.x + r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
     ctx.fill();
+
+    if (zb.burning) {
+      const flicker = 0.75 + 0.25 * Math.sin((game.gameTime + zb.id) * 24);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = `rgba(255,120,20,${0.35 * flicker})`;
+      ctx.beginPath(); ctx.arc(s.x, by, r * 1.45, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+
+      ctx.fillStyle = `rgba(255,210,80,${0.9 * flicker})`;
+      for (let i = -1; i <= 1; i++) {
+        const fx = s.x + i * r * 0.35;
+        const fy = by - r * (0.55 + 0.15 * Math.sin(game.gameTime * 18 + i));
+        ctx.beginPath();
+        ctx.moveTo(fx, fy - r * 0.95);
+        ctx.quadraticCurveTo(fx + r * 0.35, fy - r * 0.25, fx, fy + r * 0.35);
+        ctx.quadraticCurveTo(fx - r * 0.35, fy - r * 0.25, fx, fy - r * 0.95);
+        ctx.fill();
+      }
+    }
 
     this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 5 * z, r * 2, 4, zb.hp / zb.maxHp, '#ff4422');
   }
@@ -415,6 +573,9 @@ class Renderer {
       if (!b.dead) punch(b.x, b.y, game.visionRadius(b.type));
     }
     for (const f of (game.flares || [])) punch(f.x, f.y, FLARE_LIGHT_RADIUS);
+    for (const zmb of game.zombies) {
+      if (!zmb.dead && zmb.burning) punch(zmb.x, zmb.y, FIRE_LIGHT_RADIUS, 0.85);
+    }
 
     ctx.drawImage(lc, 0, 0);
 
@@ -435,6 +596,9 @@ class Renderer {
       if (b.type === 'light') warm(b.x, b.y, VISION.light, `rgba(255,225,140,${0.14 * dk})`);
     }
     for (const f of (game.flares || [])) warm(f.x, f.y, FLARE_LIGHT_RADIUS, `rgba(255,120,40,${0.4 * dk})`);
+    for (const zmb of game.zombies) {
+      if (!zmb.dead && zmb.burning) warm(zmb.x, zmb.y, FIRE_LIGHT_RADIUS, `rgba(255,95,20,${0.28 * dk})`);
+    }
     ctx.globalCompositeOperation = 'source-over';
 
     // Cold night tint
@@ -447,7 +611,9 @@ class Renderer {
     const rects = barracksButtonRects(b, game.camera);
     const startX = rects[0].x, startY = rects[0].y;
     const BTH = rects[0].h;
-    const totalW = rects[2].x + rects[2].w - startX;
+    const last = rects[rects.length - 1];
+    const totalW = last.x + last.w - startX;
+    const hotkeys = { soldier: 'Z', builder: 'X', scout: 'C', medic: 'V' };
 
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
     roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6); ctx.fill();
@@ -482,7 +648,7 @@ class Renderer {
       ctx.fillText(`$${udef.cost}`, rc.x + 26, rc.y + 32);
       ctx.fillStyle = '#666';
       ctx.font = '10px monospace';
-      ctx.fillText(`${udef.trainTime}s  [${['Z','X','C'][i]}]`, rc.x + 26, rc.y + 47);
+      ctx.fillText(`${udef.trainTime}s  [${hotkeys[rc.type]}]`, rc.x + 26, rc.y + 47);
     }
 
     if (b.trainQueue.length > 0) {
@@ -545,6 +711,39 @@ class Renderer {
     ctx.fillRect(x, y, w * pct, h);
   }
 
+  _drawToasts(ctx, game) {
+    if (!game.toasts || game.toasts.length === 0) return;
+    const palette = {
+      info:    { stroke: '#88aaff', fill: 'rgba(14,20,32,0.9)', text: '#dbe6ff' },
+      warning: { stroke: '#ffdd44', fill: 'rgba(38,30,10,0.92)', text: '#ffea8a' },
+      danger:  { stroke: '#ff6644', fill: 'rgba(42,16,12,0.92)', text: '#ffc7b8' },
+      success: { stroke: '#55dd88', fill: 'rgba(12,34,20,0.92)', text: '#c9ffd8' },
+    };
+    const visible = game.toasts.slice(-4);
+    ctx.save();
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 12px monospace';
+    for (let i = 0; i < visible.length; i++) {
+      const toast = visible[i];
+      const style = palette[toast.kind] || palette.info;
+      const alpha = clamp(Math.min(1, toast.t / 0.18, (toast.life - toast.t) / 0.5), 0, 1);
+      const w = Math.min(420, Math.max(220, toast.text.length * 7 + 28));
+      const h = 30;
+      const x = this.W - 12 - w;
+      const y = 52 + i * 36;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = style.fill;
+      roundRect(ctx, x, y, w, h, 5); ctx.fill();
+      ctx.strokeStyle = style.stroke;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, x, y, w, h, 5); ctx.stroke();
+      ctx.fillStyle = style.text;
+      ctx.fillText(toast.text, x + w - 12, y + h / 2);
+    }
+    ctx.restore();
+  }
+
   // ── HUD ───────────────────────────────────────────────────────────────────
   _drawHUD(ctx, game, input) {
     // Top bar background
@@ -560,7 +759,7 @@ class Renderer {
     if (game.supplies >= cap) {
       ctx.fillStyle = '#ff6644';
       ctx.font = '10px monospace';
-      ctx.fillText('storage full — build a depot to bank more', 12, 37);
+      ctx.fillText('storage full — spend supplies or build a depot', 12, 37);
       ctx.font = 'bold 15px monospace';
     }
 
@@ -592,17 +791,16 @@ class Renderer {
     ctx.fillStyle = night ? '#88aaff' : '#ffd870';
     ctx.fillText(night ? `NIGHT — dawn in ${nextIn}s` : `Day — night in ${nextIn}s`, this.W - 340, 22);
 
-    // Survive timer
-    const surviveLeft = Math.max(0, game.surviveTarget - game.gameTime);
+    // Endless survival timer
     ctx.fillStyle = '#88aaff';
     ctx.textAlign = 'right';
-    ctx.fillText(`Survive: ${Math.ceil(surviveLeft)}s`, this.W - 200, 22);
+    ctx.fillText('Endless', this.W - 200, 22);
 
     // Game time
     const mins = Math.floor(game.gameTime / 60);
     const secs = Math.floor(game.gameTime % 60);
     ctx.fillStyle = '#888';
-    ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 12, 22);
+    ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 104, 22);
 
     if (input.attackMoveArm) {
       ctx.fillStyle = '#ff8866';
@@ -682,9 +880,9 @@ class Renderer {
     ctx.fillStyle = '#888';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('S: stop | R: repair | Del: sell | H: idle units | F: flare | Space: HQ | F1-F4 bookmarks (Shift sets) | N: last alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
-    ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: click to train (Z/X/C)', BX + buildables.length * (BW + gap) + 8, PY + 66);
+    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack/gather/dump | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
+    ctx.fillText('S: stop | R: repair | Del: sell | H: idle combat | F: flare | Arrows: pan | Space: HQ | F1-F4 bookmarks | N: alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
+    ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: train Z/X/C/V | selected unit + cache click: auto-gather', BX + buildables.length * (BW + gap) + 8, PY + 66);
   }
 
   _drawSelectionPanel(ctx, game) {
@@ -711,7 +909,7 @@ class Renderer {
       this._drawHealthBar(ctx, PX + 10, PY + 46, PW - 20, 6, selB.hp / selB.maxHp);
       if (isBarracks) {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Right-click ground: set rally · Z/X/C: train', PX + 10, PY + 62);
+        ctx.fillText('Right-click ground: set rally · Z/X/C/V: train', PX + 10, PY + 62);
       }
       ctx.fillStyle = '#555'; ctx.font = '9px monospace';
       ctx.textAlign = 'right';
@@ -737,9 +935,18 @@ class Renderer {
       ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
       ctx.fillText(`HP: ${Math.ceil(u.hp)} / ${u.maxHp}`, PX + 10, PY + 28);
       this._drawHealthBar(ctx, PX + 10, PY + 44, PW - 20, 7, u.hp / u.maxHp);
-      if (u.type === 'builder') {
+      if (u.gatherCenter) {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('R: repair nearest building', PX + 10, PY + 60);
+        ctx.fillText('Auto-gathering cache · S: stop', PX + 10, PY + 60);
+      } else if (u.bundleGatherCenter) {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('Recovering dropped supplies · S: stop', PX + 10, PY + 60);
+      } else if (u.type === 'builder') {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('Auto-repairs nearby buildings · R: nearest', PX + 10, PY + 60);
+      } else if (u.type === 'medic') {
+        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
+        ctx.fillText('Auto-heals wounded allies nearby', PX + 10, PY + 60);
       } else {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
         ctx.fillText('A + click: attack-move · S: stop', PX + 10, PY + 60);
@@ -947,7 +1154,111 @@ class Renderer {
     ctx.fillText('Your base has fallen to the horde.', this.W/2, this.H/2 + 20);
     ctx.fillStyle = '#ffdd44';
     ctx.font = '18px monospace';
-    this._drawRestartButton(ctx);
+  }
+
+  _drawMainMenuButton(ctx, input) {
+    const r = mainMenuButtonRect(this.W);
+    const active = input.menuOpen;
+    ctx.fillStyle = active ? 'rgba(255,221,68,0.22)' : 'rgba(20,24,18,0.92)';
+    roundRect(ctx, r.x, r.y, r.w, r.h, 5); ctx.fill();
+    ctx.strokeStyle = active ? '#ffdd44' : '#667755';
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, r.x, r.y, r.w, r.h, 5); ctx.stroke();
+    ctx.fillStyle = active ? '#ffdd44' : '#d8e0c8';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('MENU', r.x + r.w / 2, r.y + r.h / 2);
+  }
+
+  _saveStamp(meta) {
+    if (!meta) return 'empty';
+    const mins = Math.floor((meta.gameTime || 0) / 60);
+    const secs = Math.floor((meta.gameTime || 0) % 60);
+    const clock = new Date(meta.savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return `${clock}  ${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  _drawMainMenu(ctx, input) {
+    const panel = mainMenuPanelRect(this.W);
+    ctx.fillStyle = 'rgba(7,10,8,0.94)';
+    roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 6); ctx.fill();
+    ctx.strokeStyle = '#ffdd44';
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 6); ctx.stroke();
+
+    ctx.fillStyle = '#ffdd44';
+    ctx.font = 'bold 15px monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('MAIN MENU', panel.x + 14, panel.y + 14);
+
+    ctx.fillStyle = '#99aa88';
+    ctx.font = '10px monospace';
+    ctx.fillText(`Auto: ${this._saveStamp(input.saveMeta.auto)}`, panel.x + 14, panel.y + 33);
+
+    const labels = {
+      'resume': 'RESUME',
+      'save-auto': 'SAVE NOW',
+      'load-auto': 'LOAD AUTO',
+      'save-slot-1': 'SAVE 1',
+      'load-slot-1': 'LOAD 1',
+      'save-slot-2': 'SAVE 2',
+      'load-slot-2': 'LOAD 2',
+      'save-slot-3': 'SAVE 3',
+      'load-slot-3': 'LOAD 3',
+      'new-game': 'RESTART',
+      'clear-saves': 'CLEAR SAVES',
+    };
+    const hasSave = action => {
+      if (action === 'load-auto') return !!input.saveMeta.auto;
+      const m = /^load-slot-(\d)$/.exec(action);
+      return !m || !!input.saveMeta.slots[m[1]];
+    };
+
+    for (const rc of mainMenuActionRects(this.W)) {
+      const disabled = !hasSave(rc.action);
+      const danger = rc.action === 'new-game' || rc.action === 'clear-saves';
+      ctx.fillStyle = disabled ? 'rgba(22,22,22,0.82)'
+                    : danger ? 'rgba(70,30,24,0.9)'
+                    : 'rgba(50,58,42,0.92)';
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 4); ctx.fill();
+      ctx.strokeStyle = disabled ? '#333333' : danger ? '#aa5544' : '#6f825f';
+      ctx.lineWidth = 1;
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 4); ctx.stroke();
+      ctx.fillStyle = disabled ? '#555555' : danger ? '#ffb09a' : '#e4ead8';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const sm = /^save-slot-(\d)$/.exec(rc.action);
+      if (sm) {
+        ctx.fillText(labels[rc.action], rc.x + rc.w / 2, rc.y + 12);
+        ctx.fillStyle = '#7f8f72';
+        ctx.font = '8px monospace';
+        ctx.fillText(this._saveStamp(input.saveMeta.slots[sm[1]]), rc.x + rc.w / 2, rc.y + 25);
+      } else {
+        ctx.fillText(labels[rc.action], rc.x + rc.w / 2, rc.y + rc.h / 2);
+      }
+    }
+  }
+
+  _drawMenuNotice(ctx, input) {
+    const msg = input.menuNotice;
+    const alpha = clamp(1 - msg.t / msg.life, 0, 1);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    const w = Math.min(360, Math.max(160, msg.text.length * 8 + 32));
+    const x = this.W / 2 - w / 2, y = 58;
+    roundRect(ctx, x, y, w, 32, 5); ctx.fill();
+    ctx.strokeStyle = '#ffdd44';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, w, 32, 5); ctx.stroke();
+    ctx.fillStyle = '#ffdd44';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(msg.text, this.W / 2, y + 16);
+    ctx.globalAlpha = 1;
   }
 
   _drawVictory(ctx) {

@@ -64,6 +64,31 @@ function screenToWorld(sx, sy, cam) {
   return { x: (iy + ix) / 2, y: (iy - ix) / 2 };
 }
 
+function cacheScreenShape(cache, cam) {
+  const x0 = cache.tileX * TILE, y0 = cache.tileY * TILE;
+  const x1 = x0 + TILE, y1 = y0 + TILE;
+  const h = CACHE_HEIGHTS[cache.kind] * cam.zoom;
+  const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam);
+  const S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
+  return {
+    N, E, S, W, h,
+    shell: [
+      { x: N.x, y: N.y - h }, { x: E.x, y: E.y - h }, E, S, W,
+      { x: W.x, y: W.y - h },
+    ],
+  };
+}
+
+function pointInPolygon(px, py, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a.y > py) !== (b.y > py) &&
+        px < (b.x - a.x) * (py - a.y) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+}
+
 // Screen-px radius of a ground circle r tiles wide (approximation for light pools)
 function tilesToScreenRadius(tiles, zoom) { return tiles * TILE * ISO_X * zoom; }
 
@@ -108,16 +133,52 @@ function endScreenButtonRect(W, H) {
   return { x: W / 2 - 90, y: H / 2 + 80, w: 180, h: 44 };
 }
 
+function mainMenuButtonRect(W) {
+  return { x: W - 88, y: 8, w: 76, h: 28 };
+}
+
+function mainMenuPanelRect(W) {
+  return { x: W - 282, y: 44, w: 270, h: 428 };
+}
+
+function mainMenuActionRects(W) {
+  const panel = mainMenuPanelRect(W);
+  const rows = [
+    ['resume'],
+    ['save-auto'],
+    ['load-auto'],
+    ['save-slot-1', 'load-slot-1'],
+    ['save-slot-2', 'load-slot-2'],
+    ['save-slot-3', 'load-slot-3'],
+    ['new-game'],
+    ['clear-saves'],
+  ];
+  const rects = [];
+  let y = panel.y + 54;
+  for (const row of rows) {
+    if (row.length === 1) {
+      rects.push({ action: row[0], x: panel.x + 14, y, w: panel.w - 28, h: 34 });
+    } else {
+      const gap = 8;
+      const w = (panel.w - 28 - gap) / 2;
+      rects.push({ action: row[0], x: panel.x + 14, y, w, h: 34 });
+      rects.push({ action: row[1], x: panel.x + 14 + w + gap, y, w, h: 34 });
+    }
+    y += 42;
+  }
+  return rects;
+}
+
 // Screen-space rects for the barracks train buttons, anchored under the
 // building's projected south corner. Renderer draws these; input hit-tests
 // them — keep this the single source of truth for that layout.
 function barracksButtonRects(b, cam) {
   const BTW = 96, BTH = 58, gap = 6;
   const s = worldToScreen(b.x + b.width / 2, b.y + b.height / 2, cam); // south corner
-  const totalW = 3 * BTW + 2 * gap;
+  const totalW = TRAINABLE_UNITS.length * BTW + (TRAINABLE_UNITS.length - 1) * gap;
   const startX = s.x - totalW / 2;
   const startY = s.y + 12;
-  return ['soldier', 'builder', 'scout'].map((type, i) => ({
+  return TRAINABLE_UNITS.map((type, i) => ({
     type, x: startX + i * (BTW + gap), y: startY, w: BTW, h: BTH,
   }));
 }

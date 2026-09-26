@@ -1,9 +1,13 @@
 'use strict';
 
 class InputHandler {
-  constructor(canvas, game) {
+  constructor(canvas, game, menuActions = {}) {
     this.canvas = canvas;
     this.game = game;
+    this.menuActions = menuActions;
+    this.menuOpen = false;
+    this.menuNotice = null;
+    this.saveMeta = { auto: null, slots: {} };
 
     // Mouse state
     this.mouseX = 0;
@@ -45,6 +49,34 @@ class InputHandler {
     this._bind();
   }
 
+  setSaveMeta(meta) {
+    this.saveMeta = meta || { auto: null, slots: {} };
+  }
+
+  setMenuOpen(open) {
+    this.menuOpen = !!open;
+    if (this.game) this.game.paused = this.menuOpen;
+  }
+
+  notify(text) {
+    this.menuNotice = { text, t: 0, life: 2.2 };
+  }
+
+  resetTransient() {
+    this.attackMoveArm = false;
+    this.flareArm = false;
+    this.canvas.style.cursor = '';
+    this.groups = {};
+    this._lastGroupTap = null;
+    this._panStart = null;
+    this._minimapDrag = false;
+    this._dragStart = null;
+    this._dragging = false;
+    this.selectBox = null;
+    this._edgeScrollArmed = false;
+    this.setMenuOpen(false);
+  }
+
   _bind() {
     const c = this.canvas;
     c.addEventListener('mousedown',   e => this._onMouseDown(e));
@@ -53,7 +85,10 @@ class InputHandler {
     c.addEventListener('contextmenu', e => { e.preventDefault(); this._onRightClick(e); });
     c.addEventListener('wheel', e => this._onWheel(e), { passive: false });
     window.addEventListener('keydown', e => this._onKeyDown(e));
-    window.addEventListener('keyup',   e => { this.keys[e.code] = false; });
+    window.addEventListener('keyup',   e => {
+      if (e.code.startsWith('Arrow')) e.preventDefault();
+      this.keys[e.code] = false;
+    });
   }
 
   _onWheel(e) {
@@ -117,12 +152,9 @@ class InputHandler {
   }
 
   _onMouseDown(e) {
+    if (e.button === 0 && this._handleMainMenuClick(e.clientX, e.clientY)) return;
+
     if (this.game.status !== 'playing') {
-      const r = endScreenButtonRect(window.innerWidth, window.innerHeight);
-      if (e.button === 0 && e.clientX >= r.x && e.clientX <= r.x + r.w &&
-          e.clientY >= r.y && e.clientY <= r.y + r.h) {
-        window._newGame();
-      }
       return;
     }
     if (e.button === 1) {                    // middle: start drag-pan
@@ -137,6 +169,21 @@ class InputHandler {
     const game = this.game;
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
+    // Top layer: barracks train popover wins over bottom build buttons,
+    // build placement, minimap, and world clicks.
+    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
+      const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
+      if (trainResult) {
+        game.trainUnit(game._selectedBuilding, trainResult);
+        game.buildMode = null;
+        this.attackMoveArm = false;
+        this.flareArm = false;
+        this.canvas.style.cursor = '';
+        this._clickHandled = true;
+        return;
+      }
+    }
+
     // Minimap click — minimap is drawn in zoom-1 projected space (see renderer)
     if (this._isInMinimap(e.clientX, e.clientY)) {
       this._minimapDrag = true;
@@ -150,23 +197,30 @@ class InputHandler {
       return;
     }
 
-    // Clicking the edge hot zone arms edge scrolling (leaving the zone disarms)
-    if (this._inEdgeZone(e.clientX, e.clientY)) this._edgeScrollArmed = true;
+    // Clicking the edge hot zone arms edge scrolling without changing selection.
+    if (this._inEdgeZone(e.clientX, e.clientY)) {
+      this._edgeScrollArmed = true;
+      this._clickHandled = true;
+      return;
+    }
 
     // Build mode: place building
     if (game.buildMode) {
       if (this.mouseTile) {
-        game.placeBuilding(game.buildMode, this.mouseTile.tx, this.mouseTile.ty);
-        // Keep build mode active for quick placement
+        const placed = game.placeBuilding(game.buildMode, this.mouseTile.tx, this.mouseTile.ty);
+        if (placed) game.buildMode = null;
       }
+      this._clickHandled = true;
       return;
     }
 
     // Armed flare: this click throws it
     if (this.flareArm) {
-      this.flareArm = false;
-      this.canvas.style.cursor = '';
-      game.throwFlare(wx, wy);
+      const thrown = game.throwFlare(wx, wy);
+      if (thrown || game.flareCooldown > 0 || game.supplies < FLARE_COST) {
+        this.flareArm = false;
+        this.canvas.style.cursor = '';
+      }
       this._clickHandled = true;
       return;
     }
@@ -185,14 +239,21 @@ class InputHandler {
       return;
     }
 
-    // Check barracks train buttons FIRST (screen-space buttons on the building)
-    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
-      const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
-      if (trainResult) {
-        game.trainUnit(game._selectedBuilding, trainResult);
-        this._clickHandled = true;
-        return;
-      }
+    // Selected units + resource cache: enter auto-gather mode.
+    const cache = this._getCacheAt(e.clientX, e.clientY);
+    if (cache && game.selected.length > 0) {
+      game._selectedBuilding = null;
+      for (const u of game.selected) u.gatherFrom(cache, game);
+      this._clickHandled = true;
+      return;
+    }
+
+    const bundle = this._getBundleAt(wx, wy);
+    if (bundle && game.selected.length > 0) {
+      game._selectedBuilding = null;
+      for (const u of game.selected) u.gatherDroppedSuppliesAt(bundle.x, bundle.y, game);
+      this._clickHandled = true;
+      return;
     }
 
     // Check if clicking on a building (for selection/info panel)
@@ -325,11 +386,33 @@ class InputHandler {
       return;
     }
 
+    const cache = this._getCacheAt(e.clientX, e.clientY);
+    if (cache) {
+      for (const u of game.selected) u.gatherFrom(cache, game);
+      return;
+    }
+
+    const bundle = this._getBundleAt(wx, wy);
+    if (bundle) {
+      for (const u of game.selected) u.gatherDroppedSuppliesAt(bundle.x, bundle.y, game);
+      return;
+    }
+
     // Check if builder right-clicking a building (repair)
     const building = this._getBuildingAt(wx, wy);
     if (building) {
+      if (building.type === 'hq' || building.type === 'depot') {
+        let sentCargo = false;
+        for (const u of game.selected) {
+          if (u.carrying > 0) {
+            u.returnCargoTo(building, game);
+            sentCargo = true;
+          }
+        }
+        if (sentCargo) return;
+      }
       for (const u of game.selected) {
-        if (u.type === 'builder') u.repairTarget = building;
+        if (u.type === 'builder') u.repairBuilding(building);
       }
       return;
     }
@@ -345,16 +428,19 @@ class InputHandler {
   }
 
   _onKeyDown(e) {
+    if (e.code.startsWith('Arrow')) e.preventDefault();
     this.keys[e.code] = true;
     if (this.game.status !== 'playing') {
-      if (e.code === 'Enter') window._newGame();
+      if (e.code === 'Enter') this.menuOpen = true;
       return;
     }
     const game = this.game;
 
     // Escape: cancel flare arm / attack-move arm / build mode / deselect
     if (e.code === 'Escape') {
-      if (this.flareArm) {
+      if (this.menuOpen) {
+        this.setMenuOpen(false);
+      } else if (this.flareArm) {
         this.flareArm = false;
         this.canvas.style.cursor = '';
       } else if (this.attackMoveArm) {
@@ -369,6 +455,8 @@ class InputHandler {
       }
     }
 
+    if (this.menuOpen) return;
+
     // Build hotkeys: mnemonic letters (digits are control groups now)
     const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light' };
     if (buildKeys[e.code] && !e.shiftKey) {
@@ -382,7 +470,7 @@ class InputHandler {
     }
 
     // Barracks train: Z/X/C
-    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout' };
+    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout', KeyV: 'medic' };
     if (trainKeys[e.code]) {
       const b = game._selectedBuilding;
       if (b && b.type === 'barracks' && !b.dead) game.trainUnit(b, trainKeys[e.code]);
@@ -417,7 +505,8 @@ class InputHandler {
     if (e.code === 'KeyH') {
       for (const u of game.units) u.selected = false;
       game.selected = game.units.filter(u => !u.dead && u.type !== 'builder' &&
-        !u.atkTarget && u.waypoints.length === 0 && !u.repairTarget);
+        u.type !== 'medic' && !u.atkTarget && u.waypoints.length === 0 &&
+        !u.repairTarget && !u.gatherTarget && !u.bundleGatherCenter);
       for (const u of game.selected) u.selected = true;
       if (game.selected.length > 0) game._selectedBuilding = null;
     }
@@ -439,7 +528,7 @@ class InputHandler {
             const d = dist(u.x, u.y, b.x, b.y);
             if (d < nearestD) { nearestD = d; nearestB = b; }
           }
-          if (nearestB) u.repairTarget = nearestB;
+          if (nearestB) u.repairBuilding(nearestB);
         }
       }
     }
@@ -454,22 +543,24 @@ class InputHandler {
 
     // F: arm flare throw (next click is the target)
     if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
-      if (game.flareCooldown <= 0 && game.supplies >= FLARE_COST) {
+      if (this.flareArm) {
+        game.addToast('Flare armed: click explored ground', 'info', 'flare-armed', 1);
+      } else if (game.flareCooldown > 0) {
+        game.addToast(`Flare recharging: ${Math.ceil(game.flareCooldown)}s`, 'warning', 'flare-cooldown', 1);
+      } else if (game.supplies < FLARE_COST) {
+        game.addToast(`Need ${FLARE_COST} supplies for a flare`, 'warning', 'flare-supplies', 2);
+      } else {
         this.flareArm = true;
         this.attackMoveArm = false;
         game.buildMode = null;
         this.canvas.style.cursor = 'crosshair';
+        game.addToast('Flare armed: click explored ground', 'info', 'flare-armed', 1);
       }
     }
 
     // S: stop all
     if (e.code === 'KeyS' && !e.ctrlKey) {
-      for (const u of game.selected) {
-        u.waypoints = [];
-        u.moveTarget = null;
-        u.atkTarget = null;
-        u.attackMove = false;
-      }
+      for (const u of game.selected) u.stop();
       this.attackMoveArm = false;
       this.canvas.style.cursor = '';
     }
@@ -523,6 +614,62 @@ class InputHandler {
 
   }
 
+  _hasMenuSave(action) {
+    if (action === 'load-auto') return !!this.saveMeta.auto;
+    const m = /^load-slot-(\d)$/.exec(action);
+    return !m || !!this.saveMeta.slots[m[1]];
+  }
+
+  _handleMainMenuClick(sx, sy) {
+    const W = window.innerWidth;
+    const button = mainMenuButtonRect(W);
+    if (sx >= button.x && sx <= button.x + button.w &&
+        sy >= button.y && sy <= button.y + button.h) {
+      this.setMenuOpen(!this.menuOpen);
+      this._clickHandled = true;
+      return true;
+    }
+
+    if (!this.menuOpen) return false;
+
+    for (const rc of mainMenuActionRects(W)) {
+      if (sx < rc.x || sx > rc.x + rc.w || sy < rc.y || sy > rc.y + rc.h) continue;
+      if (!this._hasMenuSave(rc.action)) {
+        this.notify('No save found');
+        return true;
+      }
+      this._runMenuAction(rc.action);
+      this._clickHandled = true;
+      return true;
+    }
+
+    const panel = mainMenuPanelRect(W);
+    if (sx < panel.x || sx > panel.x + panel.w || sy < panel.y || sy > panel.y + panel.h) {
+      this.setMenuOpen(false);
+    }
+    this._clickHandled = true;
+    return true;
+  }
+
+  _runMenuAction(action) {
+    if (action === 'resume') {
+      this.setMenuOpen(false);
+      return;
+    }
+
+    const slot = /^save-slot-(\d)$/.exec(action) || /^load-slot-(\d)$/.exec(action);
+    const name = action.startsWith('save-slot') ? 'saveSlot'
+               : action.startsWith('load-slot') ? 'loadSlot'
+               : action.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    const fn = this.menuActions[name];
+    if (!fn) return;
+
+    const result = slot ? fn(slot[1]) : fn();
+    if (result?.meta) this.setSaveMeta(result.meta);
+    if (result?.text) this.notify(result.text);
+    if (result?.closeMenu) this.setMenuOpen(false);
+  }
+
   // ponytail: buildings hit-test at their ground footprint; clicking a tall
   // roof selects the tile behind it. Fine for placeholder volumes — revisit
   // with sprite hit-boxes in phase 7.
@@ -571,8 +718,41 @@ class InputHandler {
     return null;
   }
 
+  _getCacheAt(sx, sy) {
+    let hit = null, bestDepth = -Infinity;
+    for (const c of this.game.caches) {
+      if (c.empty) continue;
+      if (!this.game.tileExplored(c.tileX, c.tileY)) continue;
+      const { N, S, h, shell } = cacheScreenShape(c, this.game.camera);
+      const labelX = (N.x + S.x) / 2, labelY = N.y - h - 8 * this.game.camera.zoom;
+      const onLabel = dist2(sx, sy, labelX, labelY) <= (12 * this.game.camera.zoom) ** 2;
+      if (!pointInPolygon(sx, sy, shell) && !onLabel) continue;
+      const depth = c.tileX + c.tileY;
+      if (depth > bestDepth) { bestDepth = depth; hit = c; }
+    }
+    return hit;
+  }
+
+  _getBundleAt(wx, wy) {
+    let best = null, bestD2 = (TILE * 0.75) ** 2;
+    for (const bd of this.game.bundles) {
+      if (bd.amount <= 0) continue;
+      const tx = Math.floor(bd.x / TILE), ty = Math.floor(bd.y / TILE);
+      if (!this.game.tileExplored(tx, ty)) continue;
+      const d2 = dist2(wx, wy, bd.x, bd.y);
+      if (d2 < bestD2) { bestD2 = d2; best = bd; }
+    }
+    return best;
+  }
+
   // Called each frame from main loop for continuous keyboard input
   updateCamera(dt) {
+    if (this.menuNotice) {
+      this.menuNotice.t += dt;
+      if (this.menuNotice.t >= this.menuNotice.life) this.menuNotice = null;
+    }
+    if (this.menuOpen) return;
+
     const game = this.game;
     const cam = game.camera;
     const speed = CAM_SPEED;
