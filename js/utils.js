@@ -169,16 +169,49 @@ function mainMenuActionRects(W) {
   return rects;
 }
 
-// Screen-space rects for the barracks train buttons, anchored under the
-// building's projected south corner. Renderer draws these; input hit-tests
-// them — keep this the single source of truth for that layout.
-function barracksButtonRects(b, cam) {
+function buildButtonRects(W, H) {
+  const types = Object.keys(BUILDING_DEFS).filter(type => BUILDING_DEFS[type].canBuild);
+  const cols = Math.min(4, Math.max(2, Math.floor((W - 14) / 106)));
+  const rows = Math.ceil(types.length / cols);
+  const h = 16 + rows * 54;
+  const bw = Math.min(100, Math.floor((W - 20 - (cols - 1) * 6) / cols));
+  return types.map((type, i) => ({
+    type, x: 10 + (i % cols) * (bw + 6), y: H - h + 8 + Math.floor(i / cols) * 54,
+    w: bw, h: 48,
+  }));
+}
+
+function bottomPanelHeight(W) {
+  const cols = Math.min(4, Math.max(2, Math.floor((W - 14) / 106)));
+  const count = Object.values(BUILDING_DEFS).filter(def => def.canBuild).length;
+  return 16 + Math.ceil(count / cols) * 54;
+}
+
+// Shared production popover geometry for renderer and hit-testing.
+function productionButtonRects(b, cam) {
+  const types = b.type === 'mechanics' ? ['suv'] : TRAINABLE_UNITS;
   const BTW = 96, BTH = 58, gap = 6;
   const s = worldToScreen(b.x + b.width / 2, b.y + b.height / 2, cam); // south corner
-  const totalW = TRAINABLE_UNITS.length * BTW + (TRAINABLE_UNITS.length - 1) * gap;
-  const startX = s.x - totalW / 2;
-  const startY = s.y + 12;
-  return TRAINABLE_UNITS.map((type, i) => ({
-    type, x: startX + i * (BTW + gap), y: startY, w: BTW, h: BTH,
+  const cols = Math.min(4, Math.max(2, Math.floor((window.innerWidth - 16) / (BTW + gap))));
+  const rows = Math.ceil(types.length / cols);
+  const totalW = Math.min(cols, types.length) * BTW + (Math.min(cols, types.length) - 1) * gap;
+  const totalH = rows * BTH + (rows - 1) * gap;
+  const startX = clamp(s.x - totalW / 2, 8, Math.max(8, window.innerWidth - totalW - 8));
+  const startY = clamp(s.y + 12, 48,
+    Math.max(48, window.innerHeight - bottomPanelHeight(window.innerWidth) - totalH - 52));
+  return types.map((type, i) => ({
+    type, x: startX + (i % cols) * (BTW + gap),
+    y: startY + Math.floor(i / cols) * (BTH + gap), w: BTW, h: BTH,
   }));
+}
+
+function vehicleUnloadRect(W, H) {
+  return { x: 170, y: H - bottomPanelHeight(W) - 33, w: 94, h: 22 };
+}
+
+function minimapRect(W, H, selectionVisible = false) {
+  const stacked = W < 620 && selectionVisible;
+  return { x: W - MINIMAP_W - 10,
+    y: H - bottomPanelHeight(W) - MINIMAP_H - 10 - (stacked ? 100 : 0),
+    w: MINIMAP_W, h: MINIMAP_H };
 }

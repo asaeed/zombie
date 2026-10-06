@@ -9,18 +9,20 @@ function rememberSettleOrder(order) { _nextSettleOrder = Math.max(_nextSettleOrd
 
 // ─── Projectile ───────────────────────────────────────────────────────────────
 class Projectile {
-  constructor(sx, sy, target, damage, speed = 350, color = '#ffff88') {
+  constructor(sx, sy, target, damage, speed = 350, color = '#ffff88', source = 'unit') {
     this.id = nextId();
     this.x = sx; this.y = sy;
     this.target = target;    // entity reference
     this.damage = damage;
     this.speed = speed;
     this.color = color;
+    this.source = source;
     this.dead = false;
   }
 
   update(dt) {
     if (this.dead) return;
+    if (this.target?.vehicle) this.target = this.target.vehicle;
     if (this.target.dead) { this.dead = true; return; }
 
     const dx = this.target.x - this.x;
@@ -28,7 +30,7 @@ class Projectile {
     const d = Math.sqrt(dx*dx + dy*dy);
 
     if (d < this.speed * dt + 4) {
-      this.target.takeDamage(this.damage);
+      this.target.takeDamage(this.damage, this.source);
       this.dead = true;
     } else {
       this.x += (dx/d) * this.speed * dt;
@@ -82,6 +84,8 @@ class Building {
     // Training queue (barracks)
     this.trainQueue = [];
     this.trainProgress = 0;
+    this.vehicleQueue = 0;
+    this.vehicleProgress = 0;
 
     // Rally point for trained units (barracks)
     this.rally = null;
@@ -111,7 +115,7 @@ class Building {
       if (this.atkTarget && !this.atkTarget.dead && this.atkCooldown <= 0) {
         this.atkCooldown = 1 / this.def.atkRate;
         game.projectiles.push(new Projectile(
-          this.x, this.y, this.atkTarget, this.def.atkDmg, 380, '#ffdd44'
+          this.x, this.y, this.atkTarget, this.def.atkDmg, 380, '#ffdd44', 'tower'
         ));
         game.spawnMuzzleFlash(this.x, this.y);
       }
@@ -120,20 +124,81 @@ class Building {
     // Barracks training
     if (this.type === 'barracks' && this.trainQueue.length > 0) {
       const unitType = this.trainQueue[0];
+      if (!game.canTrainUnit(unitType)) return;
       const trainTime = UNIT_DEFS[unitType].trainTime;
       this.trainProgress += dt;
       if (this.trainProgress >= trainTime) {
-        this.trainProgress = 0;
-        this.trainQueue.shift();
-        // Spawn near barracks
         const spawnX = this.x + randFloat(-TILE, TILE);
         const spawnY = this.y + this.height / 2 + TILE * 1.5;
-        const u = game.spawnUnit(unitType, spawnX, spawnY);
+        const site = game.nearestOpenGround(spawnX, spawnY, UNIT_DEFS[unitType].radius);
+        if (!site) return;
+        this.trainProgress = 0;
+        this.trainQueue.shift();
+        const u = game.spawnUnit(unitType, site.x, site.y);
         if (this.rally) {
           u.moveTo(this.rally.x + randFloat(-20, 20), this.rally.y + randFloat(-20, 20), game);
         }
       }
     }
+
+    if (this.type === 'mechanics' && this.vehicleQueue > 0) {
+      this.vehicleProgress += dt;
+      if (this.vehicleProgress >= VEHICLE_DEFS.suv.trainTime) {
+        const site = game.nearestOpenGround(this.x, this.y + this.height / 2 + TILE * 1.5,
+          VEHICLE_DEFS.suv.radius);
+        if (!site) return;
+        this.vehicleQueue--;
+        this.vehicleProgress = 0;
+        game.spawnVehicle('suv', site.x, site.y);
+      }
+    }
+  }
+}
+
+class Vehicle {
+  constructor(type, x, y) {
+    this.id = nextId();
+    this.type = type;
+    this.x = x; this.y = y;
+    this.maxHp = VEHICLE_DEFS[type].maxHp;
+    this.hp = this.maxHp;
+    this.dead = false;
+    this.passengers = [];
+    this.waypoints = [];
+    this.moveTarget = null;
+  }
+
+  get def() { return VEHICLE_DEFS[this.type]; }
+
+  takeDamage(amount) {
+    if (this.dead) return;
+    this.hp = Math.max(0, this.hp - amount);
+    if (this.hp === 0) this.dead = true;
+  }
+
+  moveTo(x, y, game) {
+    const site = game.nearestOpenGround(x, y, this.def.radius);
+    if (!site) return false;
+    const path = findPath(this.x, this.y, site.x, site.y,
+      (tx, ty) => !game.canOccupyGround(tileCenterX(tx), tileCenterY(ty), this.def.radius));
+    if (!path) return false;
+    this.moveTarget = site;
+    this.waypoints = path;
+    return true;
+  }
+
+  update(dt, game) {
+    if (this.dead || this.waypoints.length === 0) return;
+    const wp = this.waypoints[0];
+    const d = dist(this.x, this.y, wp.x, wp.y);
+    if (d < 4) {
+      this.waypoints.shift();
+      if (this.waypoints.length === 0) this.moveTarget = null;
+      return;
+    }
+    const step = Math.min(d, this.def.speed * dt);
+    game.moveGroundEntity(this, (wp.x - this.x) / d * step, (wp.y - this.y) / d * step);
+    for (const u of this.passengers) { u.x = this.x; u.y = this.y; }
   }
 }
 
@@ -152,7 +217,7 @@ class Cache {
 
   update(dt, game) {
     if (this.empty) return;
-    const nearby = game.units.filter(u => !u.dead &&
+    const nearby = game.units.filter(u => !u.dead && !u.vehicle &&
       dist2(u.x, u.y, this.x, this.y) < (SEARCH_RADIUS * TILE) ** 2);
     if (nearby.length === 0) return;
 
@@ -225,6 +290,8 @@ class Unit {
     this.healCooldown = 0;
     this.supportHome = null;
     this._supportReturning = false;
+    this.vehicle = null;
+    this.boardingVehicle = null;
   }
 
   get def() { return UNIT_DEFS[this.type]; }
@@ -248,6 +315,7 @@ class Unit {
   }
 
   takeDamage(amount) {
+    if (this.dead || this.vehicle) return;
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;
@@ -351,6 +419,17 @@ class Unit {
   _clearSupportOrder() {
     this.supportHome = null;
     this._supportReturning = false;
+    this.boardingVehicle = null;
+  }
+
+  boardVehicle(vehicle, game) {
+    if (!vehicle || vehicle.dead || this.vehicle) return false;
+    const reserved = game.units.filter(u => u.boardingVehicle === vehicle && !u.dead).length;
+    if (vehicle.passengers.length + reserved >= vehicle.def.capacity) return false;
+    this.stop();
+    this.boardingVehicle = vehicle;
+    this._setDestination(vehicle.x, vehicle.y, game);
+    return true;
   }
 
   gatherDroppedSuppliesAt(wx, wy, game) {
@@ -369,6 +448,7 @@ class Unit {
   }
 
   canLoadFromCache(cache) {
+    if (this.vehicle || this.boardingVehicle) return false;
     if (this.returnCargoTarget) return false;
     if (this.bundleGatherCenter) return false;
     if (this.gatherCenter && (this.gatherTarget !== cache || this._gatherReturning)) return false;
@@ -376,6 +456,7 @@ class Unit {
   }
 
   canLoadFromBundle(bundle) {
+    if (this.vehicle || this.boardingVehicle) return false;
     if (this.returnCargoTarget || this.gatherCenter) return false;
     if (!this.bundleGatherCenter) return true;
     if (this._bundleGatherReturning) return false;
@@ -638,6 +719,21 @@ class Unit {
 
   update(dt, game) {
     if (this.dead) return;
+    if (this.vehicle) {
+      this.atkCooldown -= dt;
+      if (!this.vehicle.dead && this.type !== 'heavy') this._autoAttack(game);
+      return;
+    }
+
+    if (this.boardingVehicle) {
+      if (this.boardingVehicle.dead) this.boardingVehicle = null;
+      else if (dist2(this.x, this.y, this.boardingVehicle.x, this.boardingVehicle.y) <= (TILE * 1.1) ** 2) {
+        if (!game.boardUnit(this, this.boardingVehicle)) this.boardingVehicle = null;
+        return;
+      } else {
+        this._setGatherDestination(this.boardingVehicle.x, this.boardingVehicle.y, game);
+      }
+    }
 
     for (const p of this.resourcePopups) p.t += dt;
     this.resourcePopups = this.resourcePopups.filter(p => p.t < p.life);
@@ -671,7 +767,7 @@ class Unit {
     if (this.gatherCenter) this._updateGatherOrder(game);
     if (!this.gatherCenter && this.bundleGatherCenter) this._updateBundleGatherOrder(game);
     if (!this.gatherCenter && !this.bundleGatherCenter && this.returnCargoTarget) this._updateReturnCargoOrder(game);
-    if (!this.gatherCenter && !this.bundleGatherCenter && !this.returnCargoTarget && this.carrying > 0 &&
+    if (!this.gatherCenter && !this.bundleGatherCenter && !this.returnCargoTarget && !this.boardingVehicle && this.carrying > 0 &&
         this.waypoints.length === 0 && !this.atkTarget && !this.repairTarget) {
       const drop = game.nearestDropoff(this.x, this.y);
       if (drop) this.returnCargoTo(drop, game);
@@ -691,11 +787,7 @@ class Unit {
       } else {
         // In range - attack
         if (this.atkCooldown <= 0) {
-          this.atkCooldown = this.attackCooldownTime();
-          game.projectiles.push(new Projectile(
-            this.x, this.y, this.atkTarget, this.def.atkDmg, 320, '#88ffff'
-          ));
-          game.spawnMuzzleFlash(this.x, this.y);
+          this._attackZombie(this.atkTarget, game);
         }
       }
       return;
@@ -744,23 +836,46 @@ class Unit {
           !this.repairTarget && !this.atkTarget && !this._supportReturning) this._settleApart(game);
     }
 
-    // Auto-attack nearest zombie in range
+    this._autoAttack(game);
+  }
+
+  _autoAttack(game) {
     if (this.def.atkDmg > 0 && this.def.atkRate > 0 && this.atkCooldown <= 0) {
-      const z = game.nearestZombie(this.x, this.y, this.def.atkRange);
+      const z = this.type === 'sniper'
+        ? game.priorityZombie(this.x, this.y, this.def.atkRange)
+        : game.nearestZombie(this.x, this.y, this.def.atkRange);
       if (z) {
-        this.atkCooldown = this.attackCooldownTime();
-        game.projectiles.push(new Projectile(
-          this.x, this.y, z, this.def.atkDmg, 320, '#88ffff'
-        ));
-        game.spawnMuzzleFlash(this.x, this.y);
+        this._attackZombie(z, game);
       }
+    }
+  }
+
+  _attackZombie(target, game) {
+    this.atkCooldown = this.attackCooldownTime();
+    if (this.type === 'heavy') {
+      const vx = target.x - this.x, vy = target.y - this.y;
+      for (const z of game.zombies) {
+        if (z.dead || z.dormant || dist2(this.x, this.y, z.x, z.y) > HEAVY_SWING_RADIUS ** 2) continue;
+        if ((z.x - this.x) * vx + (z.y - this.y) * vy < 0) continue;
+        z.takeDamage(this.def.atkDmg);
+      }
+      game.spawnMeleeEffect(this.x, this.y);
+    } else if (this.type === 'torchbearer') {
+      target.takeDamage(this.def.atkDmg);
+      if (!target.dead) target.ignite();
+      game.spawnFireEffect(target.x, target.y);
+    } else {
+      game.projectiles.push(new Projectile(
+        this.x, this.y, target, this.def.atkDmg, 320, this.type === 'sniper' ? '#c7e9ff' : '#88ffff'
+      ));
+      game.spawnMuzzleFlash(this.x, this.y);
     }
   }
 
   _updateMedic(dt, game) {
     let target = null, bestD2 = MEDIC_HEAL_RADIUS * MEDIC_HEAL_RADIUS;
     for (const u of game.units) {
-      if (u === this || u.dead || u.hp >= u.maxHp) continue;
+      if (u === this || u.dead || u.vehicle || u.hp >= u.maxHp) continue;
       const d2 = dist2(this.x, this.y, u.x, u.y);
       if (d2 < bestD2) { bestD2 = d2; target = u; }
     }
@@ -871,7 +986,7 @@ class Unit {
 
     // Simple separation from other units
     for (const u of game.units) {
-      if (u === this || u.dead) continue;
+      if (u === this || u.dead || u.vehicle) continue;
       const sdx = this.x - u.x, sdy = this.y - u.y;
       const sd = Math.sqrt(sdx*sdx + sdy*sdy);
       if (sd < 22 && sd > 0) {
@@ -894,7 +1009,7 @@ class Unit {
 
   _settleApart(game) {
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
-    if (!game.units.some(u => u !== this && !u.dead && u.waypoints.length === 0 &&
+    if (!game.units.some(u => u !== this && !u.dead && !u.vehicle && u.waypoints.length === 0 &&
         Math.floor(u.x / TILE) === tx && Math.floor(u.y / TILE) === ty &&
         (u._settledAt < this._settledAt || (u._settledAt === this._settledAt && u.id < this.id)))) return;
 
@@ -903,7 +1018,7 @@ class Unit {
     for (const [dx, dy] of offsets) {
       const nx = tx + dx, ny = ty + dy;
       if (game.isTileBlockedForUnits(nx, ny)) continue;
-      if (game.units.some(u => u !== this && !u.dead &&
+      if (game.units.some(u => u !== this && !u.dead && !u.vehicle &&
           ((Math.floor(u.x / TILE) === nx && Math.floor(u.y / TILE) === ny) ||
            (u.moveTarget && Math.floor(u.moveTarget.x / TILE) === nx &&
             Math.floor(u.moveTarget.y / TILE) === ny && u.waypoints.length > 0)))) continue;
@@ -933,6 +1048,8 @@ class Zombie {
     this.burnTime = 0;
     this.burnMax = 0;
     this._burnParticleTimer = 0;
+    this.shriekCooldown = 0;
+    this.exploded = false;
   }
 
   get def() { return ZOMBIE_DEFS[this.type]; }
@@ -945,8 +1062,10 @@ class Zombie {
     this.burnMax = Math.max(this.burnMax, duration);
   }
 
-  takeDamage(amount) {
+  takeDamage(amount, source = 'unit') {
+    if (this.dead) return;
     this.dormant = false;
+    if (this.type === 'boss' && source === 'tower') amount *= 0.75;
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;
@@ -965,8 +1084,8 @@ class Zombie {
     if (this.dormant) {
       // Sleeps until something comes close (gunfire wake is handled by the game)
       let wakeTarget = null;
-      for (const u of game.units) {
-        if (u.dead) continue;
+      for (const u of [...game.units, ...game.vehicles]) {
+        if (u.dead || u.vehicle) continue;
         if (dist2(this.x, this.y, u.x, u.y) < GUARD_WAKE_RADIUS * GUARD_WAKE_RADIUS) {
           wakeTarget = u;
           this.dormant = false;
@@ -975,6 +1094,18 @@ class Zombie {
       }
       if (wakeTarget) this.atkTarget = wakeTarget;
       if (this.dormant) return;
+    }
+
+    if (this.type === 'screamer') {
+      this.shriekCooldown = Math.max(0, this.shriekCooldown - dt);
+      const humanNearby = game.units.some(u => !u.dead &&
+        !u.vehicle &&
+        dist2(this.x, this.y, u.x, u.y) <= SCREAMER_TRIGGER_RADIUS ** 2);
+      if (humanNearby && this.shriekCooldown <= 0) {
+        this.shriekCooldown = SCREAMER_SHRIEK_INTERVAL;
+        game.wakeDormantNear(this.x, this.y, SCREAMER_SHRIEK_RADIUS);
+        game.spawnShriekEffect(this.x, this.y);
+      }
     }
 
     // A burning flare is irresistible: drop long-range intent and shamble to it
@@ -986,64 +1117,102 @@ class Zombie {
       }
       if (nf) {
         const engaged = this.atkTarget && !this.atkTarget.dead &&
-          dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y) <=
-            this.def.atkRange + (this.atkTarget.width ? this.atkTarget.width / 2 - 4 : 0) + 10;
+          (this.atkTarget instanceof Building
+            ? game.distanceToBuilding(this.x, this.y, this.atkTarget)
+            : dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y)) <= this.def.atkRange + 10;
         if (!engaged) {
           this.atkTarget = null;
           const d = dist(this.x, this.y, nf.x, nf.y);
           if (d > TILE) {
             const nx = (nf.x - this.x) / d, ny = (nf.y - this.y) / d;
-            const stepX = clamp(this.x + nx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
-            const stepY = clamp(this.y + ny * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
-            // Transfixed at the obstacle rather than phasing through walls/water
-            if (!game.isTileBlockedForUnits(Math.floor(stepX / TILE), Math.floor(stepY / TILE))) {
-              this.x = stepX; this.y = stepY;
-            }
+            game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
+              ny * game.zombieSpeed(this) * dt);
           }
           return;  // transfixed while it burns
         }
       }
     }
 
+    if (this.type === 'exploder') {
+      if (this.atkTarget?.vehicle) this.atkTarget = this.atkTarget.vehicle;
+      if (this.atkTarget?.dead) this.atkTarget = null;
+
+      let target = this.atkTarget;
+      if (!target) {
+        let nearestUnit = null, nearestUnitDistance = GUARD_WAKE_RADIUS;
+        for (const candidate of [...game.units, ...game.vehicles]) {
+          if (candidate.dead || candidate.vehicle) continue;
+          const distance = dist(this.x, this.y, candidate.x, candidate.y);
+          if (distance < nearestUnitDistance) {
+            nearestUnit = candidate;
+            nearestUnitDistance = distance;
+          }
+        }
+        target = nearestUnit || game.nearestBuildingTo(this.x, this.y);
+        this.atkTarget = target;
+      }
+      if (target) {
+        const targetDistance = target instanceof Building
+          ? game.distanceToBuilding(this.x, this.y, target)
+          : Math.max(0, dist(this.x, this.y, target.x, target.y) - target.def.radius);
+        if (targetDistance <= this.def.atkRange) {
+          this.detonate(game, false);
+        } else {
+          this._directMoveToward(target.x, target.y, dt, game);
+        }
+      }
+      return;
+    }
+
     this.atkCooldown -= dt;
 
     // Clear dead attack target
+    if (this.atkTarget?.vehicle) this.atkTarget = this.atkTarget.vehicle;
     if (this.atkTarget && this.atkTarget.dead) this.atkTarget = null;
 
     // Find something to attack (prefer units over buildings)
     if (!this.atkTarget) {
       // Check for nearby units first
       let bestU = null, bestUD = Infinity;
-      for (const u of game.units) {
-        if (u.dead) continue;
+      for (const u of [...game.units, ...game.vehicles]) {
+        if (u.dead || u.vehicle) continue;
         const d = dist(this.x, this.y, u.x, u.y);
-        if (d < GUARD_WAKE_RADIUS && d < bestUD) { bestUD = d; bestU = u; }
+        if (d < Math.max(GUARD_WAKE_RADIUS, this.def.atkRange) && d < bestUD) { bestUD = d; bestU = u; }
       }
       this.atkTarget = bestU;
 
       // Otherwise attack building in range
       if (!this.atkTarget) {
+        let bestB = null, bestBD = Infinity;
         for (const b of game.buildings) {
           if (b.dead) continue;
-          const d = dist(this.x, this.y, b.x, b.y);
-          if (d < this.def.atkRange + b.width/2) { this.atkTarget = b; break; }
+          const d = game.distanceToBuilding(this.x, this.y, b);
+          if (d < this.def.atkRange && d < bestBD) { bestBD = d; bestB = b; }
         }
+        this.atkTarget = bestB;
       }
     }
 
     if (this.atkTarget && !this.atkTarget.dead) {
       const targetX = this.atkTarget.x, targetY = this.atkTarget.y;
-      const d = dist(this.x, this.y, targetX, targetY);
-      const stopRange = this.def.atkRange + (this.atkTarget.width ? this.atkTarget.width/2 - 4 : 0);
+      const d = this.atkTarget instanceof Building
+        ? game.distanceToBuilding(this.x, this.y, this.atkTarget)
+        : dist(this.x, this.y, targetX, targetY);
 
-      if (d > stopRange) {
-        if (this.atkTarget instanceof Unit) this._directMoveToward(targetX, targetY, dt, game);
+      if (d > this.def.atkRange) {
+        if (this.atkTarget instanceof Unit || this.atkTarget instanceof Vehicle) this._directMoveToward(targetX, targetY, dt, game);
         else this._flowMove(dt, game);
       } else {
         // Attack
         if (this.atkCooldown <= 0) {
           this.atkCooldown = 1 / this.def.atkRate;
-          this.atkTarget.takeDamage(this.def.atkDmg);
+          if (this.type === 'spitter') {
+            game.projectiles.push(new Projectile(
+              this.x, this.y, this.atkTarget, this.def.atkDmg, 180, '#a6e54a', 'acid'
+            ));
+          } else {
+            this.atkTarget.takeDamage(this.def.atkDmg);
+          }
           game.addAlert(this.atkTarget.x, this.atkTarget.y,
                         this.atkTarget instanceof Building ? 'building' : 'unit');
           if (this.atkTarget.dead) {
@@ -1055,6 +1224,14 @@ class Zombie {
       this.atkTarget = null;
       this._flowMove(dt, game);
     }
+  }
+
+  detonate(game, premature) {
+    if (this.exploded) return;
+    this.exploded = true;
+    this.dead = true;
+    this.hp = 0;
+    game.explodeZombie(this.x, this.y, premature);
   }
 
   _updateBurn(dt, game) {
@@ -1091,15 +1268,8 @@ class Zombie {
     const len = Math.sqrt(nx*nx + ny*ny);
     if (len > 0) { nx /= len; ny /= len; }
 
-    const tryMove = (mx, my) => {
-      const stepX = clamp(this.x + mx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
-      const stepY = clamp(this.y + my * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
-      if (game.isTileBlockedForUnits(Math.floor(stepX / TILE), Math.floor(stepY / TILE))) return false;
-      this.x = stepX; this.y = stepY;
-      return true;
-    };
-
-    tryMove(nx, ny) || tryMove(nx, 0) || tryMove(0, ny);
+    if (!game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
+      ny * game.zombieSpeed(this) * dt)) this._flowMove(dt, game);
   }
 
   _flowMove(dt, game) {
@@ -1110,20 +1280,19 @@ class Zombie {
 
     if (tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H && game.flowField[ty] && game.flowField[ty][tx]) {
       const f = game.flowField[ty][tx];
-      nx = f.dx; ny = f.dy;
-    } else {
-      // Fallback: move toward nearest building directly
-      let nearestB = null, nearestD = Infinity;
-      for (const b of game.buildings) {
-        if (b.dead) continue;
-        const d = dist(this.x, this.y, b.x, b.y);
-        if (d < nearestD) { nearestD = d; nearestB = b; }
+      if (f.dx || f.dy) {
+        const toward = normalize(tileCenterX(tx + f.dx) - this.x,
+          tileCenterY(ty + f.dy) - this.y);
+        nx = toward.dx; ny = toward.dy;
       }
+    }
+    if (nx === 0 && ny === 0) {
+      const nearestB = game.nearestBuildingTo(this.x, this.y);
       if (nearestB) {
         const ddx = nearestB.x - this.x, ddy = nearestB.y - this.y;
-        const d = Math.sqrt(ddx*ddx + ddy*ddy);
-        nx = d > 0 ? ddx/d : 0;
-        ny = d > 0 ? ddy/d : 0;
+        const d = Math.hypot(ddx, ddy);
+        nx = d > 0 ? ddx / d : 0;
+        ny = d > 0 ? ddy / d : 0;
       }
     }
 
@@ -1144,7 +1313,7 @@ class Zombie {
     const len = Math.sqrt(nx*nx + ny*ny);
     if (len > 0) { nx /= len; ny /= len; }
 
-    this.x = clamp(this.x + nx * this.def.speed * dt, this.def.radius, MAP_W * TILE - this.def.radius);
-    this.y = clamp(this.y + ny * this.def.speed * dt, this.def.radius, MAP_H * TILE - this.def.radius);
+    game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
+      ny * game.zombieSpeed(this) * dt);
   }
 }

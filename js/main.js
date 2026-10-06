@@ -24,7 +24,10 @@
   function parseSave(key) {
     try {
       const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const save = JSON.parse(raw);
+      if (migrateSavedUnitTypes(save?.data)) localStorage.setItem(key, JSON.stringify(save));
+      return save;
     } catch (err) {
       console.warn('Failed to read save', key, err);
       return null;

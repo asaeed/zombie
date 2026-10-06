@@ -66,6 +66,7 @@ class Renderer {
     this._drawTiles(ctx, game);
     this._drawSupportRanges(ctx, game);
     this._drawEntities(ctx, game);
+    this._drawThreatEffects(ctx, game);
     this._drawProjectiles(ctx, game);
     this._drawParticles(ctx, game);
     this._drawBundles(ctx, game);
@@ -78,8 +79,9 @@ class Renderer {
     this._drawHUD(ctx, game, input);
     this._drawToasts(ctx, game);
     this._drawMinimap(ctx, game);
-    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
-      this._drawBarracksButtons(ctx, game, game._selectedBuilding);
+    if (game._selectedBuilding && !game._selectedBuilding.dead &&
+        (game._selectedBuilding.type === 'barracks' || game._selectedBuilding.type === 'mechanics')) {
+      this._drawProductionButtons(ctx, game, game._selectedBuilding);
     }
     if (game.status === 'gameover') this._drawGameOver(ctx);
     this._drawMainMenuButton(ctx, input);
@@ -92,7 +94,7 @@ class Renderer {
     ctx.save();
     ctx.lineWidth = 1;
     for (const u of game.selected) {
-      if (u.dead || (u.type !== 'medic' && u.type !== 'builder')) continue;
+      if (u.dead || u.vehicle || (u.type !== 'medic' && u.type !== 'builder')) continue;
       const radius = u.type === 'medic' ? MEDIC_HEAL_RADIUS : BUILDER_REPAIR_RADIUS;
       const r = Math.ceil(radius / TILE);
       const ux = Math.floor(u.x / TILE), uy = Math.floor(u.y / TILE);
@@ -174,15 +176,18 @@ class Renderer {
                        draw: () => this._drawBuilding(ctx, game, b) });
     }
     for (const u of game.units) {
-      if (u.dead) continue;
+      if (u.dead || u.vehicle) continue;
       const key = this._unitDrawKey(game, u);
       this._unitDepths.set(u, key);
       drawables.push({ key, draw: () => this._drawUnit(ctx, game, u) });
     }
+    for (const v of game.vehicles) {
+      if (!v.dead) drawables.push({ key: this._unitDrawKey(game, v), draw: () => this._drawVehicle(ctx, game, v) });
+    }
     for (const z of game.zombies) {
       if (z.dead) continue;
       if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
-      drawables.push({ key: z.x + z.y, draw: () => this._drawZombie(ctx, game, z) });
+      drawables.push({ key: this._unitDrawKey(game, z), draw: () => this._drawZombie(ctx, game, z) });
     }
     drawables.sort((a, b) => a.key - b.key);
     for (const d of drawables) d.draw();
@@ -214,7 +219,7 @@ class Renderer {
   _unitOcclusionAlpha(game, poly, drawKey) {
     const cam = game.camera;
     for (const u of game.units) {
-      if (u.dead || (this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)) >= drawKey) continue;
+      if (u.dead || u.vehicle || (this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)) >= drawKey) continue;
 
       const s = worldToScreen(u.x, u.y, cam);
       const r = Math.max(4, u.def.radius * cam.zoom);
@@ -285,7 +290,7 @@ class Renderer {
 
     // Label on the roof
     const cx = (N.x + S.x) / 2, roofCy = (N.y + S.y) / 2 - h;
-    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
+    const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D', light: 'L', clinic: '+', mechanics: 'M' };
     if (labels[b.type]) {
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.font = `bold ${Math.min(12, ts * 8)}px monospace`;
@@ -379,8 +384,22 @@ class Renderer {
     ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, r, 0, Math.PI * 2); // raised body
     ctx.fillStyle = u.def.color; ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+    if (u.type === 'medic') {
+      const cy = s.y - r * 1.2;
+      const arm = 7 * z, thickness = 2.5 * z;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(s.x - arm / 2, cy - thickness / 2, arm, thickness);
+      ctx.fillRect(s.x - thickness / 2, cy - arm / 2, thickness, arm);
+    } else {
+      ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+    }
+
+    if (u.type === 'torchbearer') {
+      ctx.strokeStyle = '#5b3727'; ctx.lineWidth = 3 * z;
+      ctx.beginPath(); ctx.moveTo(s.x + r, s.y - r * 0.8);
+      ctx.lineTo(s.x + r * 1.25, s.y - r * 2.5); ctx.stroke();
+    }
 
     const barX = s.x - r;
     const healthY = s.y - r * 2.4 - 6 * z;
@@ -422,9 +441,6 @@ class Renderer {
     if (u.type === 'builder' && u.repairTarget) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('⚙', s.x, s.y - r * 2.4 - 12 * z);
-    } else if (u.type === 'medic') {
-      ctx.fillStyle = '#ffffff'; ctx.font = `bold ${Math.max(10, 12 * z)}px monospace`; ctx.textAlign = 'center';
-      ctx.fillText('+', s.x, s.y - r * 1.2);
     }
 
     if (u.gatherCenter) {
@@ -433,6 +449,48 @@ class Renderer {
     } else if (u.bundleGatherCenter) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('S', s.x, s.y - r * 2.4 - 12 * z);
+    }
+  }
+
+  _drawVehicle(ctx, game, v) {
+    const s = worldToScreen(v.x, v.y, game.camera);
+    const z = game.camera.zoom;
+    if (game.selectedVehicle === v) {
+      this._groundEllipse(ctx, s, v.def.radius + 6, z);
+      ctx.strokeStyle = '#44ffff'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    this._groundEllipse(ctx, s, v.def.radius + 5, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.42)'; ctx.fill();
+    ctx.save();
+    ctx.translate(s.x, s.y - 11 * z);
+    ctx.scale(z, z);
+
+    ctx.fillStyle = '#1a1c20';
+    ctx.fillRect(-19, 1, 8, 7);
+    ctx.fillRect(12, 1, 8, 7);
+    ctx.fillStyle = '#eef2ee';
+    ctx.beginPath();
+    ctx.moveTo(-25, -7); ctx.lineTo(-17, -15); ctx.lineTo(11, -15);
+    ctx.lineTo(25, -7); ctx.lineTo(23, 4); ctx.lineTo(-23, 4);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#5d6669'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#779aaa';
+    ctx.beginPath();
+    ctx.moveTo(-13, -14); ctx.lineTo(8, -14); ctx.lineTo(16, -7);
+    ctx.lineTo(-19, -7); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#dce5e2'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(1, -7); ctx.stroke();
+    ctx.fillStyle = '#f6dc8d';
+    ctx.fillRect(20, -5, 4, 3);
+    ctx.fillStyle = '#9ea9a9';
+    ctx.fillRect(-23, 0, 46, 2);
+    ctx.restore();
+
+    this._drawHealthBar(ctx, s.x - 22 * z, s.y - 36 * z, 44 * z, 4, v.hp / v.maxHp);
+    if (v.passengers.length > 0) {
+      ctx.fillStyle = '#ffffff'; ctx.font = `bold ${Math.max(10, 11 * z)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`${v.passengers.length}/${v.def.capacity}`, s.x, s.y - 43 * z);
     }
   }
 
@@ -465,6 +523,38 @@ class Renderer {
     ctx.arc(s.x + r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
     ctx.fill();
 
+    if (zb.type === 'spitter') {
+      ctx.fillStyle = '#d7f58a';
+      ctx.beginPath(); ctx.arc(s.x, by + r * 0.35, r * 0.35, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#5d8230';
+      ctx.beginPath(); ctx.arc(s.x, by + r * 0.35, r * 0.15, 0, Math.PI * 2); ctx.fill();
+    } else if (zb.type === 'exploder') {
+      const pulse = 0.7 + 0.3 * Math.sin(game.gameTime * 10 + zb.id);
+      ctx.fillStyle = `rgba(255,229,90,${pulse})`;
+      ctx.beginPath(); ctx.arc(s.x, by, r * 0.48, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ffe36a'; ctx.lineWidth = 2 * z;
+      ctx.beginPath(); ctx.arc(s.x, by, r * 1.22, 0, Math.PI * 2); ctx.stroke();
+    } else if (zb.type === 'screamer') {
+      ctx.strokeStyle = '#ffd6f6'; ctx.lineWidth = 2 * z;
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(s.x + side * r * 0.6, by - r * 0.4);
+        ctx.lineTo(s.x + side * r * 1.3, by - r * 1.5);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#40233e';
+      ctx.fillRect(s.x - r * 0.22, by + r * 0.2, r * 0.44, r * 0.4);
+    } else if (zb.type === 'boss') {
+      ctx.strokeStyle = '#b4e4c4'; ctx.lineWidth = 3 * z;
+      ctx.beginPath();
+      ctx.moveTo(s.x - r * 0.85, by - r * 0.55);
+      ctx.lineTo(s.x - r * 0.6, by - r * 1.35);
+      ctx.lineTo(s.x, by - r * 0.95);
+      ctx.lineTo(s.x + r * 0.6, by - r * 1.35);
+      ctx.lineTo(s.x + r * 0.85, by - r * 0.55);
+      ctx.stroke();
+    }
+
     if (zb.burning) {
       const flicker = 0.75 + 0.25 * Math.sin((game.gameTime + zb.id) * 24);
       ctx.globalCompositeOperation = 'lighter';
@@ -485,6 +575,21 @@ class Renderer {
     }
 
     this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 5 * z, r * 2, 4, zb.hp / zb.maxHp, '#ff4422');
+  }
+
+  _drawThreatEffects(ctx, game) {
+    const z = game.camera.zoom;
+    for (const effect of game.threatEffects) {
+      if (!game.tileVisible(Math.floor(effect.x / TILE), Math.floor(effect.y / TILE))) continue;
+      const s = worldToScreen(effect.x, effect.y, game.camera);
+      const progress = effect.t / effect.life;
+      ctx.strokeStyle = effect.kind === 'blast'
+        ? `rgba(255,122,51,${1 - progress})`
+        : `rgba(255,188,239,${0.8 * (1 - progress)})`;
+      ctx.lineWidth = (effect.kind === 'blast' ? 5 : 3) * z;
+      this._groundEllipse(ctx, s, effect.radius * progress, z);
+      ctx.stroke();
+    }
   }
 
   // ── Projectiles ───────────────────────────────────────────────────────────
@@ -567,7 +672,10 @@ class Renderer {
       g.beginPath(); g.arc(s.x, s.y, r, 0, Math.PI * 2); g.fill();
     };
     for (const u of game.units) {
-      if (!u.dead) punch(u.x, u.y, game.visionRadius(u.type));
+      if (!u.dead && !u.vehicle) punch(u.x, u.y, game.visionRadius(u.type));
+    }
+    for (const v of game.vehicles) {
+      if (!v.dead) punch(v.x, v.y, game.visionRadius(v.type));
     }
     for (const b of game.buildings) {
       if (!b.dead) punch(b.x, b.y, game.visionRadius(b.type));
@@ -595,6 +703,11 @@ class Renderer {
       if (b.type === 'hq')    warm(b.x, b.y, VISION.hq,    `rgba(255,170,70,${0.16 * dk})`);
       if (b.type === 'light') warm(b.x, b.y, VISION.light, `rgba(255,225,140,${0.14 * dk})`);
     }
+    for (const u of game.units) {
+      if (!u.dead && !u.vehicle && u.type === 'torchbearer') {
+        warm(u.x, u.y, TORCH_LIGHT_RADIUS, `rgba(255,145,55,${0.22 * dk})`);
+      }
+    }
     for (const f of (game.flares || [])) warm(f.x, f.y, FLARE_LIGHT_RADIUS, `rgba(255,120,40,${0.4 * dk})`);
     for (const zmb of game.zombies) {
       if (!zmb.dead && zmb.burning) warm(zmb.x, zmb.y, FIRE_LIGHT_RADIUS, `rgba(255,95,20,${0.28 * dk})`);
@@ -606,60 +719,65 @@ class Renderer {
     ctx.fillRect(0, 0, this.W, this.H);
   }
 
-  // ── Barracks Train Buttons (screen space, anchored under the building) ───
-  _drawBarracksButtons(ctx, game, b) {
-    const rects = barracksButtonRects(b, game.camera);
+  // ── Production popover ────────────────────────────────────────────────────
+  _drawProductionButtons(ctx, game, b) {
+    const rects = productionButtonRects(b, game.camera);
     const startX = rects[0].x, startY = rects[0].y;
-    const BTH = rects[0].h;
-    const last = rects[rects.length - 1];
-    const totalW = last.x + last.w - startX;
-    const hotkeys = { soldier: 'Z', builder: 'X', scout: 'C', medic: 'V' };
+    const right = Math.max(...rects.map(rc => rc.x + rc.w));
+    const bottom = Math.max(...rects.map(rc => rc.y + rc.h));
+    const totalW = right - startX;
+    const hotkeys = { soldier:'Z', builder:'X', scout:'C', medic:'V', sniper:'Q', heavy:'E', torchbearer:'Y', suv:'U' };
+    const isBay = b.type === 'mechanics';
 
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6); ctx.fill();
-    ctx.strokeStyle = '#883322'; ctx.lineWidth = 2;
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, BTH + 20, 6); ctx.stroke();
+    roundRect(ctx, startX - 8, startY - 6, totalW + 16, bottom - startY + 44, 6); ctx.fill();
+    ctx.strokeStyle = b.def.color; ctx.lineWidth = 2;
+    roundRect(ctx, startX - 8, startY - 6, totalW + 16, bottom - startY + 44, 6); ctx.stroke();
 
     ctx.fillStyle = '#ff8844';
     ctx.font = 'bold 11px monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('TRAIN UNIT', startX + totalW / 2, startY + BTH + 8);
+    ctx.fillText(isBay ? 'BUILD VEHICLE' : 'TRAIN UNIT', startX + totalW / 2, bottom + 9);
 
-    for (const [i, rc] of rects.entries()) {
-      const udef = UNIT_DEFS[rc.type];
-      const canAfford = game.supplies >= udef.cost;
+    for (const rc of rects) {
+      const def = isBay ? VEHICLE_DEFS[rc.type] : UNIT_DEFS[rc.type];
+      const unlocked = isBay || game.canTrainUnit(rc.type);
+      const canAfford = game.supplies >= def.cost;
+      const enabled = unlocked && canAfford;
+      const color = isBay ? '#edf2ef' : def.color;
 
-      ctx.fillStyle = canAfford ? 'rgba(70,50,30,0.95)' : 'rgba(20,20,20,0.95)';
+      ctx.fillStyle = enabled ? 'rgba(70,50,30,0.95)' : 'rgba(20,20,20,0.95)';
       roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 5); ctx.fill();
-      ctx.strokeStyle = canAfford ? udef.color : '#444';
-      ctx.lineWidth = canAfford ? 2.5 : 1;
+      ctx.strokeStyle = enabled ? color : '#444';
+      ctx.lineWidth = enabled ? 2 : 1;
       roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 5); ctx.stroke();
 
       ctx.beginPath();
       ctx.arc(rc.x + 14, rc.y + rc.h / 2, 7, 0, Math.PI * 2);
-      ctx.fillStyle = canAfford ? udef.color : '#444'; ctx.fill();
+      ctx.fillStyle = enabled ? color : '#444'; ctx.fill();
 
       ctx.textAlign = 'left';
-      ctx.fillStyle = canAfford ? '#eee' : '#555';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText(udef.name, rc.x + 26, rc.y + 16);
-      ctx.fillStyle = canAfford ? '#ffdd44' : '#444';
+      ctx.fillStyle = enabled ? '#eee' : '#777';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(def.name, rc.x + 26, rc.y + 16, rc.w - 30);
+      ctx.fillStyle = canAfford ? '#ffdd44' : '#555';
       ctx.font = '11px monospace';
-      ctx.fillText(`$${udef.cost}`, rc.x + 26, rc.y + 32);
-      ctx.fillStyle = '#666';
-      ctx.font = '10px monospace';
-      ctx.fillText(`${udef.trainTime}s  [${hotkeys[rc.type]}]`, rc.x + 26, rc.y + 47);
+      ctx.fillText(`$${def.cost}`, rc.x + 26, rc.y + 32);
+      ctx.fillStyle = unlocked ? '#888' : '#d98b8b';
+      ctx.font = '9px monospace';
+      const detail = unlocked ? `${def.trainTime}s [${hotkeys[rc.type]}]` : `Need ${BUILDING_DEFS[def.requires].name}`;
+      ctx.fillText(detail, rc.x + 26, rc.y + 47, rc.w - 30);
     }
 
-    if (b.trainQueue.length > 0) {
-      const pct = b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
-      const barY = startY + BTH + 18;
+    const queued = isBay ? b.vehicleQueue : b.trainQueue.length;
+    if (queued > 0) {
+      const pct = isBay ? b.vehicleProgress / VEHICLE_DEFS.suv.trainTime
+        : b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
+      const barY = bottom + 18;
       ctx.fillStyle = '#333';
       ctx.fillRect(startX - 4, barY, totalW + 8, 6);
       ctx.fillStyle = '#44aaff';
       ctx.fillRect(startX - 4, barY, (totalW + 8) * pct, 6);
-      ctx.fillStyle = '#aaa'; ctx.font = '9px monospace'; ctx.textAlign = 'left';
-      ctx.fillText(`Training: ${b.trainQueue.map(t => UNIT_DEFS[t].name).join(', ')}`, startX - 4, barY + 16);
     }
   }
 
@@ -731,7 +849,8 @@ class Renderer {
       const w = Math.min(420, Math.max(220, toast.text.length * 7 + 28));
       const h = 30;
       const x = this.W - 12 - w;
-      const y = 52 + i * 36;
+      const warningBanner = !game.waveActive && game.waveTimer <= WAVE_WARNING;
+      const y = (warningBanner && this.W < 900 ? 88 : 52) + i * 36;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = style.fill;
       roundRect(ctx, x, y, w, h, 5); ctx.fill();
@@ -777,6 +896,16 @@ class Renderer {
       const warning = timeLeft <= WAVE_WARNING;
       ctx.fillStyle = warning ? (Math.floor(Date.now()/400)%2===0 ? '#ff4444' : '#ff8844') : '#cccccc';
       ctx.fillText(`Wave ${game.waveNum + 1} in ${Math.ceil(timeLeft)}s`, this.W / 2, 22);
+      if (warning && game.waveDirections.length > 0) {
+        const label = `INCOMING: ${game.waveDirectionLabel().toUpperCase()}`;
+        ctx.fillStyle = 'rgba(49,16,12,0.9)';
+        roundRect(ctx, this.W / 2 - 145, 48, 290, 28, 4); ctx.fill();
+        ctx.strokeStyle = '#ff6740'; ctx.lineWidth = 1.5;
+        roundRect(ctx, this.W / 2 - 145, 48, 290, 28, 4); ctx.stroke();
+        ctx.fillStyle = '#ffd3a8'; ctx.font = 'bold 13px monospace';
+        ctx.fillText(label, this.W / 2, 62);
+        ctx.font = 'bold 15px monospace';
+      }
     } else {
       const remaining = game.zombiesToSpawn.length + game.zombies.filter(z => !z.dead && !z.dormant).length;
       ctx.fillStyle = '#ff4444';
@@ -820,13 +949,13 @@ class Renderer {
     this._drawBottomPanel(ctx, game);
 
     // Selection info (left side above bottom)
-    if (game.selected.length > 0) {
+    if (game.selected.length > 0 || game._selectedBuilding || game.selectedVehicle) {
       this._drawSelectionPanel(ctx, game);
     }
   }
 
   _drawBottomPanel(ctx, game) {
-    const PH = 110, PY = this.H - PH;
+    const PH = bottomPanelHeight(this.W), PY = this.H - PH;
     ctx.fillStyle = 'rgba(0,0,0,0.8)';
     ctx.fillRect(0, PY, this.W, PH);
     ctx.strokeStyle = '#444';
@@ -835,54 +964,27 @@ class Renderer {
     ctx.moveTo(0, PY); ctx.lineTo(this.W, PY);
     ctx.stroke();
 
-    // Build buttons
-    const buildables = Object.entries(BUILDING_DEFS).filter(([,d]) => d.canBuild);
-    const BW = 100, BH = 80, BX = 10, BY = PY + 14;
-    const gap = 8;
-
-    ctx.font = 'bold 12px monospace';
-    ctx.textAlign = 'center';
-
-    buildables.forEach(([type, def], i) => {
-      const x = BX + i * (BW + gap);
-      const y = BY;
-      const active = game.buildMode === type;
+    const hotkeys = { wall:'W', tower:'T', barracks:'B', depot:'D', light:'L', clinic:'K', mechanics:'M' };
+    for (const rc of buildButtonRects(this.W, this.H)) {
+      const def = BUILDING_DEFS[rc.type];
+      const active = game.buildMode === rc.type;
       const canAfford = game.supplies >= def.cost;
-
-      // Button bg
       ctx.fillStyle = active ? 'rgba(68,200,200,0.3)' : canAfford ? 'rgba(60,60,60,0.9)' : 'rgba(30,30,30,0.9)';
-      roundRect(ctx, x, y, BW, BH, 4);
-      ctx.fill();
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 4); ctx.fill();
       ctx.strokeStyle = active ? '#44cccc' : canAfford ? '#666' : '#333';
       ctx.lineWidth = 1.5;
-      roundRect(ctx, x, y, BW, BH, 4);
-      ctx.stroke();
-
-      // Color swatch
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 4); ctx.stroke();
       ctx.fillStyle = canAfford ? def.color : '#555';
-      ctx.fillRect(x + 8, y + 8, 84, 36);
-
-      // Name
+      ctx.fillRect(rc.x + 6, rc.y + 7, 18, 18);
       ctx.fillStyle = canAfford ? '#eee' : '#666';
-      ctx.fillText(def.name, x + BW/2, y + 58);
+      ctx.textAlign = 'left'; ctx.font = 'bold 10px monospace';
+      ctx.fillText(def.name, rc.x + 29, rc.y + 19, rc.w - 33);
       ctx.fillStyle = canAfford ? '#ffdd44' : '#555';
-      ctx.fillText(`$${def.cost}`, x + BW/2, y + 72);
-
-      // Hotkey hint
+      ctx.fillText(`$${def.cost}`, rc.x + 6, rc.y + 39);
       ctx.fillStyle = '#888';
-      ctx.font = '9px monospace';
-      const hotkeys = { wall: 'W', tower: 'T', barracks: 'B', depot: 'D', light: 'L' };
-      ctx.fillText(`[${hotkeys[type]}]`, x + BW - 14, y + 12);
-      ctx.font = 'bold 12px monospace';
-    });
-
-    // Labels
-    ctx.fillStyle = '#888';
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('BUILD: [W]all [T]ower [B]arracks [D]epot [L]ight | Esc: cancel | Right-click: move/attack/gather/dump | A+click: attack-move', BX + buildables.length * (BW + gap) + 8, PY + 30);
-    ctx.fillText('S: stop | R: repair | Del: sell | H: idle combat | F: flare | Arrows: pan | Space: HQ | F1-F4 bookmarks | N: alert', BX + buildables.length * (BW + gap) + 8, PY + 48);
-    ctx.fillText('1-9: control groups (Shift assigns, double-tap centers) | Barracks: train Z/X/C/V | selected unit + cache click: auto-gather', BX + buildables.length * (BW + gap) + 8, PY + 66);
+      ctx.textAlign = 'right';
+      ctx.fillText(`[${hotkeys[rc.type]}]`, rc.x + rc.w - 6, rc.y + 39);
+    }
   }
 
   _drawSelectionPanel(ctx, game) {
@@ -892,9 +994,9 @@ class Renderer {
     // ── Building selected ──────────────────────────────────────────────────
     if (selB && !selB.dead) {
       const def = BUILDING_DEFS[selB.type];
-      const isBarracks = selB.type === 'barracks';
-      const PH = isBarracks ? 84 : 68, PW = 260, PX = 10;
-      const PY = this.H - 110 - PH - 8;
+      const hasProduction = selB.type === 'barracks' || selB.type === 'mechanics';
+      const PH = hasProduction ? 84 : 68, PW = 260, PX = 10;
+      const PY = this.H - bottomPanelHeight(this.W) - PH - 8;
 
       ctx.fillStyle = 'rgba(0,0,0,0.85)';
       roundRect(ctx, PX, PY, PW, PH, 6); ctx.fill();
@@ -907,9 +1009,9 @@ class Renderer {
       ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
       ctx.fillText(`HP: ${Math.ceil(selB.hp)} / ${selB.maxHp}`, PX + 10, PY + 28);
       this._drawHealthBar(ctx, PX + 10, PY + 46, PW - 20, 6, selB.hp / selB.maxHp);
-      if (isBarracks) {
+      if (hasProduction) {
         ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Right-click ground: set rally · Z/X/C/V: train', PX + 10, PY + 62);
+        ctx.fillText(selB.type === 'barracks' ? 'Right-click ground: set rally' : 'Produce armored truck', PX + 10, PY + 62);
       }
       ctx.fillStyle = '#555'; ctx.font = '9px monospace';
       ctx.textAlign = 'right';
@@ -917,10 +1019,32 @@ class Renderer {
       return;
     }
 
+    if (game.selectedVehicle && !game.selectedVehicle.dead) {
+      const v = game.selectedVehicle;
+      const PH = 84, PX = 10, PY = this.H - bottomPanelHeight(this.W) - PH - 8;
+      ctx.fillStyle = 'rgba(0,0,0,0.85)';
+      roundRect(ctx, PX, PY, 270, PH, 6); ctx.fill();
+      ctx.strokeStyle = '#edf2ef'; ctx.lineWidth = 2;
+      roundRect(ctx, PX, PY, 270, PH, 6); ctx.stroke();
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      ctx.fillStyle = '#edf2ef'; ctx.font = 'bold 13px monospace';
+      ctx.fillText(v.def.name.toUpperCase(), PX + 10, PY + 10);
+      ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
+      ctx.fillText(`HP: ${Math.ceil(v.hp)} / ${v.maxHp}   Seats: ${v.passengers.length}/${v.def.capacity}`, PX + 10, PY + 30);
+      this._drawHealthBar(ctx, PX + 10, PY + 49, 250, 6, v.hp / v.maxHp);
+      const rc = vehicleUnloadRect(this.W, this.H);
+      ctx.fillStyle = v.passengers.length ? '#354e4d' : '#252a2a';
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 4); ctx.fill();
+      ctx.fillStyle = v.passengers.length ? '#edf2ef' : '#68706e';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 11px monospace';
+      ctx.fillText('Unload [E]', rc.x + rc.w / 2, rc.y + rc.h / 2);
+      return;
+    }
+
     // ── Units selected ────────────────────────────────────────────────────
     if (sel.length === 0) return;
 
-    const PX = 10, PH = 86, PY = this.H - 110 - PH - 8, PW = 260;
+    const PX = 10, PH = 86, PY = this.H - bottomPanelHeight(this.W) - PH - 8, PW = 260;
     ctx.fillStyle = 'rgba(0,0,0,0.8)';
     roundRect(ctx, PX, PY, PW, PH, 6); ctx.fill();
     ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
@@ -975,7 +1099,7 @@ class Renderer {
     const armed = input._edgeScrollArmed;
     const a = armed ? 0.13 : 0.06;
     const W = this.W, H = this.H, M = EDGE_SCROLL_MARGIN;
-    const top = 44, bottom = H - 110; // world area between HUD bar and panel
+    const top = 44, bottom = H - bottomPanelHeight(W);
     const mx = input.mouseX, my = input.mouseY;
 
     const band = (x, y, w, h, x2, y2) => {
@@ -1018,8 +1142,8 @@ class Renderer {
   // directions and the camera viewport is an EXACT rectangle — true aspect
   // ratio and true relative size. The map itself reads as a diamond.
   _drawMinimap(ctx, game) {
-    const MX = this.W - MINIMAP_W - 10;
-    const MY = this.H - 110 - MINIMAP_H - 10;
+    const selected = !!(game.selected.length || game._selectedBuilding || game.selectedVehicle);
+    const { x: MX, y: MY } = minimapRect(this.W, this.H, selected);
     const b = mapScreenBounds(1);
     const s = MINIMAP_W / (b.maxX - b.minX); // == MINIMAP_H / b.maxY (2:1 aspect)
     const cam1 = { x: 0, y: 0, zoom: 1 };
@@ -1063,6 +1187,24 @@ class Renderer {
     }
     ctx.drawImage(this._mmLayer, MX, MY);
 
+    if (!game.waveActive && game.waveTimer <= WAVE_WARNING && game.waveDirections.length > 0) {
+      const maxX = MAP_W * TILE, maxY = MAP_H * TILE;
+      const edges = [
+        [[0, 0], [maxX, 0]], [[maxX, 0], [maxX, maxY]],
+        [[0, maxY], [maxX, maxY]], [[0, 0], [0, maxY]],
+      ];
+      ctx.save();
+      ctx.beginPath(); ctx.rect(MX, MY, MINIMAP_W, MINIMAP_H); ctx.clip();
+      ctx.strokeStyle = `rgba(255,103,64,${0.55 + 0.4 * Math.sin(game.gameTime * 8)})`;
+      ctx.lineWidth = 4;
+      for (const side of game.waveDirections) {
+        const [a, b] = edges[side];
+        const [ax, ay] = mp(...a), [bx, by] = mp(...b);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     // Buildings
     for (const bd of game.buildings) {
       if (bd.dead) continue;
@@ -1090,9 +1232,16 @@ class Renderer {
     // Units
     ctx.fillStyle = '#4a9eff';
     for (const u of game.units) {
-      if (u.dead) continue;
+      if (u.dead || u.vehicle) continue;
       const [x, y] = mp(u.x, u.y);
       ctx.fillRect(x - 1, y - 1, 3, 3);
+    }
+
+    ctx.fillStyle = '#eef3f0';
+    for (const v of game.vehicles) {
+      if (v.dead) continue;
+      const [x, y] = mp(v.x, v.y);
+      ctx.fillRect(x - 2, y - 2, 5, 4);
     }
 
     // Zombies
@@ -1145,15 +1294,14 @@ class Renderer {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
     ctx.fillRect(0, 0, this.W, this.H);
     ctx.fillStyle = '#ff2222';
-    ctx.font = 'bold 60px monospace';
+    ctx.font = this.W < 600 ? 'bold 48px monospace' : 'bold 60px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('OVERRUN', this.W/2, this.H/2 - 30);
     ctx.fillStyle = '#aaa';
-    ctx.font = '22px monospace';
+    ctx.font = this.W < 600 ? '16px monospace' : '22px monospace';
     ctx.fillText('Your base has fallen to the horde.', this.W/2, this.H/2 + 20);
-    ctx.fillStyle = '#ffdd44';
-    ctx.font = '18px monospace';
+    this._drawRestartButton(ctx);
   }
 
   _drawMainMenuButton(ctx, input) {
@@ -1287,7 +1435,7 @@ class Renderer {
     ctx.fillStyle = '#ffdd44';
     ctx.font = 'bold 16px monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('PLAY AGAIN', r.x + r.w / 2, r.y + r.h / 2);
+    ctx.fillText('RESTART', r.x + r.w / 2, r.y + r.h / 2);
     ctx.font = '11px monospace';
     ctx.fillStyle = '#aa9944';
     ctx.fillText('[Enter]', r.x + r.w / 2, r.y + r.h + 14);

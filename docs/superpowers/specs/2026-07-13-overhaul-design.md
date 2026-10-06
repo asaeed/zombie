@@ -143,17 +143,17 @@ defense blind.
 | Type | Role | Notes |
 |------|------|-------|
 | Spitter | Ranged siege | ~120px range acid lob, hits over walls, fragile. Forces towers/units, walls alone stop working |
-| Exploder | Wall breaker | Rushes nearest wall/building, detonates: big AoE building damage. Killing it early detonates it in place harmlessly-ish (smaller radius) |
-| Screamer | Force multiplier | Speed-buff aura for nearby zombies; periodically shrieks, waking dormant zombies in a wide radius. Priority target |
-| Boss brute | 5th-wave event | Huge HP, smashes walls in a few hits, slight tower-damage resistance. One per 5th wave, +1 each recurrence |
+| Exploder | Wall breaker | Rushes its target and detonates on contact with a building or unit. Shooting it down creates a wider blast whose damage falls with distance; contact keeps the compact, high-damage blast |
+| Screamer | Force multiplier | Speed-buff aura for nearby zombies; shrieks only when a human unit comes within 5 tiles, waking dormant zombies in a wider radius. Priority target |
+| Boss brute | 5-wave event from wave 10 | Huge HP, smashes walls in a few hits, slight tower-damage resistance. One on wave 10, two on wave 15, +1 each recurrence |
 
 ### 3.2 Wave scaling & direction
 
-- HP scaling: zombie HP ×(1 + 0.08×wave) in addition to count scaling
+- Zombie HP stays fixed by type; wave counts rise instead
 - Each wave picks 1 compass direction (2 directions from wave 6+): spawns cluster on
   that edge. Warning phase (20s) shows direction banner + pulsing minimap edge indicator
-- Wave composition table extended for new types; spitters from wave 3, exploders 4,
-  screamers 5, boss every 5th
+- Wave composition table extended for new types; spitters from wave 4, exploders 6,
+  screamers 8, boss every fifth wave starting at 10
 
 ### 3.3 Dormant zombies (map guards)
 
@@ -167,8 +167,7 @@ defense blind.
 
 ### 3.4 Endless mode
 
-- At the 10-minute survive mark: "You survived the first night(s)" screen with a
-  **Keep playing** option. Scaling continues indefinitely; score keeps counting
+- Waves continue indefinitely until the HQ falls; score keeps counting
 
 ## 4. New structures
 
@@ -181,6 +180,13 @@ defense blind.
 | Sniper tower | 2×2 | 200 | Very long range, high single-target damage, slow rate. Existing tower = mid-range workhorse |
 | Workshop | 2×2 | 250 | One-at-a-time upgrades: tower damage +25%, unit armor +20%, carry capacity +50%, flashlight radius +40% |
 | Medic tent | 2×2 | 150 | Slowly heals units in radius |
+| Clinic | 2×2 | 160 | Unlocks medic training at barracks |
+| Mechanics bay | 2×2 | 250 | Unlocks sniper, heavy, and torchbearer training; builds four-seat armored trucks |
+
+The armored truck protects its passengers while armed riders fire at nearby zombies.
+Heavies cannot use melee and medics cannot heal aboard. When destroyed, it
+releases its passengers without damage. Zombies cannot occupy any intact
+structure tile or traverse diagonal gaps between walls whose corners touch.
 
 Depot re-role covered in 2.3. Build panel grows to two rows; hotkeys move to letters
 (see 6.3).
@@ -259,7 +265,7 @@ Each phase leaves the game playable and better than before:
    version), dormant guards
 4. **Light & dark** — day/night cycle, darkness overlay + light sources (the panel-B
    look), light-is-safety targeting rule, light tower, signal flare
-5. **Threat** — spitter/exploder/screamer/boss, HP scaling, directional waves +
+5. **Threat** — spitter/exploder/screamer/boss, count scaling, directional waves +
    warnings, endless mode
 6. **Structures** — gate, barbed wire, mine, sniper tower, workshop upgrades, medic
    tent, two-row build panel

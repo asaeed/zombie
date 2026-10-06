@@ -82,9 +82,8 @@ function findPath(startX, startY, goalX, goalY, blockedFn) {
   return null;
 }
 
-// Flow field for zombies - BFS from all non-wall building tiles outward
-// Returns 2D array field[y][x] = {dx,dy} pointing toward nearest building
-// Walls block traversal (zombies must go around or attack them)
+// Flow field for zombies - BFS from open tiles beside non-wall buildings.
+// Every intact building blocks traversal, including the destination itself.
 function buildFlowField(buildings, tiles) {
   const field = [];
   const distArr = [];
@@ -93,17 +92,15 @@ function buildFlowField(buildings, tiles) {
     distArr.push(new Float32Array(MAP_W).fill(Infinity));
   }
 
-  // Build wall tile set for blocking
-  const wallBlocked = new Uint8Array(MAP_W * MAP_H);
+  const blocked = new Uint8Array(MAP_W * MAP_H);
   for (const b of buildings) {
     if (b.dead) continue;
-    if (b.type !== 'wall') continue;
     const ts = BUILDING_DEFS[b.type].tileSize;
     for (let dy = 0; dy < ts; dy++) {
       for (let dx = 0; dx < ts; dx++) {
         const tx = b.tileX + dx, ty = b.tileY + dy;
         if (tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H) {
-          wallBlocked[ty * MAP_W + tx] = 1;
+          blocked[ty * MAP_W + tx] = 1;
         }
       }
     }
@@ -111,15 +108,18 @@ function buildFlowField(buildings, tiles) {
 
   const queue = [];
 
-  // Seed from all non-wall building tiles
+  const D4 = [[1,0],[-1,0],[0,1],[0,-1]];
+  // Seed only reachable perimeter tiles, never the building footprint.
   for (const b of buildings) {
     if (b.dead || b.type === 'wall') continue;
     const ts = BUILDING_DEFS[b.type].tileSize;
-    for (let dy = 0; dy < ts; dy++) {
-      for (let dx = 0; dx < ts; dx++) {
+    for (let dy = -1; dy <= ts; dy++) {
+      for (let dx = -1; dx <= ts; dx++) {
+        if (dx >= 0 && dx < ts && dy >= 0 && dy < ts) continue;
+        if ((dx < 0 || dx >= ts) && (dy < 0 || dy >= ts)) continue;
         const tx = b.tileX + dx, ty = b.tileY + dy;
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) continue;
-        if (distArr[ty][tx] === 0) continue;
+        if (tiles[ty][tx] === TILE_WATER || blocked[ty * MAP_W + tx] || distArr[ty][tx] === 0) continue;
         distArr[ty][tx] = 0;
         field[ty][tx] = { dx: 0, dy: 0 };
         queue.push(tx, ty);
@@ -127,7 +127,6 @@ function buildFlowField(buildings, tiles) {
     }
   }
 
-  const D4 = [[1,0],[-1,0],[0,1],[0,-1]];
   let head = 0;
 
   while (head < queue.length) {
@@ -139,7 +138,7 @@ function buildFlowField(buildings, tiles) {
       const nx = x + ddx, ny = y + ddy;
       if (nx < 0 || ny < 0 || nx >= MAP_W || ny >= MAP_H) continue;
       if (tiles[ny][nx] === TILE_WATER) continue;
-      if (wallBlocked[ny * MAP_W + nx]) continue;
+      if (blocked[ny * MAP_W + nx]) continue;
 
       if (d + 1 < distArr[ny][nx]) {
         distArr[ny][nx] = d + 1;

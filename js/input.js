@@ -122,19 +122,19 @@ class InputHandler {
   }
 
   _isInBottomPanel(y) {
-    return y > window.innerHeight - 110;
+    return y > window.innerHeight - bottomPanelHeight(window.innerWidth);
   }
 
   _isInMinimap(x, y) {
-    const MX = window.innerWidth - MINIMAP_W - 10;
-    const MY = window.innerHeight - 110 - MINIMAP_H - 10;
-    return x >= MX && x <= MX + MINIMAP_W && y >= MY && y <= MY + MINIMAP_H;
+    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle);
+    const rc = minimapRect(window.innerWidth, window.innerHeight, selected);
+    return x >= rc.x && x <= rc.x + rc.w && y >= rc.y && y <= rc.y + rc.h;
   }
 
   // Map minimap pixel -> world point, center the camera there
   _centerFromMinimap(sx, sy) {
-    const MX = window.innerWidth - MINIMAP_W - 10;
-    const MY = window.innerHeight - 110 - MINIMAP_H - 10;
+    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle);
+    const { x: MX, y: MY } = minimapRect(window.innerWidth, window.innerHeight, selected);
     const b = mapScreenBounds(1);
     const s = MINIMAP_W / (b.maxX - b.minX);
     const px = (sx - MX) / s + b.minX;
@@ -148,13 +148,19 @@ class InputHandler {
   _inEdgeZone(x, y) {
     const W = window.innerWidth, H = window.innerHeight, M = EDGE_SCROLL_MARGIN;
     if (this._isInBottomPanel(y) || this._isInMinimap(x, y)) return false;
-    return x < M || x > W - M || y < M + 44 || y > H - 110 - M;
+    return x < M || x > W - M || y < M + 44 || y > H - bottomPanelHeight(W) - M;
   }
 
   _onMouseDown(e) {
     if (e.button === 0 && this._handleMainMenuClick(e.clientX, e.clientY)) return;
 
     if (this.game.status !== 'playing') {
+      const r = endScreenButtonRect(window.innerWidth, window.innerHeight);
+      if (e.button === 0 && e.clientX >= r.x && e.clientX <= r.x + r.w &&
+          e.clientY >= r.y && e.clientY <= r.y + r.h) {
+        this._runMenuAction('new-game');
+        this._clickHandled = true;
+      }
       return;
     }
     if (e.button === 1) {                    // middle: start drag-pan
@@ -169,16 +175,26 @@ class InputHandler {
     const game = this.game;
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
 
-    // Top layer: barracks train popover wins over bottom build buttons,
-    // build placement, minimap, and world clicks.
-    if (game._selectedBuilding && game._selectedBuilding.type === 'barracks' && !game._selectedBuilding.dead) {
-      const trainResult = this._checkBarracksTrainClick(e.clientX, e.clientY);
-      if (trainResult) {
-        game.trainUnit(game._selectedBuilding, trainResult);
+    // Production popovers win over bottom buttons and world clicks.
+    if (game._selectedBuilding && !game._selectedBuilding.dead) {
+      const production = this._checkProductionClick(e.clientX, e.clientY);
+      if (production) {
+        if (game._selectedBuilding.type === 'mechanics') game.buildVehicle(game._selectedBuilding);
+        else game.trainUnit(game._selectedBuilding, production);
         game.buildMode = null;
         this.attackMoveArm = false;
         this.flareArm = false;
         this.canvas.style.cursor = '';
+        this._clickHandled = true;
+        return;
+      }
+    }
+
+    if (game.selectedVehicle) {
+      const rc = vehicleUnloadRect(window.innerWidth, window.innerHeight);
+      if (e.clientX >= rc.x && e.clientX <= rc.x + rc.w &&
+          e.clientY >= rc.y && e.clientY <= rc.y + rc.h) {
+        game.disembarkVehicle(game.selectedVehicle);
         this._clickHandled = true;
         return;
       }
@@ -256,10 +272,21 @@ class InputHandler {
       return;
     }
 
+    const vehicle = this._getVehicleAt(e.clientX, e.clientY);
+    if (vehicle) {
+      game.selectedVehicle = vehicle;
+      game._selectedBuilding = null;
+      game.selected = [];
+      for (const u of game.units) u.selected = false;
+      this._clickHandled = true;
+      return;
+    }
+
     // Check if clicking on a building (for selection/info panel)
     const building = this._getBuildingAt(wx, wy);
     if (building) {
       game._selectedBuilding = building;
+      game.selectedVehicle = null;
       game.selected = [];
       for (const u of game.units) u.selected = false;
       this._clickHandled = true;
@@ -268,6 +295,7 @@ class InputHandler {
 
     // Left click in world: begin drag or select single unit
     game._selectedBuilding = null;
+    game.selectedVehicle = null;
     this._dragStart = { x: e.clientX, y: e.clientY };
     this._dragging = false;
   }
@@ -330,6 +358,7 @@ class InputHandler {
         u.selected = true;
         if (!game.selected.includes(u)) game.selected.push(u);
       }
+      if (units.length > 0) game.selectedVehicle = null;
     } else if (!this._dragging && !this._clickHandled && !this._minimapDrag) {
       // Single click - select unit
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
@@ -341,6 +370,7 @@ class InputHandler {
             for (const u of game.units) u.selected = false;
             game.selected = [];
           }
+          game.selectedVehicle = null;
           unit.selected = !unit.selected || !e.shiftKey;
           if (unit.selected) game.selected.push(unit);
           else game.selected = game.selected.filter(u => u !== unit);
@@ -348,6 +378,7 @@ class InputHandler {
           for (const u of game.units) u.selected = false;
           game.selected = [];
           game._selectedBuilding = null;
+          game.selectedVehicle = null;
         }
       }
     }
@@ -376,9 +407,22 @@ class InputHandler {
       return;
     }
 
+    const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
+
+    if (game.selectedVehicle && !game.selectedVehicle.dead) {
+      game.selectedVehicle.moveTo(wx, wy, game);
+      return;
+    }
+
     if (game.selected.length === 0) return;
 
-    const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
+    const vehicle = this._getVehicleAt(e.clientX, e.clientY);
+    if (vehicle) {
+      let queued = 0;
+      for (const u of [...game.selected]) if (u.boardVehicle(vehicle, game)) queued++;
+      if (queued === 0) game.addToast('Armored truck is full', 'warning', 'suv-full', 2);
+      return;
+    }
 
     const zombie = this._getZombieAt(e.clientX, e.clientY);
     if (zombie) {
@@ -431,7 +475,8 @@ class InputHandler {
     if (e.code.startsWith('Arrow')) e.preventDefault();
     this.keys[e.code] = true;
     if (this.game.status !== 'playing') {
-      if (e.code === 'Enter') this.menuOpen = true;
+      if (e.code === 'Enter' && !this.menuOpen) this._runMenuAction('new-game');
+      else if (e.code === 'Escape' && this.menuOpen) this.setMenuOpen(false);
       return;
     }
     const game = this.game;
@@ -452,13 +497,14 @@ class InputHandler {
         for (const u of game.units) u.selected = false;
         game.selected = [];
         game._selectedBuilding = null;
+        game.selectedVehicle = null;
       }
     }
 
     if (this.menuOpen) return;
 
     // Build hotkeys: mnemonic letters (digits are control groups now)
-    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light' };
+    const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light', KeyK: 'clinic', KeyM: 'mechanics' };
     if (buildKeys[e.code] && !e.shiftKey) {
       const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
@@ -469,12 +515,13 @@ class InputHandler {
       }
     }
 
-    // Barracks train: Z/X/C
-    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout', KeyV: 'medic' };
+    const trainKeys = { KeyZ: 'soldier', KeyX: 'builder', KeyC: 'scout', KeyV: 'medic', KeyQ: 'sniper', KeyE: 'heavy', KeyY: 'torchbearer' };
     if (trainKeys[e.code]) {
       const b = game._selectedBuilding;
       if (b && b.type === 'barracks' && !b.dead) game.trainUnit(b, trainKeys[e.code]);
     }
+    if (e.code === 'KeyU' && game._selectedBuilding?.type === 'mechanics') game.buildVehicle(game._selectedBuilding);
+    if (e.code === 'KeyE' && game.selectedVehicle) game.disembarkVehicle(game.selectedVehicle);
 
     // Control groups: digit selects, Shift+digit assigns, double-tap centers
     const dm = /^Digit([1-9])$/.exec(e.code);
@@ -483,12 +530,13 @@ class InputHandler {
       if (e.shiftKey) {
         if (game.selected.length > 0) this.groups[d] = [...game.selected];
       } else {
-        const grp = (this.groups[d] || []).filter(u => !u.dead);
+        const grp = (this.groups[d] || []).filter(u => !u.dead && !u.vehicle);
         this.groups[d] = grp;
         for (const u of game.units) u.selected = false;
         game.selected = [...grp];
         for (const u of grp) u.selected = true;
         if (grp.length > 0) game._selectedBuilding = null;
+        if (grp.length > 0) game.selectedVehicle = null;
         const now = performance.now();
         if (this._lastGroupTap && this._lastGroupTap.d === d &&
             now - this._lastGroupTap.t < 400 && grp.length > 0) {
@@ -504,11 +552,12 @@ class InputHandler {
     // H: select all idle military units (soldiers/scouts standing around)
     if (e.code === 'KeyH') {
       for (const u of game.units) u.selected = false;
-      game.selected = game.units.filter(u => !u.dead && u.type !== 'builder' &&
+      game.selected = game.units.filter(u => !u.dead && !u.vehicle && u.type !== 'builder' &&
         u.type !== 'medic' && !u.atkTarget && u.waypoints.length === 0 &&
         !u.repairTarget && !u.gatherTarget && !u.bundleGatherCenter);
       for (const u of game.selected) u.selected = true;
       if (game.selected.length > 0) game._selectedBuilding = null;
+      if (game.selected.length > 0) game.selectedVehicle = null;
     }
 
     // Delete: sell selected building
@@ -598,20 +647,14 @@ class InputHandler {
 
   _handleBuildPanelClick(sx, sy) {
     const game = this.game;
-    const buildables = Object.entries(BUILDING_DEFS).filter(([,d]) => d.canBuild);
-    const BW = 100, BH = 80, BX = 10, PY = window.innerHeight - 110;
-    const BY = PY + 14;
-    const gap = 8;
-
-    buildables.forEach(([type], i) => {
-      const x = BX + i * (BW + gap);
-      const y = BY;
-      if (sx >= x && sx <= x + BW && sy >= y && sy <= y + BH) {
+    for (const rc of buildButtonRects(window.innerWidth, window.innerHeight)) {
+      if (sx >= rc.x && sx <= rc.x + rc.w && sy >= rc.y && sy <= rc.y + rc.h) {
+        const type = rc.type;
         game.buildMode = game.buildMode === type ? null : type;
         if (game.buildMode) { this.attackMoveArm = false; this.flareArm = false; this.canvas.style.cursor = ''; }
+        break;
       }
-    });
-
+    }
   }
 
   _hasMenuSave(action) {
@@ -673,10 +716,10 @@ class InputHandler {
   // ponytail: buildings hit-test at their ground footprint; clicking a tall
   // roof selects the tile behind it. Fine for placeholder volumes — revisit
   // with sprite hit-boxes in phase 7.
-  _checkBarracksTrainClick(sx, sy) {
+  _checkProductionClick(sx, sy) {
     const b = this.game._selectedBuilding;
-    if (!b || b.type !== 'barracks' || b.dead) return null;
-    for (const rc of barracksButtonRects(b, this.game.camera)) {
+    if (!b || (b.type !== 'barracks' && b.type !== 'mechanics') || b.dead) return null;
+    for (const rc of productionButtonRects(b, this.game.camera)) {
       if (sx >= rc.x && sx <= rc.x + rc.w && sy >= rc.y && sy <= rc.y + rc.h) return rc.type;
     }
     return null;
@@ -687,10 +730,21 @@ class InputHandler {
   _getUnitAt(sx, sy) {
     const cam = this.game.camera, z = cam.zoom;
     for (const u of this.game.units) {
-      if (u.dead) continue;
+      if (u.dead || u.vehicle) continue;
       const s = worldToScreen(u.x, u.y, cam);
       const r = u.def.radius * z;
       if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return u;
+    }
+    return null;
+  }
+
+  _getVehicleAt(sx, sy) {
+    const cam = this.game.camera;
+    for (const v of this.game.vehicles) {
+      if (v.dead) continue;
+      const s = worldToScreen(v.x, v.y, cam);
+      const r = v.def.radius * cam.zoom;
+      if (dist2(sx, sy, s.x, s.y - r * 0.9) < (r + 9) ** 2) return v;
     }
     return null;
   }
@@ -773,7 +827,7 @@ class InputHandler {
       if (mx < M) dx -= 1;
       if (mx > W - M) dx += 1;
       if (my < M + 44) dy -= 1;  // account for top bar
-      if (my > H - 110 - M) dy += 1;
+      if (my > H - bottomPanelHeight(W) - M) dy += 1;
     }
 
     if (dx !== 0 || dy !== 0) {
