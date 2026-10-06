@@ -84,3 +84,4 @@ and open localhost) and play.
 - Threat and the clinic/mechanics expansion are in place; the remaining
   planned structures and final art/polish are still open
 - Visual mockups: `docs/mockups/visual-directions.html`
+- Phase-7 art direction samples: `docs/art-directions/README.md`
