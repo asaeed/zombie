@@ -71,11 +71,11 @@ class Building {
     this.maxHp = def.maxHp;
     this.dead = false;
 
-    const ts = def.tileSize;
-    this.x = tileX * TILE + ts * TILE / 2;
-    this.y = tileY * TILE + ts * TILE / 2;
-    this.width = ts * TILE;
-    this.height = ts * TILE;
+    const ground = buildingGroundRect(type, tileX, tileY);
+    this.x = ground.left + ground.width / 2;
+    this.y = ground.top + ground.height / 2;
+    this.width = ground.width;
+    this.height = ground.height;
 
     // Combat (towers)
     this.atkCooldown = 0;
@@ -1007,8 +1007,9 @@ class Unit {
     if (len > 0) { nx /= len; ny /= len; }
 
     const speed = this.def.speed * this.moveSpeedFactor();
-    const newX = this.x + nx * speed * dt;
-    const newY = this.y + ny * speed * dt;
+    const step = Math.min(speed * dt, d);
+    const newX = this.x + nx * step;
+    const newY = this.y + ny * step;
 
     // Clamp to map
     const oldX = this.x, oldY = this.y;

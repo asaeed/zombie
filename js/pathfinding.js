@@ -95,10 +95,9 @@ function buildFlowField(buildings, tiles) {
   const blocked = new Uint8Array(MAP_W * MAP_H);
   for (const b of buildings) {
     if (b.dead) continue;
-    const ts = BUILDING_DEFS[b.type].tileSize;
-    for (let dy = 0; dy < ts; dy++) {
-      for (let dx = 0; dx < ts; dx++) {
-        const tx = b.tileX + dx, ty = b.tileY + dy;
+    const r = buildingGroundRect(b.type, b.tileX, b.tileY);
+    for (let ty = Math.ceil(r.top / TILE - .5); ty < Math.ceil(r.bottom / TILE - .5); ty++) {
+      for (let tx = Math.ceil(r.left / TILE - .5); tx < Math.ceil(r.right / TILE - .5); tx++) {
         if (tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H) {
           blocked[ty * MAP_W + tx] = 1;
         }
@@ -112,12 +111,13 @@ function buildFlowField(buildings, tiles) {
   // Seed only reachable perimeter tiles, never the building footprint.
   for (const b of buildings) {
     if (b.dead || b.type === 'wall') continue;
-    const ts = BUILDING_DEFS[b.type].tileSize;
-    for (let dy = -1; dy <= ts; dy++) {
-      for (let dx = -1; dx <= ts; dx++) {
-        if (dx >= 0 && dx < ts && dy >= 0 && dy < ts) continue;
-        if ((dx < 0 || dx >= ts) && (dy < 0 || dy >= ts)) continue;
-        const tx = b.tileX + dx, ty = b.tileY + dy;
+    const r = buildingGroundRect(b.type, b.tileX, b.tileY);
+    const lx = Math.ceil(r.left / TILE - .5), rx = Math.ceil(r.right / TILE - .5);
+    const ly = Math.ceil(r.top / TILE - .5), ry = Math.ceil(r.bottom / TILE - .5);
+    for (let ty = ly - 1; ty <= ry; ty++) {
+      for (let tx = lx - 1; tx <= rx; tx++) {
+        if (tx >= lx && tx < rx && ty >= ly && ty < ry) continue;
+        if ((tx < lx || tx >= rx) && (ty < ly || ty >= ry)) continue;
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) continue;
         if (tiles[ty][tx] === TILE_WATER || blocked[ty * MAP_W + tx] || distArr[ty][tx] === 0) continue;
         distArr[ty][tx] = 0;

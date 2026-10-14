@@ -56,6 +56,7 @@ class InputHandler {
   setMenuOpen(open) {
     this.menuOpen = !!open;
     if (this.game) this.game.paused = this.menuOpen;
+    this.menuActions?.menuVisibility?.(this.menuOpen);
   }
 
   notify(text) {
@@ -252,6 +253,13 @@ class InputHandler {
         u.attackMove = true;
       });
       this._clickHandled = true;
+      return;
+    }
+
+    // Unit selection is resolved on release so Shift and drag selection still work.
+    if (this._getUnitAt(e.clientX, e.clientY)) {
+      this._dragStart = { x: e.clientX, y: e.clientY };
+      this._dragging = false;
       return;
     }
 
@@ -452,10 +460,14 @@ class InputHandler {
         }
         if (sentCargo) return;
       }
+      let repairing = false;
       for (const u of game.selected) {
-        if (u.type === 'builder') u.repairBuilding(building);
+        if (u.type === 'builder') { u.repairBuilding(building); repairing = true; }
       }
-      return;
+      // A roof/support over open ground must not swallow an ordinary move order.
+      const onFootprint = Math.abs(wx - building.x) <= building.width / 2 &&
+        Math.abs(wy - building.y) <= building.height / 2;
+      if (repairing || onFootprint) return;
     }
 
     // Move command - scatter formation
@@ -469,6 +481,7 @@ class InputHandler {
   }
 
   _onKeyDown(e) {
+    if (e.target?.closest?.('a')) return;
     if (e.code.startsWith('Arrow')) e.preventDefault();
     this.keys[e.code] = true;
     if (this.game.status !== 'playing') {
@@ -750,7 +763,8 @@ class InputHandler {
       const artwork = sculptedActor('suv');
       if (artwork) {
         const height = artwork.metadata.bodyHeight * artwork.metadata.renderScale * cam.zoom;
-        if (Math.abs(sx - s.x) < 20 * cam.zoom && sy > s.y - height - 5 && sy < s.y + 6) return v;
+        const halfWidth = 20 * (artwork.metadata.presentationScale ?? 1) * cam.zoom;
+        if (Math.abs(sx - s.x) < halfWidth && sy > s.y - height - 5 && sy < s.y + 6) return v;
         continue;
       }
       if (dist2(sx, sy, s.x, s.y - r * 0.9) < (r + 9) ** 2) return v;

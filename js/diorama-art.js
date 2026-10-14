@@ -21,7 +21,8 @@ const DIORAMA_PILOT_TIMING = DIORAMA_PILOT_STYLE === 'sculpted' ? {
   walker: { idle: [4, 5], walk: [8, 11, 6], attack: [6, 13] },
 };
 
-if (DIORAMA_PILOT_ENABLED && typeof Image !== 'undefined') {
+if (DIORAMA_PILOT_ENABLED && new URLSearchParams(window.location.search).has('artPilot') &&
+    !new URLSearchParams(window.location.search).has('artPack') && typeof Image !== 'undefined') {
   for (const type of Object.keys(DIORAMA_PILOT_CLIPS)) {
     const image = new Image();
     image.src = DIORAMA_PILOT_STYLE === 'sculpted' ? `assets/sculpted-pixel/${type}.png`
@@ -57,21 +58,107 @@ function dioramaPilotFrame(type, facing, moving, actionElapsed, distance, gather
 }
 
 function dioramaPilotImage(type) {
+  if (ART_PACK_STATE.active === 'classic') return null;
   const image = DIORAMA_PILOT_IMAGES.get(type);
   return image?.complete && image.naturalWidth > 0 ? image : null;
 }
 
 const SCULPTED_WORLD = { characters: new Map(), objects: new Map(), terrain: null, ready: false, errors: [] };
+const ART_PACK_STORAGE_KEY = 'dead-zone-rts:art-pack';
+const ART_PACK_STATE = { active: null, pending: null, error: null, revision: 0 };
+let ART_PACK_CATALOG = { version: 1, default: 'sculpted', packs: [
+  { id: 'sculpted', label: 'Sculpted Pixel', manifest: 'assets/sculpted-pixel/world/manifest.json' },
+  { id: 'classic', label: 'Classic', renderer: 'classic' },
+] };
+const ART_PACK_CACHE = new Map();
 
-async function loadSculptedWorld() {
-  const base = new URL('assets/sculpted-pixel/world/', document.baseURI);
-  const response = await fetch(new URL('manifest.json', base));
-  if (!response.ok) throw new Error(`World artwork: HTTP ${response.status}`);
+function artPackChanged() {
+  if (typeof CustomEvent === 'function') window.dispatchEvent(new CustomEvent('artpackchange'));
+}
+
+function artPackAssetURL(value, base = document.baseURI) {
+  if (typeof value !== 'string' || !value) throw new Error('Missing artwork path');
+  const url = new URL(value, base), assets = new URL('assets/', document.baseURI);
+  if (url.origin !== assets.origin || !url.pathname.startsWith(assets.pathname) || url.search || url.hash) {
+    throw new Error('Artwork must be inside this game\'s assets directory');
+  }
+  return url;
+}
+
+function validateArtPackCatalog(catalog) {
+  if (catalog?.version !== 1 || !Array.isArray(catalog.packs) || !catalog.packs.length) throw new Error('Invalid art pack registry');
+  const ids = new Set();
+  for (const pack of catalog.packs) {
+    if (!/^[a-z0-9-]+$/.test(pack.id) || ids.has(pack.id) || typeof pack.label !== 'string' || !pack.label.trim()) throw new Error('Invalid art pack entry');
+    ids.add(pack.id);
+    if (pack.renderer !== 'classic') artPackAssetURL(pack.manifest);
+  }
+  if (!ids.has(catalog.default)) throw new Error('Missing default art pack');
+  return catalog;
+}
+
+function validateArtManifest(manifest) {
+  if (manifest?.version !== 1) throw new Error('Unsupported art manifest version');
+  if (manifest.imageSmoothingQuality !== undefined && !['low', 'medium', 'high'].includes(manifest.imageSmoothingQuality)) throw new Error('Invalid artwork sampling quality');
+  const characters = ['soldier', 'scout', 'builder', 'medic', 'sniper', 'heavy', 'torchbearer', 'walker',
+    'runner', 'brute', 'spitter', 'exploder', 'screamer', 'boss', 'walker-cap', 'walker-dress', 'walker-onearm', 'suv'];
+  const objects = ['hq', 'wall', 'tower', 'barracks', 'depot', 'light', 'clinic', 'mechanics', 'car', 'cabin', 'bin', 'pine', 'bush', 'rock'];
+  const positive = n => Number.isFinite(n) && n > 0;
+  const anchor = m => Number.isFinite(m?.footAnchor?.x) && Number.isFinite(m?.footAnchor?.y);
+  for (const id of characters) {
+    const meta = manifest.characters?.[id];
+    if (!meta?.image || !anchor(meta) || !positive(meta.renderScale) || !positive(meta.bodyHeight) ||
+        !positive(meta.cell?.width) || !positive(meta.cell?.height) ||
+        !DIORAMA_PILOT_DIRECTIONS.every(d => meta.directions?.includes(d))) throw new Error(`Incomplete character: ${id}`);
+    const actions = id === 'suv' ? ['idle'] : ['idle', 'walk'];
+    if (['soldier', 'scout', 'sniper'].includes(id)) actions.push('shoot', 'gather');
+    else if (['builder', 'heavy', 'torchbearer'].includes(id)) actions.push('attack', 'gather');
+    else if (id === 'medic') actions.push('heal', 'gather');
+    else if (id !== 'suv') actions.push('attack');
+    if (id === 'builder') actions.push('repair');
+    if (id !== 'suv' && !positive(meta.walkStride)) throw new Error(`Missing walk stride: ${id}`);
+    if (actions.includes('shoot') && meta.strike !== 'shoot' || actions.includes('attack') && meta.strike !== 'attack') throw new Error(`Missing strike action: ${id}`);
+    for (const action of actions) if (!meta.clips?.[action]) throw new Error(`Missing ${id}/${action}`);
+    for (const [action, clip] of Object.entries(meta.clips)) {
+      if (!positive(clip.fps) || typeof clip.loop !== 'boolean' ||
+          !DIORAMA_PILOT_DIRECTIONS.every(d => Array.isArray(clip.directions?.[d]) && clip.directions[d].length)) throw new Error(`Incomplete clip: ${id}/${action}`);
+    }
+  }
+  for (const id of objects) {
+    const meta = manifest.objects?.[id];
+    if (!meta?.image || !anchor(meta) || !positive(meta.width) || !positive(meta.height) ||
+        meta.displaySize && (!positive(meta.displaySize.width) || !positive(meta.displaySize.height))) throw new Error(`Incomplete object: ${id}`);
+  }
+  const terrainScale = manifest.terrain?.resolutionScale ?? 1;
+  if (!Number.isInteger(terrainScale) || terrainScale < 1 || terrainScale > 8) throw new Error('Invalid terrain resolution');
+  for (const type of ['grass', 'dirt', 'water']) {
+    if (!/^#[0-9a-f]{6}$/i.test(manifest.terrain?.baseColors?.[type])) throw new Error(`Missing terrain color: ${type}`);
+    for (let variant = 0; variant < 16; variant++) {
+      const frame = manifest.terrain.frames?.find(f => f.type === type && f.variant === variant);
+      if (!frame || frame.width !== 64 * terrainScale || frame.height !== 32 * terrainScale) throw new Error(`Incomplete terrain: ${type}/${variant}`);
+    }
+  }
+  if (!manifest.terrain.image) throw new Error('Missing terrain image');
+}
+
+async function loadArtPack(pack) {
+  if (pack.renderer === 'classic') return { characters: new Map(), objects: new Map(), terrain: null, ready: false };
+  const url = artPackAssetURL(pack.manifest);
+  const response = await fetch(url, { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`Artwork: HTTP ${response.status}`);
   const manifest = await response.json();
+  validateArtManifest(manifest);
+  const world = { characters: new Map(), objects: new Map(), terrain: null, ready: true };
   const load = async (metadata, mask = false) => {
-    const image = new Image(); image.src = new URL(metadata.image, base).href;
+    const image = new Image(); image.src = artPackAssetURL(metadata.image, url).href;
     await image.decode();
-    const record = { image, metadata };
+    const frames = metadata.clips ? Object.values(metadata.clips).flatMap(clip => Object.values(clip.directions).flat()) : metadata.frames;
+    for (const frame of frames ?? [{ x: 0, y: 0, width: metadata.width, height: metadata.height }]) {
+      if (![frame.x, frame.y, frame.width, frame.height].every(Number.isInteger) || frame.x < 0 || frame.y < 0 ||
+          frame.width <= 0 || frame.height <= 0 || frame.x + frame.width > image.naturalWidth ||
+          frame.y + frame.height > image.naturalHeight) throw new Error(`Artwork frame outside image: ${metadata.image}`);
+    }
+    const record = { image, metadata, imageSmoothing: manifest.imageSmoothing === true, imageSmoothingQuality: manifest.imageSmoothingQuality ?? 'low' };
     if (mask) {
       const canvas = document.createElement('canvas');
       canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
@@ -82,28 +169,73 @@ async function loadSculptedWorld() {
   };
   const jobs = [];
   for (const [id, metadata] of Object.entries(manifest.characters)) {
-    jobs.push(load(metadata).then(record => SCULPTED_WORLD.characters.set(id, record)));
+    jobs.push(load(metadata).then(record => world.characters.set(id, record)));
   }
   for (const [id, metadata] of Object.entries(manifest.objects)) {
-    jobs.push(load(metadata, true).then(record => SCULPTED_WORLD.objects.set(id, record)));
+    jobs.push(load(metadata, true).then(record => world.objects.set(id, record)));
   }
-  jobs.push(load(manifest.terrain).then(record => { SCULPTED_WORLD.terrain = record; }));
-  await Promise.all(jobs); SCULPTED_WORLD.ready = true;
+  jobs.push(load(manifest.terrain).then(record => { world.terrain = record; }));
+  await Promise.all(jobs);
+  return world;
 }
 
-if (DIORAMA_PILOT_ENABLED && DIORAMA_PILOT_STYLE === 'sculpted' && typeof fetch === 'function' && typeof Image !== 'undefined') {
-  loadSculptedWorld().catch(error => {
-    SCULPTED_WORLD.errors.push(error.message);
-    console.warn('Sculpted artwork could not finish loading; using available fallback art.', error);
-  });
+async function selectArtPack(id, { persist = true, updateURL = true } = {}) {
+  const pack = ART_PACK_CATALOG.packs.find(pack => pack.id === id);
+  if (!pack) throw new Error(`Unknown graphics pack: ${id}`);
+  const revision = ++ART_PACK_STATE.revision;
+  ART_PACK_STATE.pending = id; ART_PACK_STATE.error = null; artPackChanged();
+  try {
+    if (!ART_PACK_CACHE.has(id)) ART_PACK_CACHE.set(id, loadArtPack(pack));
+    let world;
+    try { world = await ART_PACK_CACHE.get(id); }
+    catch (error) { ART_PACK_CACHE.delete(id); throw error; }
+    if (revision !== ART_PACK_STATE.revision) return false;
+    // Publish a whole decoded pack in one step; the simulation and save data are untouched.
+    Object.assign(SCULPTED_WORLD, world, { errors: [] });
+    ART_PACK_STATE.active = id; ART_PACK_STATE.pending = null;
+    if (persist) { try { localStorage.setItem(ART_PACK_STORAGE_KEY, id); } catch {} }
+    if (updateURL && window.history?.replaceState && window.location.href) {
+      const url = new URL(window.location.href); url.searchParams.set('artPack', id); url.searchParams.delete('artPilot');
+      window.history.replaceState(null, '', url);
+    }
+    artPackChanged(); return true;
+  } catch (error) {
+    if (revision !== ART_PACK_STATE.revision) return false;
+    ART_PACK_STATE.pending = null; ART_PACK_STATE.error = error.message;
+    SCULPTED_WORLD.errors.push(error.message); artPackChanged(); throw error;
+  }
 }
+
+async function startArtPacks() {
+  const revision = ART_PACK_STATE.revision;
+  try {
+    const response = await fetch(artPackAssetURL('assets/art-packs/registry.json'), { cache: 'no-cache' });
+    if (!response.ok) throw new Error(`Registry: HTTP ${response.status}`);
+    ART_PACK_CATALOG = validateArtPackCatalog(await response.json());
+  } catch (error) { console.warn('Using built-in graphics registry.', error); }
+  if (revision !== ART_PACK_STATE.revision) return;
+  const params = new URLSearchParams(window.location.search);
+  let stored;
+  try { stored = localStorage.getItem(ART_PACK_STORAGE_KEY); } catch {}
+  let id = params.get('artPack');
+  if (!id && params.has('artPilot')) {
+    if (DIORAMA_PILOT_ENABLED && DIORAMA_PILOT_STYLE !== 'sculpted') { artPackChanged(); return; }
+    id = DIORAMA_PILOT_ENABLED ? 'sculpted' : 'classic';
+  }
+  id = id || stored || ART_PACK_CATALOG.default;
+  if (!ART_PACK_CATALOG.packs.some(pack => pack.id === id)) id = ART_PACK_CATALOG.default;
+  await selectArtPack(id, { persist: false, updateURL: false });
+}
+
+const ART_PACK_READY = typeof document !== 'undefined' && typeof fetch === 'function' && typeof Image !== 'undefined'
+  ? startArtPacks().catch(error => console.warn('Artwork could not load; retaining fallback art.', error)) : Promise.resolve();
 
 function sculptedActor(type) {
-  return DIORAMA_PILOT_ENABLED && DIORAMA_PILOT_STYLE === 'sculpted' ? SCULPTED_WORLD.characters.get(type) : null;
+  return SCULPTED_WORLD.ready ? SCULPTED_WORLD.characters.get(type) : null;
 }
 
 function sculptedObject(type) {
-  return DIORAMA_PILOT_ENABLED && DIORAMA_PILOT_STYLE === 'sculpted' ? SCULPTED_WORLD.objects.get(type) : null;
+  return SCULPTED_WORLD.ready ? SCULPTED_WORLD.objects.get(type) : null;
 }
 
 function sculptedActorFrame(record, actor, time, working = null) {
@@ -125,8 +257,10 @@ function sculptedActorFrame(record, actor, time, working = null) {
 
 function sculptedObjectRect(record, foot, zoom) {
   const meta = record.metadata;
-  return { x: foot.x - meta.footAnchor.x * zoom, y: foot.y - meta.footAnchor.y * zoom,
-    width: meta.width * zoom, height: meta.height * zoom };
+  const size = meta.displaySize ?? meta;
+  const sx = size.width / meta.width, sy = size.height / meta.height;
+  return { x: foot.x - meta.footAnchor.x * sx * zoom, y: foot.y - meta.footAnchor.y * sy * zoom,
+    width: size.width * zoom, height: size.height * zoom };
 }
 
 function sculptedObjectHit(record, rect, x, y) {
@@ -138,9 +272,9 @@ function sculptedObjectHit(record, rect, x, y) {
 
 function sculptedTerrainFrame(tile, tx, ty) {
   const record = SCULPTED_WORLD.terrain;
-  if (!record || DIORAMA_PILOT_STYLE !== 'sculpted' || !DIORAMA_PILOT_ENABLED) return null;
+  if (!record || !SCULPTED_WORLD.ready) return null;
   const variant = ((tx % 4 + 4) % 4) + ((ty % 4 + 4) % 4) * 4;
   const type = ['grass', 'dirt', 'water'][tile];
   const frame = record.metadata.frames.find(frame => frame.type === type && frame.variant === variant);
-  return frame ? { image: record.image, frame, baseColor: record.metadata.baseColors?.[type] } : null;
+  return frame ? { image: record.image, frame, baseColor: record.metadata.baseColors?.[type], imageSmoothing: record.imageSmoothing, imageSmoothingQuality: record.imageSmoothingQuality } : null;
 }

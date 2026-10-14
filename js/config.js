@@ -27,7 +27,7 @@ const VEHICLE_DEFS = {
 const BUILDING_DEFS = {
   hq:       { name:'HQ',           maxHp:1000, tileSize:3, cost:0,   color:'#6655cc', canBuild:false },
   wall:     { name:'Wall',         maxHp:250,  tileSize:1, cost:20,  color:'#778877', canBuild:true },
-  tower:    { name:'Guard Tower',  maxHp:350,  tileSize:2, cost:150, color:'#cc9922', canBuild:true, atkRange:220, atkDmg:40, atkRate:1.0 },
+  tower:    { name:'Guard Tower',  maxHp:350,  tileSize:2, footprint:{width:1.25,height:1.25}, cost:150, color:'#cc9922', canBuild:true, atkRange:220, atkDmg:40, atkRate:1.0 },
   barracks: { name:'Barracks',     maxHp:500,  tileSize:2, cost:200, color:'#883322', canBuild:true },
   depot:    { name:'Supply Depot', maxHp:300,  tileSize:2, cost:75, color:'#445566', canBuild:true },
   light:    { name:'Light Tower',  maxHp:200,  tileSize:1, cost:60,  color:'#ddcc66', canBuild:true },
@@ -67,7 +67,7 @@ const SCREAMER_SHRIEK_INTERVAL = 8;
 const EXPLODER_BLAST_RADIUS = 2.6 * TILE;
 const EXPLODER_SHOT_RADIUS = 4.5 * TILE;
 const HEAVY_SWING_RADIUS = 55;
-const TORCH_LIGHT_RADIUS = 6;
+const TORCH_LIGHT_RADIUS = 9;
 const STARTING_SUPPLIES = 500;
 
 const CAM_SPEED = 500; // px/sec keyboard pan
