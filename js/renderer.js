@@ -167,15 +167,26 @@ class Renderer {
       ground.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
       ground.clearRect(0, 0, this.W, this.H);
       this._paintTiles(ground, game, bounds);
+      if (terrain?.nightImage) {
+        const nightLayer = this._nightGroundLayer ??= document.createElement('canvas');
+        if (nightLayer.width !== layer.width || nightLayer.height !== layer.height) {nightLayer.width = layer.width; nightLayer.height = layer.height;}
+        const nightGround = nightLayer.getContext('2d');
+        nightGround.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+        nightGround.clearRect(0, 0, this.W, this.H);
+        this._paintTiles(nightGround, game, bounds, true);
+        const blend = this._groundBlend ??= {revision: 0};
+        Object.assign(blend, {image: layer, nightImage: nightLayer, revision: blend.revision + 1});
+      }
       this._groundCache = { game, terrain, states, x:cam.x, y:cam.y, zoom:cam.zoom,
         width:this.W, height:this.H, ratio:this.pixelRatio };
     }
     ctx.save(); ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(this._groundLayer, 0, 0, this.W, this.H);
+    const groundImage = terrain?.nightImage ? worldArtworkImage(this._groundBlend, game.darkness()) : this._groundLayer;
+    ctx.drawImage(groundImage, 0, 0, this.W, this.H);
     ctx.restore();
   }
 
-  _paintTiles(ctx, game, { tx0, tx1, ty0, ty1 }) {
+  _paintTiles(ctx, game, { tx0, tx1, ty0, ty1 }, night = false) {
     const cam = game.camera, z = cam.zoom;
 
     const w = 64 * z, h = 32 * z;
@@ -192,7 +203,7 @@ class Renderer {
           ctx.drawImage(this._tileSprites.unexplored[shade], s.x - w / 2, s.y, w, h);
           continue;
         }
-        const terrain = sculptedTerrainFrame(game.tiles[ty][tx], tx, ty);
+        const terrain = sculptedTerrainFrame(game.tiles[ty][tx], tx, ty, night);
         if (terrain?.baseColor) {
           // Match the textured surface and overlap subpixel edges to avoid dark seams.
           ctx.fillStyle = terrain.baseColor;
@@ -304,7 +315,7 @@ class Renderer {
       const hash = Math.imul(tx + 17, 73856093) ^ Math.imul(ty + 31, 19349663);
       const seed = (hash >>> 0) % 1000;
       const away = !hq || Math.hypot(tileCenterX(tx) - hq.x, tileCenterY(ty) - hq.y) > TILE * 10;
-      const kind = away && seed < 70 ? 'pine' : seed >= 70 && seed < 98 ? 'bush' : seed >= 98 && seed < 120 ? 'rock' : null;
+      const kind = away && seed < 70 ? 'pine' : seed >= 70 && seed < 98 ? 'bush' : seed >= 98 && seed < 109 ? 'rock' : null;
       if (!kind) continue;
       const clearance = kind === 'pine' ? 1 : 0;
       if (game.buildings.some(b => !b.dead && tx >= b.tileX - clearance && ty >= b.tileY - clearance &&
@@ -317,7 +328,7 @@ class Renderer {
         ctx.save();
         ctx.globalAlpha = (game.tileVisible(tx, ty) ? 1 : .55) * this._unitOcclusionAlpha(game, [], key, record, rect);
         ctx.imageSmoothingEnabled = record.imageSmoothing; ctx.imageSmoothingQuality = record.imageSmoothingQuality;
-        ctx.drawImage(record.image, rect.x, rect.y, rect.width, rect.height);
+        ctx.drawImage(record.nightImage ? worldArtworkImage(record, game.darkness()) : record.image, rect.x, rect.y, rect.width, rect.height);
         ctx.restore();
       } });
     }
@@ -392,7 +403,7 @@ class Renderer {
     if (artwork) {
       ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
-      ctx.drawImage(artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
     } else {
     face(E, S, shadeColor(def.color, 0.72)); // sun-side face
     face(S, W, shadeColor(def.color, 0.52)); // shade-side face
@@ -468,7 +479,7 @@ class Renderer {
       ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
       if (c.empty) ctx.globalAlpha *= .45;
-      ctx.drawImage(artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
     } else {
     face(E, S, shadeColor(base, 0.72));
     face(S, W, shadeColor(base, 0.52));
