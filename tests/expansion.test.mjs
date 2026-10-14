@@ -148,14 +148,9 @@ const spriteCalls = type => {
   spriteRenderer._drawUnit(paint, { camera: { x: 0, y: 0, zoom: 1 } }, new Unit(type, 200, 200));
   return calls;
 };
-assert.equal(spriteCalls('sniper').filter(call => call.method === 'lineTo').length, 0,
-  'sniper sprite has no line accessory');
-assert.equal(spriteCalls('heavy').filter(call => call.method === 'lineTo').length, 0,
-  'heavy sprite has no line accessory');
-assert.equal(spriteCalls('torchbearer').filter(call => call.method === 'arc').length, 2,
-  'torchbearer has no yellow tip circle');
-assert.equal(spriteCalls('medic').filter(call => call.method === 'fillRect' && call.fillStyle === '#ffffff').length, 2,
-  'medic center uses two clean bars for its cross');
+for (const type of ['sniper', 'heavy', 'torchbearer', 'medic']) {
+  assert.equal(spriteCalls(type).length, 0, `${type} never renders obsolete primitives when artwork is missing`);
+}
 const heavy = melee.spawnUnit('heavy', 200, 200);
 const front = new Zombie('walker', 240, 200);
 const nextToIt = new Zombie('walker', 239, 220);

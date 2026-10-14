@@ -69115,7 +69115,7 @@
       "presentationScale": 1.2
     },
     "suv": {
-      "image": "../brushwork/suv.png",
+      "image": "suv.png",
       "group": "vehicle",
       "cell": {
         "width": 96,
@@ -585234,7 +585234,7 @@
   },
   "objects": {
     "hq": {
-      "image": "../brushwork-full/hq.png",
+      "image": "structures/hq.png",
       "group": "building",
       "tiles": 3,
       "width": 629,
@@ -585275,7 +585275,7 @@
       }
     },
     "wall": {
-      "image": "../brushwork-full/wall.png",
+      "image": "structures/wall.png",
       "group": "building",
       "tiles": 1,
       "width": 259,
@@ -585316,7 +585316,7 @@
       }
     },
     "tower": {
-      "image": "../brushwork-full/tower.png",
+      "image": "structures/tower.png",
       "group": "building",
       "tiles": 2,
       "width": 261,
@@ -585357,7 +585357,7 @@
       }
     },
     "barracks": {
-      "image": "../brushwork-full/barracks.png",
+      "image": "structures/barracks.png",
       "group": "building",
       "tiles": 2,
       "width": 417,
@@ -585398,7 +585398,7 @@
       }
     },
     "depot": {
-      "image": "../brushwork-full/depot.png",
+      "image": "structures/depot.png",
       "group": "building",
       "tiles": 2,
       "width": 516,
@@ -585439,7 +585439,7 @@
       }
     },
     "light": {
-      "image": "../brushwork-full/light.png",
+      "image": "structures/light.png",
       "group": "building",
       "tiles": 1,
       "width": 189,
@@ -585480,7 +585480,7 @@
       }
     },
     "clinic": {
-      "image": "../brushwork-full/clinic.png",
+      "image": "structures/clinic.png",
       "group": "building",
       "tiles": 2,
       "width": 419,
@@ -585521,7 +585521,7 @@
       }
     },
     "mechanics": {
-      "image": "../brushwork-full/mechanics.png",
+      "image": "structures/mechanics.png",
       "group": "building",
       "tiles": 2,
       "width": 421,

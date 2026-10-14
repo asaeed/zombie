@@ -7,25 +7,41 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
-  <link rel="stylesheet" href="style.css?v=20261014-source-link-r1">
+  <link rel="stylesheet" href="style.css?v=20261014-start-screen-r1">
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <a id="source-code-link" href="https://github.com/asaeed/zombie" target="_blank" rel="noopener noreferrer">Source code</a>
-  <div id="graphics-setting" hidden>
-    <label for="graphics-pack">Graphics</label>
-    <select id="graphics-pack" aria-label="Graphics pack"></select>
-    <span id="graphics-status" role="status"></span>
-  </div>
-  <script src="js/config.js?v=20261010-torch-light-r1"></script>
-  <script src="js/utils.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/pathfinding.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/entities.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/game.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/zombie-art.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/diorama-art.js?v=20261010-rigged-world-r2"></script>
-  <script src="js/renderer.js?v=20261011-soft-shadows-r1"></script>
-  <script src="js/input.js?v=20261014-source-link-r1"></script>
-  <script src="js/main.js?v=20261010-rigged-world-r2"></script>
+  <main id="start-screen">
+    <img id="start-backdrop" src="assets/rigged-full/intro.webp" alt="" fetchpriority="high">
+    <div class="start-content">
+      <p class="start-eyebrow">ENDLESS SURVIVAL RTS</p>
+      <h1>Dead Zone</h1>
+      <p class="start-intro">Your last foothold in a city overrun.</p>
+      <div class="start-loading" aria-busy="true">
+        <div class="start-loading-label"><span id="asset-status" role="status" aria-live="polite">Preparing assets...</span><span id="asset-percent" aria-hidden="true">0%</span></div>
+        <progress id="asset-progress" max="1" value="0" aria-label="Game assets"></progress>
+        <p id="asset-detail">Downloading the final game artwork.</p>
+      </div>
+      <div class="start-actions">
+        <button id="start-game" type="button" disabled>Start game</button>
+        <button id="retry-assets" type="button" hidden>Retry download</button>
+      </div>
+      <noscript>JavaScript is required to play Dead Zone.</noscript>
+    </div>
+    <footer class="start-footer">
+      <p>Created by <a href="https://github.com/asaeed" target="_blank" rel="noopener noreferrer">asaeed</a></p>
+      <a href="https://github.com/asaeed/zombie" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+    </footer>
+  </main>
+  <canvas id="canvas" tabindex="-1" hidden></canvas>
+  <a id="source-code-link" href="https://github.com/asaeed/zombie" target="_blank" rel="noopener noreferrer" hidden>Source code</a>
+  <script defer src="js/config.js?v=20261010-torch-light-r1"></script>
+  <script defer src="js/utils.js?v=20261014-start-screen-r1"></script>
+  <script defer src="js/pathfinding.js?v=20261010-rigged-world-r2"></script>
+  <script defer src="js/entities.js?v=20261010-rigged-world-r2"></script>
+  <script defer src="js/game.js?v=20261010-rigged-world-r2"></script>
+  <script defer src="js/art.js?v=20261014-start-screen-r1"></script>
+  <script defer src="js/renderer.js?v=20261014-start-screen-r1"></script>
+  <script defer src="js/input.js?v=20261014-source-link-r1"></script>
+  <script defer src="js/main.js?v=20261014-start-screen-r1"></script>
 </body>
 </html>

@@ -149,7 +149,7 @@ function mapCompass(W) {
 
 function mainMenuPanelRect(W) {
   const w = Math.min(270, W - 24);
-  return { x: W - w - 12, y: 44, w, h: 478 };
+  return { x: W - w - 12, y: 44, w, h: 424 };
 }
 
 function mainMenuActionRects(W) {
@@ -165,7 +165,7 @@ function mainMenuActionRects(W) {
     ['clear-saves'],
   ];
   const rects = [];
-  let y = panel.y + 104;
+  let y = panel.y + 50;
   for (const row of rows) {
     if (row.length === 1) {
       rects.push({ action: row[0], x: panel.x + 14, y, w: panel.w - 28, h: 34 });

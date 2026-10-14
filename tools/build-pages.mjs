@@ -11,8 +11,8 @@ export async function buildPages(destination,root=projectRoot){
   if(output===root||root.startsWith(output+path.sep))throw new Error('Output cannot contain the source repository');
   await fs.mkdir(output,{recursive:true});
   if((await fs.readdir(output)).length)throw new Error('Use an empty output directory to avoid publishing extra files');
-  const files=new Set(['index.html','style.css','assets/favicon.svg','assets/favicon-32.png','assets/favicon-64.png']);
-  for(const name of await fs.readdir(path.join(root,'js')))if(name.endsWith('.js'))files.add('js/'+name);
+  const files=new Set(['index.html','style.css','assets/favicon.svg','assets/favicon-32.png','assets/favicon-64.png',
+    'assets/rigged-full/intro.webp',...['config','utils','pathfinding','entities','game','art','renderer','input','main'].map(name=>'js/'+name+'.js')]);
   const registryFile='assets/art-packs/registry.json';files.add(registryFile);
   const registry=JSON.parse(await fs.readFile(path.join(root,registryFile),'utf8'));
   const publicAsset=(relative,base=root+path.sep)=>{
@@ -30,14 +30,21 @@ export async function buildPages(destination,root=projectRoot){
       files.add(publicAsset(record.image,path.dirname(path.join(root,manifestFile))+path.sep));
     }
   }
-  for(const name of await fs.readdir(path.join(root,'assets/diorama-pilot')))
-    if(name.endsWith('.png'))files.add('assets/diorama-pilot/'+name);
-
   const hash=createHash('sha256');let bytes=0;
   for(const file of [...files].sort()){
     const source=path.join(root,file);
     if(!(await fs.lstat(source)).isFile())throw new Error('Only regular public files are allowed: '+file);
-    const data=await fs.readFile(source),target=path.join(output,file);
+    let data=await fs.readFile(source);
+    if(file.endsWith('.json')){
+      const json=JSON.parse(data);
+      if(json.characters&&json.objects&&json.terrain){
+        // Source rig measurements are QA evidence, not runtime dependencies.
+        delete json.production;
+        for(const record of [...Object.values(json.characters),...Object.values(json.objects),json.terrain])delete record.production;
+      }
+      data=Buffer.from(JSON.stringify(json)+'\n');
+    }
+    const target=path.join(output,file);
     await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,data);
     hash.update(file+'\0');hash.update(data);bytes+=data.length;
   }

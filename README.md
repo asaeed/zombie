@@ -2,9 +2,8 @@
 
 **Play the game:** [Dead Zone RTS on GitHub Pages](https://asaeed.github.io/zombie/)
 
-Browser zombie-survival RTS. Vanilla JS + Canvas 2D, no build step, no
-dependencies — open `index.html` in a browser (or `python3 -m http.server`
-and open localhost) and play.
+Browser zombie-survival RTS. Vanilla JS + Canvas 2D, no build step or runtime
+dependencies. Serve over HTTP (`python3 -m http.server`) and open localhost.
 
 ## GitHub Pages
 
@@ -17,8 +16,15 @@ directory, or pass an empty output directory explicitly. Commit the exported
 files to `gh-pages` to deploy an update; local source changes do not publish
 automatically. `release.json` identifies the exact exported content.
 
-Fresh browsers use Rigged Tactics graphics. Other skins remain available in
-the game menu, and an existing saved graphics choice is preserved.
+The shipped game uses only the final Rigged Tactics artwork. Earlier graphics
+experiments and their loaders stay archived in the source checkout, not in the
+Pages export. Approved structures and vehicle art are packaged with the final
+skin, without downloading any intermediate character sheets.
+
+Assets begin loading on the start screen. Progress counts downloaded, decoded,
+and validated assets; Start (or Continue) enables only when the full skin is
+ready. The game does not render, advance, or overwrite saves before entering.
+Failed downloads show Retry instead of falling back to older graphics.
 
 Saves remain in this browser's local storage. The hosted site has separate
 save data from localhost; existing local saves are not transferred.

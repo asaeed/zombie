@@ -6,44 +6,48 @@
   const SAVE_KEY_PREFIX = 'dead-zone-rts:slot:';
 
   let game       = null;
-  const renderer = new Renderer(canvas);
+  let renderer  = null;
   let input      = null;
   let autoSaveIn = 2;
-  const graphicsSetting = document.getElementById('graphics-setting');
-  const graphicsSelect = document.getElementById('graphics-pack');
-  const graphicsStatus = document.getElementById('graphics-status');
+  const startScreen = document.getElementById('start-screen');
+  const startButton = document.getElementById('start-game');
+  const retryButton = document.getElementById('retry-assets');
+  const loading = document.querySelector('.start-loading');
+  const assetStatus = document.getElementById('asset-status');
+  const assetDetail = document.getElementById('asset-detail');
+  const assetPercent = document.getElementById('asset-percent');
+  const assetProgress = document.getElementById('asset-progress');
+  const sourceLink = document.getElementById('source-code-link');
 
-  function positionGraphicsSetting() {
-    const panel = mainMenuPanelRect(window.innerWidth);
-    graphicsSetting.style.left = `${panel.x + 14}px`;
-    graphicsSetting.style.top = `${panel.y + 51}px`;
-    graphicsSetting.style.width = `${panel.w - 28}px`;
+  function syncLoading() {
+    const {loaded, total} = ART_PACK_STATE.progress;
+    const ready = SCULPTED_WORLD.ready && !ART_PACK_STATE.pending && !ART_PACK_STATE.error;
+    const failed = !!ART_PACK_STATE.error;
+    startButton.disabled = !ready;
+    retryButton.hidden = !failed;
+    loading.toggleAttribute('data-error', failed);
+    loading.setAttribute('aria-busy', String(!ready && !failed));
+    assetProgress.max = total || 1; assetProgress.value = loaded;
+    assetPercent.textContent = `${total ? Math.floor(loaded / total * 100) : 0}%`;
+    const status = failed ? 'Download interrupted' : ready ? 'Assets ready' : 'Loading assets...';
+    if (assetStatus.textContent !== status) assetStatus.textContent = status;
+    assetDetail.textContent = failed ? 'Some artwork could not load. Retry to continue.'
+      : total ? `${loaded} / ${total} assets ${ready ? 'ready' : 'downloaded and prepared'}.` : 'Preparing the final game artwork.';
   }
 
-  function syncGraphicsSetting() {
-    graphicsSelect.replaceChildren(...ART_PACK_CATALOG.packs.map(pack => {
-      const option = document.createElement('option'); option.value = pack.id; option.textContent = pack.label; return option;
-    }));
-    graphicsSelect.value = ART_PACK_STATE.pending || ART_PACK_STATE.active || '';
-    graphicsSelect.disabled = !!ART_PACK_STATE.pending;
-    graphicsStatus.textContent = ART_PACK_STATE.pending ? 'Loading...' : ART_PACK_STATE.error ? 'Load failed' : '';
-  }
-
-  window.addEventListener('resize', positionGraphicsSetting);
-  window.addEventListener('artpackchange', syncGraphicsSetting);
-  graphicsSelect.addEventListener('change', async () => {
-    const id = graphicsSelect.value;
-    try { await selectArtPack(id); }
-    catch { input.notify('Graphics could not load'); }
+  try {
+    if (JSON.parse(localStorage.getItem(SAVE_KEY_AUTO))?.data) startButton.textContent = 'Continue game';
+  } catch {}
+  window.addEventListener('artpackchange', syncLoading);
+  retryButton.addEventListener('click', async () => {
+    retryButton.hidden = true;
+    try {await startArtPacks();} catch {}
+    syncLoading();
   });
-  graphicsSelect.addEventListener('keydown', event => {
-    if (event.code === 'Escape') { input.setMenuOpen(false); canvas.focus(); }
-    event.stopPropagation();
-  });
-  positionGraphicsSetting(); syncGraphicsSetting();
+  syncLoading(); ART_PACK_READY.then(syncLoading);
 
   // Keep renderer.W/H (used by HUD/minimap layout) in sync with the canvas
-  window.addEventListener('resize', () => renderer.resize());
+  window.addEventListener('resize', () => renderer?.resize());
 
   function parseSave(key) {
     try {
@@ -111,10 +115,6 @@
   }
 
   const menuActions = {
-    menuVisibility: open => {
-      graphicsSetting.hidden = !open;
-      if (!open && graphicsSetting.contains(document.activeElement)) document.activeElement.blur();
-    },
     saveAuto: () => ({ text: 'Saved', meta: writeSave(SAVE_KEY_AUTO) }),
     loadAuto: () => {
       const loaded = loadSave(SAVE_KEY_AUTO);
@@ -140,30 +140,38 @@
     },
   };
 
-  input = new InputHandler(canvas, new Game(), menuActions);
+  startButton.addEventListener('click', () => {
+    if (startButton.disabled || game || !SCULPTED_WORLD.ready) return;
+    renderer = new Renderer(canvas);
+    input = new InputHandler(canvas, new Game(), menuActions);
+    try {
+      const restored = loadSave(SAVE_KEY_AUTO);
+      if (restored) installGame(restored);
+      else newGame();
+    } catch (err) {
+      console.warn('Failed to restore autosave', err);
+      localStorage.removeItem(SAVE_KEY_AUTO);
+      newGame();
+    }
 
-  try {
-    const restored = loadSave(SAVE_KEY_AUTO);
-    if (restored) installGame(restored);
-    else newGame();
-  } catch (err) {
-    console.warn('Failed to restore autosave', err);
-    localStorage.removeItem(SAVE_KEY_AUTO);
-    newGame();
-  }
-
-  // Expose for debug / browser validation.
-  window._game = game;
-  window._input = input;
-  window._newGame = newGame;
-  window._saveGameNow = () => writeSave(SAVE_KEY_AUTO);
-  window._loadAutoSave = () => {
-    const loaded = loadSave(SAVE_KEY_AUTO);
-    if (loaded) installGame(loaded);
-    return !!loaded;
-  };
+    // Expose for debug / browser validation only after the player enters.
+    window._game = game;
+    window._input = input;
+    window._newGame = newGame;
+    window._saveGameNow = () => writeSave(SAVE_KEY_AUTO);
+    window._loadAutoSave = () => {
+      const loaded = loadSave(SAVE_KEY_AUTO);
+      if (loaded) installGame(loaded);
+      return !!loaded;
+    };
+    renderer.render(game, input);
+    canvas.hidden = false; sourceLink.hidden = false; startScreen.hidden = true;
+    canvas.focus();
+    requestAnimationFrame(ts => {lastTime = ts; requestAnimationFrame(loop);});
+  });
 
   window.addEventListener('pagehide', () => {
+    if (!game) return;
     try { writeSave(SAVE_KEY_AUTO); } catch (err) { console.warn('Autosave failed', err); }
   });
 
@@ -189,8 +197,4 @@
     requestAnimationFrame(loop);
   }
 
-  requestAnimationFrame(ts => {
-    lastTime = ts;
-    requestAnimationFrame(loop);
-  });
 })();

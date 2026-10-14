@@ -2,10 +2,6 @@
   "version": 1,
   "default": "rigged",
   "packs": [
-    { "id": "sculpted", "label": "Sculpted Pixel", "manifest": "assets/sculpted-pixel/world/manifest.json" },
-    { "id": "brushwork", "label": "Brushwork Tactics", "manifest": "assets/brushwork/manifest.json" },
-    { "id": "brushwork-layered", "label": "Brushwork Tactics (Layered)", "manifest": "assets/brushwork-full/manifest.json" },
-    { "id": "rigged", "label": "Rigged Tactics", "manifest": "assets/rigged-full/manifest.json" },
-    { "id": "classic", "label": "Classic", "renderer": "classic" }
+    { "id": "rigged", "label": "Rigged Tactics", "manifest": "assets/rigged-full/manifest.json" }
   ]
 }

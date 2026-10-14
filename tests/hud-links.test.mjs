@@ -12,7 +12,7 @@ for (const file of ['config', 'utils']) {
 const rects = vm.runInContext('buildButtonRects', context);
 
 test('game source is a native, safely opened link outside the canvas', () => {
-  assert.match(html, /<\/canvas>\s*<a id="source-code-link" href="https:\/\/github\.com\/asaeed\/zombie" target="_blank" rel="noopener noreferrer">Source code<\/a>/);
+  assert.match(html, /<\/canvas>\s*<a id="source-code-link" href="https:\/\/github\.com\/asaeed\/zombie" target="_blank" rel="noopener noreferrer" hidden>Source code<\/a>/);
 });
 
 test('source link fits the unused HUD corner at mobile and desktop widths', () => {
