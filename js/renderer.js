@@ -498,6 +498,7 @@ class Renderer {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(u.x, u.y, cam);
     const artwork = sculptedActor(u.type);
+    if (!artwork) return;
     const visualRadius = u.def.radius * (artwork ? .5 : 1);
     const r = visualRadius * z;
 
@@ -508,53 +509,15 @@ class Renderer {
     this._groundEllipse(ctx, s, visualRadius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();       // ground shadow
 
-    const pilotImage = u.type === 'sniper' ? dioramaPilotImage('sniper') : null;
-    if (artwork) {
-      const stationary = u.waypoints.length === 0;
-      const working = stationary && (u.gatherTarget || u.bundleTarget) ? 'gather'
-        : stationary && u.repairTarget ? 'repair'
-        : stationary && u.type === 'medic' && u.supportHome && !u._supportReturning && u.healCooldown > 0 ? 'heal' : null;
-      this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, u, game.gameTime, working), s, z);
-    } else if (pilotImage) {
-      const gathering = (u.gatherTarget || u.bundleTarget) && u.waypoints.length === 0;
-      const frame = dioramaPilotFrame('sniper', u.facing,
-        game.gameTime - u.lastMotionAt < .16,
-        game.gameTime - u.attackAnimStart, u.animDistance, gathering, u.gatherAnimTime,
-        game.gameTime);
-      const scale = DIORAMA_PILOT_SCALE * z;
-      ctx.save();
-      ctx.imageSmoothingEnabled = !['pixel', 'sculpted'].includes(DIORAMA_PILOT_STYLE);
-      ctx.drawImage(pilotImage, frame.x, frame.y, frame.width, frame.height,
-        s.x - DIORAMA_PILOT_CELL.footX * scale,
-        s.y - DIORAMA_PILOT_CELL.footY * scale,
-        frame.width * scale, frame.height * scale);
-      ctx.restore();
-    } else {
-      ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, r, 0, Math.PI * 2); // raised body
-      ctx.fillStyle = u.def.color; ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
-      if (u.type === 'medic') {
-        const cy = s.y - r * 1.2;
-        const arm = 7 * z, thickness = 2.5 * z;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(s.x - arm / 2, cy - thickness / 2, arm, thickness);
-        ctx.fillRect(s.x - thickness / 2, cy - arm / 2, thickness, arm);
-      } else {
-        ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
-      }
-
-      if (u.type === 'torchbearer') {
-        ctx.strokeStyle = '#5b3727'; ctx.lineWidth = 3 * z;
-        ctx.beginPath(); ctx.moveTo(s.x + r, s.y - r * 0.8);
-        ctx.lineTo(s.x + r * 1.25, s.y - r * 2.5); ctx.stroke();
-      }
-    }
+    const stationary = u.waypoints.length === 0;
+    const working = stationary && (u.gatherTarget || u.bundleTarget) ? 'gather'
+      : stationary && u.repairTarget ? 'repair'
+      : stationary && u.type === 'medic' && u.supportHome && !u._supportReturning && u.healCooldown > 0 ? 'heal' : null;
+    this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, u, game.gameTime, working), s, z);
 
     const barW = Math.max(12 * z, r * 2);
     const barX = s.x - barW / 2;
-    const cargoY = artwork ? s.y - (artwork.metadata.bodyHeight * artwork.metadata.renderScale + 12) * z
-      : pilotImage ? s.y - 55 * z : s.y - r * 2.4 - 6 * z;
+    const cargoY = s.y - (artwork.metadata.bodyHeight * artwork.metadata.renderScale + 12) * z;
     const cargoH = Math.max(1, 1.5 * z);
     const healthY = cargoY + cargoH + z;
     this._drawHealthBar(ctx, barX, healthY, barW, 4, u.hp / u.maxHp);
@@ -602,6 +565,7 @@ class Renderer {
     const s = worldToScreen(v.x, v.y, game.camera);
     const z = game.camera.zoom;
     const artwork = sculptedActor('suv');
+    if (!artwork) return;
     const displayScale = artwork?.metadata.presentationScale ?? 1;
     const visualRadius = v.def.radius * (artwork ? .5 * displayScale : 1);
     if (game.selectedVehicle === v) {
@@ -663,46 +627,19 @@ class Renderer {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(zb.x, zb.y, cam);
     const variant = zombieAppearance(zb.type, zb.id);
-    const pilotImage = zb.type === 'walker' && (variant === 0 || DIORAMA_PILOT_STYLE === 'sculpted')
-      ? dioramaPilotImage('walker') : null;
     let top, by;
     const walkerStyles = ['walker', 'walker-onearm', 'walker-cap', 'walker-dress'];
     const artwork = sculptedActor(zb.type === 'walker' ? walkerStyles[(zb._artVariant ?? variant) % walkerStyles.length] : zb.type);
+    if (!artwork) return;
     const visualRadius = zb.def.radius * (artwork ? .5 : 1);
     const r = visualRadius * z;
     this._groundEllipse(ctx, s, visualRadius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
     ctx.save();
     ctx.globalAlpha = zb.dormant ? .43 : 1;
-    if (artwork) {
-      this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, zb, game.gameTime), s, z);
-      top = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
-      by = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z * .5;
-    } else if (pilotImage) {
-      const frame = dioramaPilotFrame('walker', zb.facing,
-        game.gameTime - zb.lastMotionAt < .16,
-        game.gameTime - zb.attackAnimStart, zb.animDistance, false, 0, game.gameTime);
-      const scale = DIORAMA_PILOT_SCALE * z;
-      top = s.y - DIORAMA_PILOT_CELL.footY * scale;
-      by = s.y - 27 * z;
-      ctx.imageSmoothingEnabled = !['pixel', 'sculpted'].includes(DIORAMA_PILOT_STYLE);
-      ctx.drawImage(pilotImage, frame.x, frame.y, frame.width, frame.height,
-        s.x - DIORAMA_PILOT_CELL.footX * scale, top,
-        frame.width * scale, frame.height * scale);
-    } else {
-      const scale = { runner: .7, walker: .82, spitter: .82, exploder: .96,
-        screamer: .86, brute: 1.3, boss: 1.8 }[zb.type] || .82;
-      const size = ZOMBIE_ART_CELL.width * scale * z;
-      top = s.y + 4 * z - ZOMBIE_ART_CELL.footY * scale * z;
-      by = top + 19 * scale * z;
-      const frame = zombieArtFrame(zb.type, zb.facing,
-        game.gameTime - zb.lastMotionAt < .16,
-        game.gameTime - zb.attackAnimStart, zb.animDistance);
-      const atlas = getZombieArtAtlas(zb.type, variant);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(atlas, frame.x, frame.y, frame.width, frame.height,
-        s.x - size / 2, top, size, ZOMBIE_ART_CELL.height * scale * z);
-    }
+    this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, zb, game.gameTime), s, z);
+    top = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
+    by = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z * .5;
     ctx.restore();
     if (zb.dormant) return;
 
