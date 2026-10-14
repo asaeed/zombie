@@ -22,7 +22,7 @@ class InputHandler {
 
     // Set by mousedown paths that fully handle a click (train button,
     // building select, attack-move) so the paired mouseup's fallback
-    // deselect logic must not run.
+    // selection logic must not run.
     this._clickHandled = false;
 
     // Keyboard state
@@ -56,6 +56,7 @@ class InputHandler {
   setMenuOpen(open) {
     this.menuOpen = !!open;
     if (this.game) this.game.paused = this.menuOpen;
+    this.menuActions?.menuVisibility?.(this.menuOpen);
   }
 
   notify(text) {
@@ -255,6 +256,13 @@ class InputHandler {
       return;
     }
 
+    // Unit selection is resolved on release so Shift and drag selection still work.
+    if (this._getUnitAt(e.clientX, e.clientY)) {
+      this._dragStart = { x: e.clientX, y: e.clientY };
+      this._dragging = false;
+      return;
+    }
+
     // Selected units + resource cache: enter auto-gather mode.
     const cache = this._getCacheAt(e.clientX, e.clientY);
     if (cache && game.selected.length > 0) {
@@ -293,9 +301,7 @@ class InputHandler {
       return;
     }
 
-    // Left click in world: begin drag or select single unit
-    game._selectedBuilding = null;
-    game.selectedVehicle = null;
+    // Keep the current selection until a click or drag finds a new target.
     this._dragStart = { x: e.clientX, y: e.clientY };
     this._dragging = false;
   }
@@ -350,15 +356,18 @@ class InputHandler {
         this.selectBox.x1, this.selectBox.y1,
         this.selectBox.x2, this.selectBox.y2
       );
-      if (!e.shiftKey) {
-        for (const u of game.units) u.selected = false;
-        game.selected = [];
+      if (units.length > 0) {
+        if (!e.shiftKey) {
+          for (const u of game.units) u.selected = false;
+          game.selected = [];
+        }
+        for (const u of units) {
+          u.selected = true;
+          if (!game.selected.includes(u)) game.selected.push(u);
+        }
+        game._selectedBuilding = null;
+        game.selectedVehicle = null;
       }
-      for (const u of units) {
-        u.selected = true;
-        if (!game.selected.includes(u)) game.selected.push(u);
-      }
-      if (units.length > 0) game.selectedVehicle = null;
     } else if (!this._dragging && !this._clickHandled && !this._minimapDrag) {
       // Single click - select unit
       if (this._isInBottomPanel(e.clientY) || this._isInMinimap(e.clientX, e.clientY)) {
@@ -370,15 +379,11 @@ class InputHandler {
             for (const u of game.units) u.selected = false;
             game.selected = [];
           }
+          game._selectedBuilding = null;
           game.selectedVehicle = null;
           unit.selected = !unit.selected || !e.shiftKey;
           if (unit.selected) game.selected.push(unit);
           else game.selected = game.selected.filter(u => u !== unit);
-        } else if (!e.shiftKey) {
-          for (const u of game.units) u.selected = false;
-          game.selected = [];
-          game._selectedBuilding = null;
-          game.selectedVehicle = null;
         }
       }
     }
@@ -455,10 +460,14 @@ class InputHandler {
         }
         if (sentCargo) return;
       }
+      let repairing = false;
       for (const u of game.selected) {
-        if (u.type === 'builder') u.repairBuilding(building);
+        if (u.type === 'builder') { u.repairBuilding(building); repairing = true; }
       }
-      return;
+      // A roof/support over open ground must not swallow an ordinary move order.
+      const onFootprint = Math.abs(wx - building.x) <= building.width / 2 &&
+        Math.abs(wy - building.y) <= building.height / 2;
+      if (repairing || onFootprint) return;
     }
 
     // Move command - scatter formation
@@ -472,6 +481,7 @@ class InputHandler {
   }
 
   _onKeyDown(e) {
+    if (e.target?.closest?.('a')) return;
     if (e.code.startsWith('Arrow')) e.preventDefault();
     this.keys[e.code] = true;
     if (this.game.status !== 'playing') {
@@ -733,6 +743,12 @@ class InputHandler {
       if (u.dead || u.vehicle) continue;
       const s = worldToScreen(u.x, u.y, cam);
       const r = u.def.radius * z;
+      const artwork = sculptedActor(u.type);
+      if (artwork) {
+        const height = artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
+        if (((sx - s.x) / (r * .5 + 6)) ** 2 + ((sy - s.y + height * .5) / (height * .5 + 4)) ** 2 < 1) return u;
+        continue;
+      }
       if (dist2(sx, sy, s.x, s.y - r * 1.2) < (r + 6) * (r + 6)) return u;
     }
     return null;
@@ -744,6 +760,13 @@ class InputHandler {
       if (v.dead) continue;
       const s = worldToScreen(v.x, v.y, cam);
       const r = v.def.radius * cam.zoom;
+      const artwork = sculptedActor('suv');
+      if (artwork) {
+        const height = artwork.metadata.bodyHeight * artwork.metadata.renderScale * cam.zoom;
+        const halfWidth = 20 * (artwork.metadata.presentationScale ?? 1) * cam.zoom;
+        if (Math.abs(sx - s.x) < halfWidth && sy > s.y - height - 5 && sy < s.y + 6) return v;
+        continue;
+      }
       if (dist2(sx, sy, s.x, s.y - r * 0.9) < (r + 9) ** 2) return v;
     }
     return null;
@@ -757,6 +780,12 @@ class InputHandler {
       if (zb.dead) continue;
       const s = worldToScreen(zb.x, zb.y, cam);
       const r = zb.def.radius * z;
+      const artwork = sculptedActor(zb.type);
+      if (artwork) {
+        const height = artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
+        if (((sx - s.x) / (r * .5 + 6)) ** 2 + ((sy - s.y + height * .5) / (height * .5 + 4)) ** 2 < 1) return zb;
+        continue;
+      }
       const raise = zb.dormant ? 0.5 : 1.2;
       if (dist2(sx, sy, s.x, s.y - r * raise) < (r + 6) * (r + 6)) return zb;
     }
@@ -764,12 +793,21 @@ class InputHandler {
   }
 
   _getBuildingAt(wx, wy) {
+    const screen = worldToScreen(wx, wy, this.game.camera);
+    let hit = null, depth = -Infinity;
     for (const b of this.game.buildings) {
       if (b.dead) continue;
       const hw = b.width/2 + 2, hh = b.height/2 + 2;
-      if (wx > b.x - hw && wx < b.x + hw && wy > b.y - hh && wy < b.y + hh) return b;
+      let onBuilding = wx > b.x - hw && wx < b.x + hw && wy > b.y - hh && wy < b.y + hh;
+      const artwork = sculptedObject(b.type);
+      if (artwork) {
+        const foot = worldToScreen((b.tileX + b.def.tileSize) * TILE, (b.tileY + b.def.tileSize) * TILE, this.game.camera);
+        onBuilding ||= sculptedObjectHit(artwork, sculptedObjectRect(artwork, foot, this.game.camera.zoom), screen.x, screen.y);
+      }
+      const key = b.tileX + b.tileY + b.def.tileSize * 2;
+      if (onBuilding && key > depth) { hit = b; depth = key; }
     }
-    return null;
+    return hit;
   }
 
   _getCacheAt(sx, sy) {
@@ -778,9 +816,11 @@ class InputHandler {
       if (c.empty) continue;
       if (!this.game.tileExplored(c.tileX, c.tileY)) continue;
       const { N, S, h, shell } = cacheScreenShape(c, this.game.camera);
-      const labelX = (N.x + S.x) / 2, labelY = N.y - h - 8 * this.game.camera.zoom;
+      const artwork = sculptedObject(c.kind), rect = artwork ? sculptedObjectRect(artwork, S, this.game.camera.zoom) : null;
+      const labelX = (N.x + S.x) / 2, labelY = (rect ? rect.y : N.y - h) - 8 * this.game.camera.zoom;
       const onLabel = dist2(sx, sy, labelX, labelY) <= (12 * this.game.camera.zoom) ** 2;
-      if (!pointInPolygon(sx, sy, shell) && !onLabel) continue;
+      const onBody = artwork ? sculptedObjectHit(artwork, rect, sx, sy) : pointInPolygon(sx, sy, shell);
+      if (!onBody && !onLabel) continue;
       const depth = c.tileX + c.tileY;
       if (depth > bestDepth) { bestDepth = depth; hit = c; }
     }

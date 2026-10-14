@@ -27,7 +27,7 @@ const VEHICLE_DEFS = {
 const BUILDING_DEFS = {
   hq:       { name:'HQ',           maxHp:1000, tileSize:3, cost:0,   color:'#6655cc', canBuild:false },
   wall:     { name:'Wall',         maxHp:250,  tileSize:1, cost:20,  color:'#778877', canBuild:true },
-  tower:    { name:'Guard Tower',  maxHp:350,  tileSize:2, cost:150, color:'#cc9922', canBuild:true, atkRange:220, atkDmg:40, atkRate:1.0 },
+  tower:    { name:'Guard Tower',  maxHp:350,  tileSize:2, footprint:{width:1.25,height:1.25}, cost:150, color:'#cc9922', canBuild:true, atkRange:220, atkDmg:40, atkRate:1.0 },
   barracks: { name:'Barracks',     maxHp:500,  tileSize:2, cost:200, color:'#883322', canBuild:true },
   depot:    { name:'Supply Depot', maxHp:300,  tileSize:2, cost:75, color:'#445566', canBuild:true },
   light:    { name:'Light Tower',  maxHp:200,  tileSize:1, cost:60,  color:'#ddcc66', canBuild:true },
@@ -36,13 +36,13 @@ const BUILDING_DEFS = {
 };
 
 const ZOMBIE_DEFS = {
-  walker: { name:'Walker', maxHp:80,  speed:35, atkRange:35, atkDmg:15, atkRate:0.8, radius:9,  reward:5,  color:'#4aee22' },
-  runner: { name:'Runner', maxHp:40,  speed:95, atkRange:28, atkDmg:10, atkRate:1.5, radius:7,  reward:8,  color:'#aaff00' },
-  brute:  { name:'Brute',  maxHp:500, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#22bb55' },
+  walker: { name:'Walker', maxHp:80,  speed:35, atkRange:35, atkDmg:15, atkRate:0.8, radius:9,  reward:5,  color:'#b6c3bf' },
+  runner: { name:'Runner', maxHp:40,  speed:110, atkRange:28, atkDmg:10, atkRate:1.5, radius:7,  reward:8,  color:'#b6c3bf' },
+  brute:  { name:'Brute',  maxHp:500, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#b6c3bf' },
   spitter: { name:'Spitter', maxHp:65, speed:30, atkRange:120, atkDmg:22, atkRate:0.55, radius:9, reward:12, color:'#a6d94e' },
   exploder: { name:'Exploder', maxHp:95, speed:72, atkRange:22, atkDmg:0, atkRate:0, radius:11, reward:15, color:'#ee7a38' },
   screamer: { name:'Screamer', maxHp:110, speed:42, atkRange:32, atkDmg:8, atkRate:0.6, radius:10, reward:18, color:'#d883d2' },
-  boss: { name:'Boss Brute', maxHp:1800, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#467e62' },
+  boss: { name:'Boss Brute', maxHp:1800, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#b6c3bf' },
 };
 
 const WAVE_TABLE = [
@@ -67,7 +67,7 @@ const SCREAMER_SHRIEK_INTERVAL = 8;
 const EXPLODER_BLAST_RADIUS = 2.6 * TILE;
 const EXPLODER_SHOT_RADIUS = 4.5 * TILE;
 const HEAVY_SWING_RADIUS = 55;
-const TORCH_LIGHT_RADIUS = 6;
+const TORCH_LIGHT_RADIUS = 9;
 const STARTING_SUPPLIES = 500;
 
 const CAM_SPEED = 500; // px/sec keyboard pan

@@ -6,8 +6,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900 } });
-for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/renderer.js', 'js/input.js']) {
+const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900, location: { search: '' } }, URLSearchParams });
+for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/zombie-art.js', 'js/diorama-art.js', 'js/renderer.js', 'js/input.js']) {
   vm.runInContext(readFileSync(join(root, file), 'utf8'), ctx, { filename: file });
 }
 const { Game, Unit, Zombie, Building, Projectile, Renderer, InputHandler, UNIT_DEFS, TILE, MAP_W, MAP_H,
@@ -172,6 +172,18 @@ assert.equal(victim.burnTime, FIRE_DURATION);
 melee.gameTime = DAY_LENGTH + 20;
 assert.equal(melee.visionRadius('torchbearer'), TORCH_LIGHT_RADIUS,
   'torchbearer stays a useful light source at night');
+assert.equal(TORCH_LIGHT_RADIUS, 9, 'torchbearer light radius is 50% larger than the original 6 tiles');
+assert.equal(UNIT_DEFS.torchbearer.atkRange, 90, 'extra light does not extend the torch attack range');
+const torchLight = bareGame();
+torchLight.buildings = [];
+torchLight.units = [new Unit('torchbearer', 30.5 * TILE, 30.5 * TILE)];
+for (const time of [0, DAY_LENGTH + 20]) {
+  torchLight.gameTime = time;
+  torchLight._recomputeFog();
+  assert.equal(torchLight.visionRadius('torchbearer'), 9, 'torch light radius stays full strength day and night');
+  assert.ok(torchLight.tileVisible(39, 30), 'torch light reveals tiles at the enlarged radius');
+  assert.equal(torchLight.tileVisible(40, 30), false, 'torch light does not reveal beyond its radius');
+}
 
 const walls = bareGame();
 walls._addBuilding('wall', 20, 20);
@@ -309,6 +321,7 @@ let draws = 0;
 const paint = new Proxy({ globalAlpha: 1 }, {
   get(target, key) {
     if (key in target) return target[key];
+    if (key === 'measureText') return text => ({ width: text.length * 7 });
     if (key === 'createRadialGradient' || key === 'createLinearGradient') return () => ({ addColorStop() {} });
     return () => { draws++; };
   },

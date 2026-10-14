@@ -151,7 +151,7 @@ class Game {
         atkTargetId: targetId(z.atkTarget), atkCooldown: z.atkCooldown,
         maxHp: z.maxHp, dormant: z.dormant, burnTime: z.burnTime, burnMax: z.burnMax,
         burnParticleTimer: z._burnParticleTimer, shriekCooldown: z.shriekCooldown,
-        exploded: z.exploded,
+        exploded: z.exploded, facing: z.facing, animDistance: z.animDistance,
       })),
       projectiles: this.projectiles.map(p => ({
         id: p.id, x: p.x, y: p.y, targetId: targetId(p.target),
@@ -311,6 +311,8 @@ class Game {
       z._burnParticleTimer = s.burnParticleTimer ?? 0;
       z.shriekCooldown = s.shriekCooldown ?? 0;
       z.exploded = !!s.exploded;
+      z.facing = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW'].includes(s.facing) ? s.facing : 'S';
+      z.animDistance = s.animDistance ?? 0;
       z._saveAtkTargetId = s.atkTargetId ?? null;
       addEntity(z);
       return z;
@@ -499,27 +501,22 @@ class Game {
     if (!def || !def.canBuild) return false;
     if (this.supplies < def.cost) return false;
 
-    const ts = def.tileSize;
-    for (let dy = 0; dy < ts; dy++) {
-      for (let dx = 0; dx < ts; dx++) {
-        const tx = tileX + dx, ty = tileY + dy;
+    const {left, top, right, bottom} = buildingGroundRect(type, tileX, tileY);
+    for (let ty = Math.floor(top / TILE); ty < Math.ceil(bottom / TILE); ty++) {
+      for (let tx = Math.floor(left / TILE); tx < Math.ceil(right / TILE); tx++) {
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
         if (this.tiles[ty][tx] === TILE_WATER) return false;
         // Caches can't be built over (buried loot)
         for (const c of this.caches) {
           if (c.tileX === tx && c.tileY === ty) return false;
         }
-        // Check for existing buildings
-        for (const b of this.buildings) {
-          if (b.dead) continue;
-          const bts = BUILDING_DEFS[b.type].tileSize;
-          if (tx >= b.tileX && tx < b.tileX + bts &&
-              ty >= b.tileY && ty < b.tileY + bts) return false;
-        }
       }
     }
-    const left = tileX * TILE, top = tileY * TILE;
-    const right = left + ts * TILE, bottom = top + ts * TILE;
+    for (const b of this.buildings) {
+      if (b.dead) continue;
+      if (left < b.x + b.width / 2 && right > b.x - b.width / 2 &&
+          top < b.y + b.height / 2 && bottom > b.y - b.height / 2) return false;
+    }
     const overlaps = e => dist2(e.x, e.y, clamp(e.x, left, right), clamp(e.y, top, bottom)) < e.def.radius ** 2;
     if (this.zombies.some(z => !z.dead && overlaps(z))) return false;
     if (this.units.some(u => !u.dead && !u.vehicle && overlaps(u))) return false;
@@ -844,9 +841,9 @@ class Game {
     if (this.tiles[ty][tx] === TILE_WATER) return true;
     for (const b of this.buildings) {
       if (b.dead) continue;
-      const ts = BUILDING_DEFS[b.type].tileSize;
-      if (tx >= b.tileX && tx < b.tileX + ts &&
-          ty >= b.tileY && ty < b.tileY + ts) return true;
+      const x = (tx + .5) * TILE, y = (ty + .5) * TILE;
+      if (x >= b.x - b.width / 2 && x < b.x + b.width / 2 &&
+          y >= b.y - b.height / 2 && y < b.y + b.height / 2) return true;
     }
     return false;
   }
@@ -857,11 +854,17 @@ class Game {
     const minY = Math.floor((y - radius) / TILE), maxY = Math.floor((y + radius) / TILE);
     for (let ty = minY; ty <= maxY; ty++) {
       for (let tx = minX; tx <= maxX; tx++) {
-        if (!this.isTileBlockedForUnits(tx, ty)) continue;
+        if (this.tiles[ty][tx] !== TILE_WATER) continue;
         const cx = clamp(x, tx * TILE, (tx + 1) * TILE);
         const cy = clamp(y, ty * TILE, (ty + 1) * TILE);
         if (dist2(x, y, cx, cy) < radius * radius) return false;
       }
+    }
+    for (const b of this.buildings) {
+      if (b.dead) continue;
+      const cx = clamp(x, b.x - b.width / 2, b.x + b.width / 2);
+      const cy = clamp(y, b.y - b.height / 2, b.y + b.height / 2);
+      if (dist2(x, y, cx, cy) < radius * radius) return false;
     }
     return true;
   }
@@ -1173,7 +1176,11 @@ class Game {
     }
 
     // Update zombies
-    for (const z of this.zombies) z.update(dt, this);
+    for (const z of this.zombies) {
+      const x = z.x, y = z.y;
+      z.update(dt, this);
+      z.recordMotion(z.x - x, z.y - y, this.gameTime);
+    }
 
     // Update caches (auto-search + auto-load on adjacency)
     for (const c of this.caches) c.update(dt, this);

@@ -137,8 +137,19 @@ function mainMenuButtonRect(W) {
   return { x: W - 88, y: 8, w: 76, h: 28 };
 }
 
+function mapCompass(W) {
+  const center = { x: W - 50, y: 88 }, cam = { x: 0, y: 0, zoom: 1 };
+  // Wave edge labels use map axes, not the screen-facing sprite compass.
+  const directions = [[0, 'N', 0, -1], [1, 'E', 1, 0], [2, 'S', 0, 1], [3, 'W', -1, 0]];
+  return { center, radius: 36, points: directions.map(([edge, label, x, y]) => {
+    const p = worldToScreen(x, y, cam), scale = 29 / Math.hypot(p.x, p.y);
+    return { edge, label, x: center.x + p.x * scale, y: center.y + p.y * scale };
+  }) };
+}
+
 function mainMenuPanelRect(W) {
-  return { x: W - 282, y: 44, w: 270, h: 428 };
+  const w = Math.min(270, W - 24);
+  return { x: W - w - 12, y: 44, w, h: 478 };
 }
 
 function mainMenuActionRects(W) {
@@ -154,7 +165,7 @@ function mainMenuActionRects(W) {
     ['clear-saves'],
   ];
   const rects = [];
-  let y = panel.y + 54;
+  let y = panel.y + 104;
   for (const row of rows) {
     if (row.length === 1) {
       rects.push({ action: row[0], x: panel.x + 14, y, w: panel.w - 28, h: 34 });
@@ -214,4 +225,12 @@ function minimapRect(W, H, selectionVisible = false) {
   return { x: W - MINIMAP_W - 10,
     y: H - bottomPanelHeight(W) - MINIMAP_H - 10 - (stacked ? 100 : 0),
     w: MINIMAP_W, h: MINIMAP_H };
+}
+// The painted ground contact, not the roof envelope, defines occupied space.
+function buildingGroundRect(type, tileX, tileY) {
+  const def = BUILDING_DEFS[type];
+  const right = (tileX + def.tileSize) * TILE, bottom = (tileY + def.tileSize) * TILE;
+  const width = (def.footprint?.width ?? def.tileSize) * TILE;
+  const height = (def.footprint?.height ?? def.tileSize) * TILE;
+  return {left:right-width, top:bottom-height, right, bottom, width, height};
 }

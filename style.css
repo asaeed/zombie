@@ -1,3 +1,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-#canvas { display: block; cursor: crosshair; }
+#canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+#source-code-link { position: fixed; right: 12px; bottom: 6px; z-index: 1; padding: 4px 6px; color: #c8d1d0; font: 11px/16px monospace; text-decoration: underline; text-underline-offset: 3px; }
+#source-code-link:hover { color: #fff; }
+#source-code-link:focus-visible { outline: 2px solid #44ffff; outline-offset: 2px; }
+#graphics-setting { position: fixed; z-index: 2; width: 242px; color: #e4ead8; font: 11px monospace; }
+#graphics-setting[hidden] { display: none; }
+#graphics-setting label { display: block; margin-bottom: 4px; }
+#graphics-pack { width: 100%; height: 27px; border: 1px solid #6f825f; border-radius: 3px; background: #323a2a; color: #e4ead8; padding: 3px 6px; font: 12px monospace; }
+#graphics-pack:focus-visible { outline: 2px solid #44ffff; outline-offset: 2px; }
+#graphics-status { position: absolute; top: 0; right: 0; font-size: 10px; color: #ffdd44; }

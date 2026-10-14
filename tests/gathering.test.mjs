@@ -6,8 +6,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900 } });
-for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/renderer.js', 'js/input.js']) {
+const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900, location: {search:'?artPilot=off'} }, URLSearchParams });
+for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/zombie-art.js', 'js/diorama-art.js', 'js/renderer.js', 'js/input.js']) {
   vm.runInContext(readFileSync(join(root, file), 'utf8'), ctx, { filename: file });
 }
 const { Game, Unit, Building, Cache, Renderer, InputHandler, TILE, MAP_W, MAP_H, worldToScreen, screenToWorld, centerCameraOn } =

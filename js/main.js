@@ -5,18 +5,42 @@
   const SAVE_KEY_AUTO = 'dead-zone-rts:auto';
   const SAVE_KEY_PREFIX = 'dead-zone-rts:slot:';
 
-  // Resize canvas to fill window
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
   let game       = null;
   const renderer = new Renderer(canvas);
   let input      = null;
   let autoSaveIn = 2;
+  const graphicsSetting = document.getElementById('graphics-setting');
+  const graphicsSelect = document.getElementById('graphics-pack');
+  const graphicsStatus = document.getElementById('graphics-status');
+
+  function positionGraphicsSetting() {
+    const panel = mainMenuPanelRect(window.innerWidth);
+    graphicsSetting.style.left = `${panel.x + 14}px`;
+    graphicsSetting.style.top = `${panel.y + 51}px`;
+    graphicsSetting.style.width = `${panel.w - 28}px`;
+  }
+
+  function syncGraphicsSetting() {
+    graphicsSelect.replaceChildren(...ART_PACK_CATALOG.packs.map(pack => {
+      const option = document.createElement('option'); option.value = pack.id; option.textContent = pack.label; return option;
+    }));
+    graphicsSelect.value = ART_PACK_STATE.pending || ART_PACK_STATE.active || '';
+    graphicsSelect.disabled = !!ART_PACK_STATE.pending;
+    graphicsStatus.textContent = ART_PACK_STATE.pending ? 'Loading...' : ART_PACK_STATE.error ? 'Load failed' : '';
+  }
+
+  window.addEventListener('resize', positionGraphicsSetting);
+  window.addEventListener('artpackchange', syncGraphicsSetting);
+  graphicsSelect.addEventListener('change', async () => {
+    const id = graphicsSelect.value;
+    try { await selectArtPack(id); }
+    catch { input.notify('Graphics could not load'); }
+  });
+  graphicsSelect.addEventListener('keydown', event => {
+    if (event.code === 'Escape') { input.setMenuOpen(false); canvas.focus(); }
+    event.stopPropagation();
+  });
+  positionGraphicsSetting(); syncGraphicsSetting();
 
   // Keep renderer.W/H (used by HUD/minimap layout) in sync with the canvas
   window.addEventListener('resize', () => renderer.resize());
@@ -87,6 +111,10 @@
   }
 
   const menuActions = {
+    menuVisibility: open => {
+      graphicsSetting.hidden = !open;
+      if (!open && graphicsSetting.contains(document.activeElement)) document.activeElement.blur();
+    },
     saveAuto: () => ({ text: 'Saved', meta: writeSave(SAVE_KEY_AUTO) }),
     loadAuto: () => {
       const loaded = loadSave(SAVE_KEY_AUTO);

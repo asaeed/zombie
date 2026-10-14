@@ -2,20 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dead Zone RTS</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
-  <link rel="stylesheet" href="style.css?v=20260926-support-return-2">
+  <link rel="stylesheet" href="style.css?v=20261014-source-link-r1">
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <script src="js/config.js?v=20260926-support-return-2"></script>
-  <script src="js/utils.js?v=20260926-support-return-2"></script>
-  <script src="js/pathfinding.js?v=20260926-support-return-2"></script>
-  <script src="js/entities.js?v=20260926-support-return-2"></script>
-  <script src="js/game.js?v=20260926-support-return-2"></script>
-  <script src="js/renderer.js?v=20260926-support-return-2"></script>
-  <script src="js/input.js?v=20260926-support-return-2"></script>
-  <script src="js/main.js?v=20260926-support-return-2"></script>
+  <a id="source-code-link" href="https://github.com/asaeed/zombie" target="_blank" rel="noopener noreferrer">Source code</a>
+  <div id="graphics-setting" hidden>
+    <label for="graphics-pack">Graphics</label>
+    <select id="graphics-pack" aria-label="Graphics pack"></select>
+    <span id="graphics-status" role="status"></span>
+  </div>
+  <script src="js/config.js?v=20261010-torch-light-r1"></script>
+  <script src="js/utils.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/pathfinding.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/entities.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/game.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/zombie-art.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/diorama-art.js?v=20261010-rigged-world-r2"></script>
+  <script src="js/renderer.js?v=20261011-soft-shadows-r1"></script>
+  <script src="js/input.js?v=20261014-source-link-r1"></script>
+  <script src="js/main.js?v=20261010-rigged-world-r2"></script>
 </body>
 </html>

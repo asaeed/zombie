@@ -71,11 +71,11 @@ class Building {
     this.maxHp = def.maxHp;
     this.dead = false;
 
-    const ts = def.tileSize;
-    this.x = tileX * TILE + ts * TILE / 2;
-    this.y = tileY * TILE + ts * TILE / 2;
-    this.width = ts * TILE;
-    this.height = ts * TILE;
+    const ground = buildingGroundRect(type, tileX, tileY);
+    this.x = ground.left + ground.width / 2;
+    this.y = ground.top + ground.height / 2;
+    this.width = ground.width;
+    this.height = ground.height;
 
     // Combat (towers)
     this.atkCooldown = 0;
@@ -292,6 +292,11 @@ class Unit {
     this._supportReturning = false;
     this.vehicle = null;
     this.boardingVehicle = null;
+    this.facing = 'S';
+    this.animDistance = 0;
+    this.lastMotionAt = -Infinity;
+    this.attackAnimStart = -Infinity;
+    this.gatherAnimTime = 0;
   }
 
   get def() { return UNIT_DEFS[this.type]; }
@@ -719,6 +724,7 @@ class Unit {
 
   update(dt, game) {
     if (this.dead) return;
+    this.gatherAnimTime += dt;
     if (this.vehicle) {
       this.atkCooldown -= dt;
       if (!this.vehicle.dead && this.type !== 'heavy') this._autoAttack(game);
@@ -852,6 +858,8 @@ class Unit {
 
   _attackZombie(target, game) {
     this.atkCooldown = this.attackCooldownTime();
+    this.attackAnimStart = game.gameTime;
+    this._faceMotion(target.x - this.x, target.y - this.y);
     if (this.type === 'heavy') {
       const vx = target.x - this.x, vy = target.y - this.y;
       for (const z of game.zombies) {
@@ -999,12 +1007,27 @@ class Unit {
     if (len > 0) { nx /= len; ny /= len; }
 
     const speed = this.def.speed * this.moveSpeedFactor();
-    const newX = this.x + nx * speed * dt;
-    const newY = this.y + ny * speed * dt;
+    const step = Math.min(speed * dt, d);
+    const newX = this.x + nx * step;
+    const newY = this.y + ny * step;
 
     // Clamp to map
+    const oldX = this.x, oldY = this.y;
     this.x = clamp(newX, this.def.radius, MAP_W * TILE - this.def.radius);
     this.y = clamp(newY, this.def.radius, MAP_H * TILE - this.def.radius);
+    const traveled = Math.hypot(this.x - oldX, this.y - oldY);
+    if (traveled > 0.05) {
+      this.animDistance += traveled;
+      this.lastMotionAt = game.gameTime;
+      this._faceMotion(this.x - oldX, this.y - oldY);
+    }
+  }
+
+  _faceMotion(dx, dy) {
+    if (Math.hypot(dx, dy) < 0.05) return;
+    const angle = Math.atan2((dx + dy) * 0.5, dx - dy);
+    const headings = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+    this.facing = headings[(Math.round(angle / (Math.PI / 4)) + 8) % 8];
   }
 
   _settleApart(game) {
@@ -1050,11 +1073,25 @@ class Zombie {
     this._burnParticleTimer = 0;
     this.shriekCooldown = 0;
     this.exploded = false;
+    this.facing = 'S';
+    this.animDistance = 0;
+    this.lastMotionAt = -Infinity;
+    this.attackAnimStart = -Infinity;
   }
 
   get def() { return ZOMBIE_DEFS[this.type]; }
 
   get burning() { return this.burnTime > 0; }
+
+  recordMotion(dx, dy, time) {
+    const traveled = Math.hypot(dx, dy);
+    if (traveled < 0.05) return;
+    this.animDistance += traveled;
+    this.lastMotionAt = time;
+    const angle = Math.atan2((dx + dy) * 0.5, dx - dy);
+    const headings = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+    this.facing = headings[(Math.round(angle / (Math.PI / 4)) + 8) % 8];
+  }
 
   ignite(duration = FIRE_DURATION) {
     this.dormant = false;
@@ -1103,6 +1140,7 @@ class Zombie {
         dist2(this.x, this.y, u.x, u.y) <= SCREAMER_TRIGGER_RADIUS ** 2);
       if (humanNearby && this.shriekCooldown <= 0) {
         this.shriekCooldown = SCREAMER_SHRIEK_INTERVAL;
+        this.attackAnimStart = game.gameTime;
         game.wakeDormantNear(this.x, this.y, SCREAMER_SHRIEK_RADIUS);
         game.spawnShriekEffect(this.x, this.y);
       }
@@ -1206,6 +1244,7 @@ class Zombie {
         // Attack
         if (this.atkCooldown <= 0) {
           this.atkCooldown = 1 / this.def.atkRate;
+          this.attackAnimStart = game.gameTime;
           if (this.type === 'spitter') {
             game.projectiles.push(new Projectile(
               this.x, this.y, this.atkTarget, this.def.atkDmg, 180, '#a6e54a', 'acid'

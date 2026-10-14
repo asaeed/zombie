@@ -6,8 +6,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900 } });
-for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/renderer.js']) {
+const ctx = vm.createContext({ window: { innerWidth: 1200, innerHeight: 900, location: {search:'?artPilot=off'} }, URLSearchParams });
+for (const file of ['js/config.js', 'js/utils.js', 'js/pathfinding.js', 'js/entities.js', 'js/game.js', 'js/zombie-art.js', 'js/diorama-art.js', 'js/renderer.js']) {
   vm.runInContext(readFileSync(join(root, file), 'utf8'), ctx, { filename: file });
 }
 const { Game, Building, Unit, Zombie, Projectile, Renderer, ZOMBIE_DEFS, TILE, MAP_W, MAP_H,
@@ -183,6 +183,7 @@ let drawCalls = 0;
 const paint = new Proxy({ globalAlpha: 1 }, {
   get(target, key) {
     if (key in target) return target[key];
+    if (key === 'measureText') return text => ({ width: text.length * 7 });
     if (key === 'createRadialGradient' || key === 'createLinearGradient') {
       return () => ({ addColorStop() {} });
     }

@@ -13,13 +13,15 @@ class Renderer {
     this._mmLayerAt = -1;   // gameTime of last rebuild
   }
 
-  resize() {
-    this.canvas.width  = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    this.W = this.canvas.width;
-    this.H = this.canvas.height;
-    this._lightCanvas.width = this.W;
-    this._lightCanvas.height = this.H;
+  resize(width = window.innerWidth, height = window.innerHeight) {
+    this.W = width;
+    this.H = height;
+    this.pixelRatio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    for (const canvas of [this.canvas, this._lightCanvas]) {
+      canvas.width = Math.round(width * this.pixelRatio);
+      canvas.height = Math.round(height * this.pixelRatio);
+      canvas.getContext('2d').setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+    }
   }
 
   // Pre-render one 64×32 diamond per tile type × 2 checker shades
@@ -77,6 +79,7 @@ class Renderer {
 
     this._drawEdgeScrollHint(ctx, input);
     this._drawHUD(ctx, game, input);
+    this._drawCompass(ctx, game);
     this._drawToasts(ctx, game);
     this._drawMinimap(ctx, game);
     if (game._selectedBuilding && !game._selectedBuilding.dead &&
@@ -120,8 +123,7 @@ class Renderer {
   }
 
   // ── Tiles ──────────────────────────────────────────────────────────────────
-  _drawTiles(ctx, game) {
-    const cam = game.camera, z = cam.zoom;
+  _tileViewport(cam) {
     // World-space bounding box of the viewport (over-covers the diamond; fine)
     const corners = [
       screenToWorld(0, 0, cam), screenToWorld(this.W, 0, cam),
@@ -135,6 +137,46 @@ class Renderer {
     const tx1 = clamp(Math.ceil(Math.max(...xs) / TILE) + 1, -SKIRT, MAP_W + SKIRT);
     const ty0 = clamp(Math.floor(Math.min(...ys) / TILE) - 1, -SKIRT, MAP_H + SKIRT);
     const ty1 = clamp(Math.ceil(Math.max(...ys) / TILE) + 1, -SKIRT, MAP_H + SKIRT);
+    return { tx0, tx1, ty0, ty1 };
+  }
+
+  _drawTiles(ctx, game) {
+    const cam = game.camera, bounds = this._tileViewport(cam);
+    const { tx0, tx1, ty0, ty1 } = bounds, count = (tx1 - tx0) * (ty1 - ty0);
+    const terrain = typeof SCULPTED_WORLD !== 'undefined' && SCULPTED_WORLD.ready ? SCULPTED_WORLD.terrain : null;
+    const cache = this._groundCache;
+    let changed = !cache || cache.game !== game || cache.terrain !== terrain ||
+      cache.x !== cam.x || cache.y !== cam.y || cache.zoom !== cam.zoom ||
+      cache.width !== this.W || cache.height !== this.H || cache.ratio !== this.pixelRatio;
+    const states = cache?.states.length === count ? cache.states : new Uint16Array(count);
+    // Exact visible tile/fog comparison keeps the cache valid as exploration changes.
+    let n = 0;
+    for (let ty = ty0; ty < ty1; ty++) for (let tx = tx0; tx < tx1; tx++) {
+      const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
+      const value = inMap ? game.tiles[ty][tx] | (game.tileExplored(tx, ty) ? 256 : 0) |
+        (game.tileVisible(tx, ty) ? 512 : 0) : 1024;
+      if (states[n] !== value) changed = true;
+      states[n++] = value;
+    }
+    if (changed) {
+      const layer = this._groundLayer ??= document.createElement('canvas');
+      if (layer.width !== this.canvas.width || layer.height !== this.canvas.height) {
+        layer.width = this.canvas.width; layer.height = this.canvas.height;
+      }
+      const ground = layer.getContext('2d');
+      ground.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+      ground.clearRect(0, 0, this.W, this.H);
+      this._paintTiles(ground, game, bounds);
+      this._groundCache = { game, terrain, states, x:cam.x, y:cam.y, zoom:cam.zoom,
+        width:this.W, height:this.H, ratio:this.pixelRatio };
+    }
+    ctx.save(); ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(this._groundLayer, 0, 0, this.W, this.H);
+    ctx.restore();
+  }
+
+  _paintTiles(ctx, game, { tx0, tx1, ty0, ty1 }) {
+    const cam = game.camera, z = cam.zoom;
 
     const w = 64 * z, h = 32 * z;
     for (let ty = ty0; ty < ty1; ty++) {
@@ -150,7 +192,26 @@ class Renderer {
           ctx.drawImage(this._tileSprites.unexplored[shade], s.x - w / 2, s.y, w, h);
           continue;
         }
-        ctx.drawImage(this._tileSprites[game.tiles[ty][tx]][shade], s.x - w / 2, s.y, w, h);
+        const terrain = sculptedTerrainFrame(game.tiles[ty][tx], tx, ty);
+        if (terrain?.baseColor) {
+          // Match the textured surface and overlap subpixel edges to avoid dark seams.
+          ctx.fillStyle = terrain.baseColor;
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y - .75);
+          ctx.lineTo(s.x + w / 2 + .75, s.y + h / 2);
+          ctx.lineTo(s.x, s.y + h + .75);
+          ctx.lineTo(s.x - w / 2 - .75, s.y + h / 2);
+          ctx.closePath(); ctx.fill();
+        } else {
+          ctx.drawImage(this._tileSprites[game.tiles[ty][tx]][shade], s.x - w / 2, s.y, w, h);
+        }
+        if (terrain) {
+          const frame = terrain.frame;
+          ctx.save(); ctx.imageSmoothingEnabled = terrain.imageSmoothing;
+          ctx.imageSmoothingQuality = terrain.imageSmoothingQuality;
+          ctx.drawImage(terrain.image, frame.x, frame.y, frame.width, frame.height, s.x - w / 2, s.y, w + .5, h + .5);
+          ctx.restore();
+        }
         if (!game.tileVisible(tx, ty)) {
           ctx.drawImage(this._tileSprites.dim, s.x - w / 2, s.y, w, h);
         }
@@ -177,65 +238,113 @@ class Renderer {
     }
     for (const u of game.units) {
       if (u.dead || u.vehicle) continue;
+      if (!this._actorOnScreen(game, u)) continue;
       const key = this._unitDrawKey(game, u);
       this._unitDepths.set(u, key);
       drawables.push({ key, draw: () => this._drawUnit(ctx, game, u) });
     }
     for (const v of game.vehicles) {
-      if (!v.dead) drawables.push({ key: this._unitDrawKey(game, v), draw: () => this._drawVehicle(ctx, game, v) });
+      if (!v.dead && this._actorOnScreen(game, v)) drawables.push({ key: this._unitDrawKey(game, v), draw: () => this._drawVehicle(ctx, game, v) });
     }
     for (const z of game.zombies) {
       if (z.dead) continue;
       if (!game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
+      if (!this._actorOnScreen(game, z)) continue;
       drawables.push({ key: this._unitDrawKey(game, z), draw: () => this._drawZombie(ctx, game, z) });
     }
+    this._addEnvironment(drawables, ctx, game);
     drawables.sort((a, b) => a.key - b.key);
     for (const d of drawables) d.draw();
     this._unitDepths = null;
   }
 
+  _actorOnScreen(game, actor) {
+    if (!Number.isFinite(this.W) || !Number.isFinite(this.H)) return true;
+    const s = worldToScreen(actor.x, actor.y, game.camera), zoom = game.camera.zoom;
+    const meta = sculptedActor(actor.type)?.metadata;
+    const scale = (meta?.renderScale ?? 1) * zoom;
+    const left = s.x - (meta?.footAnchor.x ?? 80) * scale;
+    const top = s.y - (meta?.footAnchor.y ?? 140) * scale - 30 * zoom;
+    const right = left + (meta?.cell.width ?? 160) * scale;
+    const bottom = s.y + 30 * zoom;
+    return right >= 0 && left <= this.W && bottom >= 0 && top <= this.H;
+  }
+
   _unitDrawKey(game, u) {
     let key = u.x + u.y;
-    const inFrontOf = (tx, ty, size) => {
-      const x0 = tx * TILE, y0 = ty * TILE;
-      const x1 = x0 + size * TILE, y1 = y0 + size * TILE;
+    const inFrontOf = ({left:x0, top:y0, right:x1, bottom:y1}) => {
       const r = u.def.radius;
       return (u.x >= x1 && u.x <= x1 + TILE && u.y >= y0 - r && u.y <= y1 + r) ||
         (u.y >= y1 && u.y <= y1 + TILE && u.x >= x0 - r && u.x <= x1 + r);
     };
     for (const b of game.buildings) {
-      if (!b.dead && inFrontOf(b.tileX, b.tileY, b.def.tileSize)) {
+      if (!b.dead && inFrontOf(buildingGroundRect(b.type, b.tileX, b.tileY))) {
         key = Math.max(key, (b.tileX + b.def.tileSize + b.tileY + b.def.tileSize) * TILE + 0.1);
       }
     }
     for (const c of game.caches) {
-      if (inFrontOf(c.tileX, c.tileY, 1)) {
+      if (inFrontOf({left:c.tileX*TILE,top:c.tileY*TILE,right:(c.tileX+1)*TILE,bottom:(c.tileY+1)*TILE})) {
         key = Math.max(key, (c.tileX + c.tileY + 2) * TILE + 0.1);
       }
     }
     return key;
   }
 
-  _unitOcclusionAlpha(game, poly, drawKey) {
+  _addEnvironment(drawables, ctx, game) {
+    if (!SCULPTED_WORLD.ready || !sculptedObject('pine')) return;
+    const cam = game.camera, corners = [screenToWorld(-100, -160, cam), screenToWorld(this.W + 100, -160, cam),
+      screenToWorld(-100, this.H + 160, cam), screenToWorld(this.W + 100, this.H + 160, cam)];
+    const x0 = Math.max(0, Math.floor(Math.min(...corners.map(p => p.x)) / TILE));
+    const y0 = Math.max(0, Math.floor(Math.min(...corners.map(p => p.y)) / TILE));
+    const x1 = Math.min(MAP_W, Math.ceil(Math.max(...corners.map(p => p.x)) / TILE));
+    const y1 = Math.min(MAP_H, Math.ceil(Math.max(...corners.map(p => p.y)) / TILE));
+    const hq = game.buildings.find(b => b.type === 'hq');
+    for (let ty = y0; ty < y1; ty++) for (let tx = x0; tx < x1; tx++) {
+      if (!game.tileExplored(tx, ty) || game.tiles[ty][tx] !== TILE_GRASS) continue;
+      const hash = Math.imul(tx + 17, 73856093) ^ Math.imul(ty + 31, 19349663);
+      const seed = (hash >>> 0) % 1000;
+      const away = !hq || Math.hypot(tileCenterX(tx) - hq.x, tileCenterY(ty) - hq.y) > TILE * 10;
+      const kind = away && seed < 70 ? 'pine' : seed >= 70 && seed < 98 ? 'bush' : seed >= 98 && seed < 120 ? 'rock' : null;
+      if (!kind) continue;
+      const clearance = kind === 'pine' ? 1 : 0;
+      if (game.buildings.some(b => !b.dead && tx >= b.tileX - clearance && ty >= b.tileY - clearance &&
+          tx < b.tileX + b.def.tileSize + clearance && ty < b.tileY + b.def.tileSize + clearance) ||
+          game.caches.some(c => Math.abs(c.tileX - tx) <= clearance && Math.abs(c.tileY - ty) <= clearance)) continue;
+      const x = tileCenterX(tx), y = tileCenterY(ty), key = x + y;
+      const record = sculptedObject(kind), foot = worldToScreen(x, y, cam), rect = sculptedObjectRect(record, foot, cam.zoom);
+      if (rect.x + rect.width < 0 || rect.y + rect.height < 0 || rect.x > this.W || rect.y > this.H) continue;
+      drawables.push({ key, draw: () => {
+        ctx.save();
+        ctx.globalAlpha = (game.tileVisible(tx, ty) ? 1 : .55) * this._unitOcclusionAlpha(game, [], key, record, rect);
+        ctx.imageSmoothingEnabled = record.imageSmoothing; ctx.imageSmoothingQuality = record.imageSmoothingQuality;
+        ctx.drawImage(record.image, rect.x, rect.y, rect.width, rect.height);
+        ctx.restore();
+      } });
+    }
+  }
+
+  _unitOcclusionAlpha(game, poly, drawKey, bitmap = null, rect = null) {
     const cam = game.camera;
     for (const u of game.units) {
       if (u.dead || u.vehicle || (this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)) >= drawKey) continue;
 
       const s = worldToScreen(u.x, u.y, cam);
-      const r = Math.max(4, u.def.radius * cam.zoom);
-      const bodyY = s.y - r * 1.2;
+      const actor = sculptedActor(u.type);
+      const r = Math.max(4, u.def.radius * cam.zoom * (actor ? .5 : 1));
+      const bodyY = s.y - (actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .5 : r * 1.2);
+      const ry = actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .3 : r * .7;
       const samples = [
         [s.x, bodyY],
         [s.x - r * 0.7, bodyY],
         [s.x + r * 0.7, bodyY],
-        [s.x, bodyY - r * 0.7],
-        [s.x, bodyY + r * 0.7],
-        [s.x - r * 0.5, bodyY - r * 0.5],
-        [s.x + r * 0.5, bodyY - r * 0.5],
-        [s.x - r * 0.5, bodyY + r * 0.5],
-        [s.x + r * 0.5, bodyY + r * 0.5],
+        [s.x, bodyY - ry],
+        [s.x, bodyY + ry],
+        [s.x - r * 0.5, bodyY - ry * .7],
+        [s.x + r * 0.5, bodyY - ry * .7],
+        [s.x - r * 0.5, bodyY + ry * .7],
+        [s.x + r * 0.5, bodyY + ry * .7],
       ];
-      const covered = samples.filter(([x, y]) => pointInPolygon(x, y, poly)).length;
+      const covered = samples.filter(([x, y]) => bitmap ? sculptedObjectHit(bitmap, rect, x, y) : pointInPolygon(x, y, poly)).length;
       if (covered > samples.length / 2) return 0.42;
     }
     return 1;
@@ -250,8 +359,7 @@ class Renderer {
   _drawBuilding(ctx, game, b) {
     const cam = game.camera, z = cam.zoom;
     const def = b.def, ts = def.tileSize;
-    const x0 = b.tileX * TILE, y0 = b.tileY * TILE;
-    const x1 = x0 + ts * TILE, y1 = y0 + ts * TILE;
+    const {left:x0,top:y0,right:x1,bottom:y1} = buildingGroundRect(b.type, b.tileX, b.tileY);
     const h = ISO_HEIGHTS[b.type] * z;
     const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
           S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
@@ -264,7 +372,10 @@ class Renderer {
       { x: W.x, y: W.y - h },
     ];
     const drawKey = (b.tileX + ts) * TILE + (b.tileY + ts) * TILE;
-    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey);
+    const artwork = sculptedObject(b.type);
+    const rect = artwork ? sculptedObjectRect(artwork, S, z) : null;
+    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey, artwork, rect);
+    const cx = (N.x + S.x) / 2;
 
     const face = (p1, p2, color) => {
       ctx.fillStyle = color;
@@ -278,6 +389,11 @@ class Renderer {
       ctx.save();
       ctx.globalAlpha *= occlusionAlpha;
     }
+    if (artwork) {
+      ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
+      ctx.drawImage(artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+    } else {
     face(E, S, shadeColor(def.color, 0.72)); // sun-side face
     face(S, W, shadeColor(def.color, 0.52)); // shade-side face
 
@@ -289,7 +405,7 @@ class Renderer {
     ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
 
     // Label on the roof
-    const cx = (N.x + S.x) / 2, roofCy = (N.y + S.y) / 2 - h;
+    const roofCy = (N.y + S.y) / 2 - h;
     const labels = { hq: 'HQ', wall: '', tower: 'T', barracks: 'B', depot: 'D', light: 'L', clinic: '+', mechanics: 'M' };
     if (labels[b.type]) {
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
@@ -297,11 +413,12 @@ class Renderer {
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(labels[b.type], cx, roofCy);
     }
+    }
     if (occlusionAlpha < 1) ctx.restore();
 
     // Health bar above the top corner
     const barW = 36 * ts * z;
-    const topY = N.y - h;
+    const topY = artwork ? rect.y : N.y - h;
     this._drawHealthBar(ctx, cx - barW / 2, topY - 10 * z, barW, 5, b.hp / b.maxHp);
 
     // Barracks queue indicator + progress
@@ -334,7 +451,8 @@ class Renderer {
     const base = c.empty ? shadeColor(color, 0.45) : color;
     const { N, E, S, W, h, shell } = cacheScreenShape(c, cam);
     const drawKey = (c.tileX + c.tileY + 2) * TILE;
-    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey);
+    const artwork = sculptedObject(c.kind), rect = artwork ? sculptedObjectRect(artwork, S, z) : null;
+    const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey, artwork, rect);
     const face = (p1, p2, col) => {
       ctx.fillStyle = col; ctx.beginPath();
       ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
@@ -346,6 +464,12 @@ class Renderer {
       ctx.save();
       ctx.globalAlpha *= occlusionAlpha;
     }
+    if (artwork) {
+      ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
+      if (c.empty) ctx.globalAlpha *= .45;
+      ctx.drawImage(artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+    } else {
     face(E, S, shadeColor(base, 0.72));
     face(S, W, shadeColor(base, 0.52));
     ctx.fillStyle = base; ctx.beginPath();
@@ -353,9 +477,10 @@ class Renderer {
     ctx.lineTo(S.x, S.y - h); ctx.lineTo(W.x, W.y - h);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.stroke();
+    }
     if (occlusionAlpha < 1) ctx.restore();
 
-    const cx = (N.x + S.x) / 2, topY = N.y - h;
+    const cx = (N.x + S.x) / 2, topY = artwork ? rect.y : N.y - h;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (!c.searched) {
       ctx.fillStyle = '#ffdd44'; ctx.font = `bold ${Math.max(10, 12 * z)}px monospace`;
@@ -372,51 +497,72 @@ class Renderer {
   _drawUnit(ctx, game, u) {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(u.x, u.y, cam);
-    const r = u.def.radius * z;
+    const artwork = sculptedActor(u.type);
+    const visualRadius = u.def.radius * (artwork ? .5 : 1);
+    const r = visualRadius * z;
 
     if (u.selected) {
-      this._groundEllipse(ctx, s, u.def.radius + 4, z);
+      this._groundEllipse(ctx, s, visualRadius + 3, z);
       ctx.strokeStyle = '#44ffff'; ctx.lineWidth = 2; ctx.stroke();
     }
-    this._groundEllipse(ctx, s, u.def.radius, z);
-    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();       // ground shadow
+    this._groundEllipse(ctx, s, visualRadius, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();       // ground shadow
 
-    ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, r, 0, Math.PI * 2); // raised body
-    ctx.fillStyle = u.def.color; ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
-    if (u.type === 'medic') {
-      const cy = s.y - r * 1.2;
-      const arm = 7 * z, thickness = 2.5 * z;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(s.x - arm / 2, cy - thickness / 2, arm, thickness);
-      ctx.fillRect(s.x - thickness / 2, cy - arm / 2, thickness, arm);
+    const pilotImage = u.type === 'sniper' ? dioramaPilotImage('sniper') : null;
+    if (artwork) {
+      const stationary = u.waypoints.length === 0;
+      const working = stationary && (u.gatherTarget || u.bundleTarget) ? 'gather'
+        : stationary && u.repairTarget ? 'repair'
+        : stationary && u.type === 'medic' && u.supportHome && !u._supportReturning && u.healCooldown > 0 ? 'heal' : null;
+      this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, u, game.gameTime, working), s, z);
+    } else if (pilotImage) {
+      const gathering = (u.gatherTarget || u.bundleTarget) && u.waypoints.length === 0;
+      const frame = dioramaPilotFrame('sniper', u.facing,
+        game.gameTime - u.lastMotionAt < .16,
+        game.gameTime - u.attackAnimStart, u.animDistance, gathering, u.gatherAnimTime,
+        game.gameTime);
+      const scale = DIORAMA_PILOT_SCALE * z;
+      ctx.save();
+      ctx.imageSmoothingEnabled = !['pixel', 'sculpted'].includes(DIORAMA_PILOT_STYLE);
+      ctx.drawImage(pilotImage, frame.x, frame.y, frame.width, frame.height,
+        s.x - DIORAMA_PILOT_CELL.footX * scale,
+        s.y - DIORAMA_PILOT_CELL.footY * scale,
+        frame.width * scale, frame.height * scale);
+      ctx.restore();
     } else {
-      ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, r, 0, Math.PI * 2); // raised body
+      ctx.fillStyle = u.def.color; ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+      if (u.type === 'medic') {
+        const cy = s.y - r * 1.2;
+        const arm = 7 * z, thickness = 2.5 * z;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(s.x - arm / 2, cy - thickness / 2, arm, thickness);
+        ctx.fillRect(s.x - thickness / 2, cy - arm / 2, thickness, arm);
+      } else {
+        ctx.beginPath(); ctx.arc(s.x, s.y - r * 1.2, 3 * z, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+      }
+
+      if (u.type === 'torchbearer') {
+        ctx.strokeStyle = '#5b3727'; ctx.lineWidth = 3 * z;
+        ctx.beginPath(); ctx.moveTo(s.x + r, s.y - r * 0.8);
+        ctx.lineTo(s.x + r * 1.25, s.y - r * 2.5); ctx.stroke();
+      }
     }
 
-    if (u.type === 'torchbearer') {
-      ctx.strokeStyle = '#5b3727'; ctx.lineWidth = 3 * z;
-      ctx.beginPath(); ctx.moveTo(s.x + r, s.y - r * 0.8);
-      ctx.lineTo(s.x + r * 1.25, s.y - r * 2.5); ctx.stroke();
-    }
-
-    const barX = s.x - r;
-    const healthY = s.y - r * 2.4 - 6 * z;
-    const barW = r * 2;
+    const barW = Math.max(12 * z, r * 2);
+    const barX = s.x - barW / 2;
+    const cargoY = artwork ? s.y - (artwork.metadata.bodyHeight * artwork.metadata.renderScale + 12) * z
+      : pilotImage ? s.y - 55 * z : s.y - r * 2.4 - 6 * z;
+    const cargoH = Math.max(1, 1.5 * z);
+    const healthY = cargoY + cargoH + z;
     this._drawHealthBar(ctx, barX, healthY, barW, 4, u.hp / u.maxHp);
 
-    const cargoY = healthY + 6 * z;
-    const cargoH = Math.max(2, 3 * z);
-    ctx.fillStyle = '#222';
-    ctx.fillRect(barX, cargoY, barW, cargoH);
     if (u.carryCapacity > 0 && u.carrying > 0) {
       ctx.fillStyle = '#ffdd44';
       ctx.fillRect(barX, cargoY, barW * u.cargoRatio, cargoH);
     }
-    ctx.strokeStyle = 'rgba(0,0,0,0.65)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(barX, cargoY, barW, cargoH);
 
     if (u.carrying > 0) {
       ctx.fillStyle = '#b08040';
@@ -425,7 +571,7 @@ class Renderer {
 
     for (const p of u.resourcePopups) {
       const alpha = clamp(1 - p.t / p.life, 0, 1);
-      const y = healthY - 11 * z - p.t * 22 * z;
+      const y = cargoY - 11 * z - p.t * 22 * z;
       const text = `${p.amount > 0 ? '+' : ''}${p.amount}`;
       ctx.globalAlpha = alpha;
       ctx.font = `bold ${Math.max(12, 13 * z)}px monospace`;
@@ -440,27 +586,42 @@ class Renderer {
 
     if (u.type === 'builder' && u.repairTarget) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('⚙', s.x, s.y - r * 2.4 - 12 * z);
+      ctx.fillText('⚙', s.x, cargoY - 6 * z);
     }
 
     if (u.gatherCenter) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('G', s.x, s.y - r * 2.4 - 12 * z);
+      ctx.fillText('G', s.x, cargoY - 6 * z);
     } else if (u.bundleGatherCenter) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('S', s.x, s.y - r * 2.4 - 12 * z);
+      ctx.fillText('S', s.x, cargoY - 6 * z);
     }
   }
 
   _drawVehicle(ctx, game, v) {
     const s = worldToScreen(v.x, v.y, game.camera);
     const z = game.camera.zoom;
+    const artwork = sculptedActor('suv');
+    const displayScale = artwork?.metadata.presentationScale ?? 1;
+    const visualRadius = v.def.radius * (artwork ? .5 * displayScale : 1);
     if (game.selectedVehicle === v) {
-      this._groundEllipse(ctx, s, v.def.radius + 6, z);
+      this._groundEllipse(ctx, s, visualRadius + 4, z);
       ctx.strokeStyle = '#44ffff'; ctx.lineWidth = 2; ctx.stroke();
     }
-    this._groundEllipse(ctx, s, v.def.radius + 5, z);
-    ctx.fillStyle = 'rgba(0,0,0,0.42)'; ctx.fill();
+    this._groundEllipse(ctx, s, (visualRadius + 3) * .5, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+    if (artwork) {
+      const target = v.waypoints[0];
+      if (target) {
+        const dx = target.x - v.x, dy = target.y - v.y;
+        if (Math.hypot(dx, dy) > .1) {
+          const headings = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+          v._artFacing = headings[(Math.round(Math.atan2((dx + dy) * .5, dx - dy) / (Math.PI / 4)) + 8) % 8];
+        }
+      }
+      const frame = artwork.metadata.clips.idle.directions[v._artFacing ?? 'SE'][0];
+      this._drawActorSprite(ctx, artwork, frame, s, z);
+    } else {
     ctx.save();
     ctx.translate(s.x, s.y - 11 * z);
     ctx.scale(z, z);
@@ -486,74 +647,64 @@ class Renderer {
     ctx.fillRect(-23, 0, 46, 2);
     ctx.restore();
 
-    this._drawHealthBar(ctx, s.x - 22 * z, s.y - 36 * z, 44 * z, 4, v.hp / v.maxHp);
+    }
+
+    const topY = artwork ? s.y - (artwork.metadata.bodyHeight * artwork.metadata.renderScale + 10) * z : s.y - 36 * z;
+    const barW = (artwork ? 22 * displayScale : 44) * z;
+    this._drawHealthBar(ctx, s.x - barW / 2, topY, barW, 4, v.hp / v.maxHp);
     if (v.passengers.length > 0) {
       ctx.fillStyle = '#ffffff'; ctx.font = `bold ${Math.max(10, 11 * z)}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(`${v.passengers.length}/${v.def.capacity}`, s.x, s.y - 43 * z);
+      ctx.fillText(`${v.passengers.length}/${v.def.capacity}`, s.x, topY - 7 * z);
     }
   }
 
   _drawZombie(ctx, game, zb) {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(zb.x, zb.y, cam);
-    const r = zb.def.radius * z;
-
-    if (zb.dormant) {
-      this._groundEllipse(ctx, s, zb.def.radius, z);
-      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(s.x, s.y - r * 0.5, r * 1.1, r * 0.7, 0, 0, Math.PI * 2);
-      ctx.fillStyle = shadeColor(zb.def.color, 0.55); ctx.fill();
-      ctx.strokeStyle = '#003300'; ctx.lineWidth = 1.5; ctx.stroke();
-      return;   // no eyes, no health bar — it's scenery until it isn't
+    const variant = zombieAppearance(zb.type, zb.id);
+    const pilotImage = zb.type === 'walker' && (variant === 0 || DIORAMA_PILOT_STYLE === 'sculpted')
+      ? dioramaPilotImage('walker') : null;
+    let top, by;
+    const walkerStyles = ['walker', 'walker-onearm', 'walker-cap', 'walker-dress'];
+    const artwork = sculptedActor(zb.type === 'walker' ? walkerStyles[(zb._artVariant ?? variant) % walkerStyles.length] : zb.type);
+    const visualRadius = zb.def.radius * (artwork ? .5 : 1);
+    const r = visualRadius * z;
+    this._groundEllipse(ctx, s, visualRadius, z);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+    ctx.save();
+    ctx.globalAlpha = zb.dormant ? .43 : 1;
+    if (artwork) {
+      this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, zb, game.gameTime), s, z);
+      top = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
+      by = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z * .5;
+    } else if (pilotImage) {
+      const frame = dioramaPilotFrame('walker', zb.facing,
+        game.gameTime - zb.lastMotionAt < .16,
+        game.gameTime - zb.attackAnimStart, zb.animDistance, false, 0, game.gameTime);
+      const scale = DIORAMA_PILOT_SCALE * z;
+      top = s.y - DIORAMA_PILOT_CELL.footY * scale;
+      by = s.y - 27 * z;
+      ctx.imageSmoothingEnabled = !['pixel', 'sculpted'].includes(DIORAMA_PILOT_STYLE);
+      ctx.drawImage(pilotImage, frame.x, frame.y, frame.width, frame.height,
+        s.x - DIORAMA_PILOT_CELL.footX * scale, top,
+        frame.width * scale, frame.height * scale);
+    } else {
+      const scale = { runner: .7, walker: .82, spitter: .82, exploder: .96,
+        screamer: .86, brute: 1.3, boss: 1.8 }[zb.type] || .82;
+      const size = ZOMBIE_ART_CELL.width * scale * z;
+      top = s.y + 4 * z - ZOMBIE_ART_CELL.footY * scale * z;
+      by = top + 19 * scale * z;
+      const frame = zombieArtFrame(zb.type, zb.facing,
+        game.gameTime - zb.lastMotionAt < .16,
+        game.gameTime - zb.attackAnimStart, zb.animDistance);
+      const atlas = getZombieArtAtlas(zb.type, variant);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(atlas, frame.x, frame.y, frame.width, frame.height,
+        s.x - size / 2, top, size, ZOMBIE_ART_CELL.height * scale * z);
     }
-
-    this._groundEllipse(ctx, s, zb.def.radius, z);
-    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
-
-    const by = s.y - r * 1.2;
-    ctx.beginPath(); ctx.arc(s.x, by, r, 0, Math.PI * 2);
-    ctx.fillStyle = zb.def.color; ctx.fill();
-    ctx.strokeStyle = '#005500'; ctx.lineWidth = 1.5; ctx.stroke();
-
-    ctx.fillStyle = '#ff0000';                              // eyes
-    ctx.beginPath();
-    ctx.arc(s.x - r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
-    ctx.arc(s.x + r * 0.3, by - r * 0.2, r * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (zb.type === 'spitter') {
-      ctx.fillStyle = '#d7f58a';
-      ctx.beginPath(); ctx.arc(s.x, by + r * 0.35, r * 0.35, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#5d8230';
-      ctx.beginPath(); ctx.arc(s.x, by + r * 0.35, r * 0.15, 0, Math.PI * 2); ctx.fill();
-    } else if (zb.type === 'exploder') {
-      const pulse = 0.7 + 0.3 * Math.sin(game.gameTime * 10 + zb.id);
-      ctx.fillStyle = `rgba(255,229,90,${pulse})`;
-      ctx.beginPath(); ctx.arc(s.x, by, r * 0.48, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#ffe36a'; ctx.lineWidth = 2 * z;
-      ctx.beginPath(); ctx.arc(s.x, by, r * 1.22, 0, Math.PI * 2); ctx.stroke();
-    } else if (zb.type === 'screamer') {
-      ctx.strokeStyle = '#ffd6f6'; ctx.lineWidth = 2 * z;
-      for (const side of [-1, 1]) {
-        ctx.beginPath();
-        ctx.moveTo(s.x + side * r * 0.6, by - r * 0.4);
-        ctx.lineTo(s.x + side * r * 1.3, by - r * 1.5);
-        ctx.stroke();
-      }
-      ctx.fillStyle = '#40233e';
-      ctx.fillRect(s.x - r * 0.22, by + r * 0.2, r * 0.44, r * 0.4);
-    } else if (zb.type === 'boss') {
-      ctx.strokeStyle = '#b4e4c4'; ctx.lineWidth = 3 * z;
-      ctx.beginPath();
-      ctx.moveTo(s.x - r * 0.85, by - r * 0.55);
-      ctx.lineTo(s.x - r * 0.6, by - r * 1.35);
-      ctx.lineTo(s.x, by - r * 0.95);
-      ctx.lineTo(s.x + r * 0.6, by - r * 1.35);
-      ctx.lineTo(s.x + r * 0.85, by - r * 0.55);
-      ctx.stroke();
-    }
+    ctx.restore();
+    if (zb.dormant) return;
 
     if (zb.burning) {
       const flicker = 0.75 + 0.25 * Math.sin((game.gameTime + zb.id) * 24);
@@ -574,7 +725,17 @@ class Renderer {
       }
     }
 
-    this._drawHealthBar(ctx, s.x - r, s.y - r * 2.4 - 5 * z, r * 2, 4, zb.hp / zb.maxHp, '#ff4422');
+    const barW = Math.max(12 * z, r * 2);
+    this._drawHealthBar(ctx, s.x - barW / 2, top - 6 * z, barW, 4, zb.hp / zb.maxHp, '#ff4422');
+  }
+
+  _drawActorSprite(ctx, record, frame, foot, zoom) {
+    const scale = record.metadata.renderScale * zoom, anchor = record.metadata.footAnchor;
+    ctx.save(); ctx.imageSmoothingEnabled = record.imageSmoothing;
+    ctx.imageSmoothingQuality = record.imageSmoothingQuality;
+    ctx.drawImage(record.image, frame.x, frame.y, frame.width, frame.height,
+      foot.x - anchor.x * scale, foot.y - anchor.y * scale, frame.width * scale, frame.height * scale);
+    ctx.restore();
   }
 
   _drawThreatEffects(ctx, game) {
@@ -685,7 +846,7 @@ class Renderer {
       if (!zmb.dead && zmb.burning) punch(zmb.x, zmb.y, FIRE_LIGHT_RADIUS, 0.85);
     }
 
-    ctx.drawImage(lc, 0, 0);
+    ctx.drawImage(lc, 0, 0, this.W, this.H);
 
     // Warm glows on the strongest sources
     ctx.globalCompositeOperation = 'lighter';
@@ -782,14 +943,11 @@ class Renderer {
   }
 
   // ── Build Ghost ───────────────────────────────────────────────────────────
-  // Projected footprint diamond — no volume; the flat footprint is clearer
-  // for placement.
+  // Keep the ground footprint visible below the artwork preview.
   _drawBuildGhost(ctx, game, tile) {
     const cam = game.camera;
     const def = BUILDING_DEFS[game.buildMode];
-    const ts = def.tileSize;
-    const x0 = tile.tx * TILE, y0 = tile.ty * TILE;
-    const x1 = x0 + ts * TILE, y1 = y0 + ts * TILE;
+    const {left:x0,top:y0,right:x1,bottom:y1} = buildingGroundRect(game.buildMode, tile.tx, tile.ty);
     const valid = game.canPlaceBuilding(game.buildMode, tile.tx, tile.ty);
     const N = worldToScreen(x0, y0, cam), E = worldToScreen(x1, y0, cam),
           S = worldToScreen(x1, y1, cam), W = worldToScreen(x0, y1, cam);
@@ -800,6 +958,13 @@ class Renderer {
     ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = valid ? '#ffffff' : '#ff0000'; ctx.lineWidth = 2; ctx.stroke();
+    const artwork = sculptedObject(game.buildMode);
+    if (artwork) {
+      const rect = sculptedObjectRect(artwork, S, cam.zoom);
+      ctx.save(); ctx.globalAlpha = valid ? .55 : .28; ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
+      ctx.drawImage(artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+    }
   }
 
   // ── Selection Box ─────────────────────────────────────────────────────────
@@ -829,6 +994,25 @@ class Renderer {
     ctx.fillRect(x, y, w * pct, h);
   }
 
+  _drawCompass(ctx, game) {
+    const { center, radius, points } = mapCompass(this.W);
+    const warning = game.waveActive || game.waveTimer <= WAVE_WARNING;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(9,17,14,0.78)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(205,221,207,0.35)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const p of points) {
+      const dx = p.x - center.x, dy = p.y - center.y;
+      ctx.beginPath(); ctx.moveTo(center.x + dx * .15, center.y + dy * .15);
+      ctx.lineTo(center.x + dx * .65, center.y + dy * .65);
+      ctx.strokeStyle = p.label === 'N' ? '#f07665' : '#b8ccbd'; ctx.lineWidth = p.label === 'N' ? 3 : 1.5; ctx.stroke();
+      ctx.fillStyle = warning && game.waveDirections.includes(p.edge) ? '#ffbd69' : p.label === 'N' ? '#ffb7a4' : '#e7efe4';
+      ctx.fillText(p.label, p.x, p.y);
+    }
+    ctx.restore();
+  }
+
   _drawToasts(ctx, game) {
     if (!game.toasts || game.toasts.length === 0) return;
     const palette = {
@@ -842,15 +1026,21 @@ class Renderer {
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 12px monospace';
+    const warningBanner = !game.waveActive && game.waveTimer <= WAVE_WARNING;
+    let y = this.W < 1100 ? (warningBanner ? 116 : 80) : (warningBanner ? 88 : 52);
     for (let i = 0; i < visible.length; i++) {
       const toast = visible[i];
       const style = palette[toast.kind] || palette.info;
       const alpha = clamp(Math.min(1, toast.t / 0.18, (toast.life - toast.t) / 0.5), 0, 1);
-      const w = Math.min(420, Math.max(220, toast.text.length * 7 + 28));
-      const h = 30;
-      const x = this.W - 12 - w;
-      const warningBanner = !game.waveActive && game.waveTimer <= WAVE_WARNING;
-      const y = (warningBanner && this.W < 900 ? 88 : 52) + i * 36;
+      const w = Math.min(420, this.W - 112, Math.max(220, ctx.measureText(toast.text).width + 28));
+      const lines = [], words = toast.text.split(/\s+/); let line = '';
+      for (const word of words) {
+        const next = line ? line + ' ' + word : word;
+        if (line && ctx.measureText(next).width > w - 24) { lines.push(line); line = word; }
+        else line = next;
+      }
+      if (line) lines.push(line);
+      const h = Math.max(30, lines.length * 16 + 14), x = this.W - 100 - w;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = style.fill;
       roundRect(ctx, x, y, w, h, 5); ctx.fill();
@@ -858,13 +1048,16 @@ class Renderer {
       ctx.lineWidth = 1.5;
       roundRect(ctx, x, y, w, h, 5); ctx.stroke();
       ctx.fillStyle = style.text;
-      ctx.fillText(toast.text, x + w - 12, y + h / 2);
+      lines.forEach((text, n) => ctx.fillText(text, x + w - 12, y + 15 + n * 16));
+      y += h + 6;
     }
     ctx.restore();
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
   _drawHUD(ctx, game, input) {
+    if (this.W < 1100) this._drawCompactHeader(ctx, game);
+    else {
     // Top bar background
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
     ctx.fillRect(0, 0, this.W, 44);
@@ -897,13 +1090,15 @@ class Renderer {
       ctx.fillStyle = warning ? (Math.floor(Date.now()/400)%2===0 ? '#ff4444' : '#ff8844') : '#cccccc';
       ctx.fillText(`Wave ${game.waveNum + 1} in ${Math.ceil(timeLeft)}s`, this.W / 2, 22);
       if (warning && game.waveDirections.length > 0) {
-        const label = `INCOMING: ${game.waveDirectionLabel().toUpperCase()}`;
+        const fullLabel = game.waveDirectionLabel().toUpperCase();
+        const label = `INCOMING: ${this.W < 600 ? game.waveDirections.map(d => ['N', 'E', 'S', 'W'][d]).join(' + ') : fullLabel}`;
+        const width = Math.min(290, this.W - 112), x = Math.min(this.W / 2 - width / 2, this.W - 100 - width);
         ctx.fillStyle = 'rgba(49,16,12,0.9)';
-        roundRect(ctx, this.W / 2 - 145, 48, 290, 28, 4); ctx.fill();
+        roundRect(ctx, x, 48, width, 28, 4); ctx.fill();
         ctx.strokeStyle = '#ff6740'; ctx.lineWidth = 1.5;
-        roundRect(ctx, this.W / 2 - 145, 48, 290, 28, 4); ctx.stroke();
+        roundRect(ctx, x, 48, width, 28, 4); ctx.stroke();
         ctx.fillStyle = '#ffd3a8'; ctx.font = 'bold 13px monospace';
-        ctx.fillText(label, this.W / 2, 62);
+        ctx.fillText(label, x + width / 2, 62);
         ctx.font = 'bold 15px monospace';
       }
     } else {
@@ -930,19 +1125,20 @@ class Renderer {
     const secs = Math.floor(game.gameTime % 60);
     ctx.fillStyle = '#888';
     ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 104, 22);
+    }
 
     if (input.attackMoveArm) {
       ctx.fillStyle = '#ff8866';
       ctx.font = 'bold 13px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('ATTACK-MOVE — click target (Esc cancels)', this.W / 2, 58);
+      ctx.fillText('ATTACK-MOVE', this.W / 2, this.W < 1100 ? 130 : 92);
     }
 
     if (input.flareArm) {
       ctx.fillStyle = '#ff8866';
       ctx.font = 'bold 13px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('FLARE — click target (Esc cancels)', this.W / 2, 58);
+      ctx.fillText('FLARE', this.W / 2, this.W < 1100 ? 130 : 92);
     }
 
     // Bottom panel
@@ -951,6 +1147,28 @@ class Renderer {
     // Selection info (left side above bottom)
     if (game.selected.length > 0 || game._selectedBuilding || game.selectedVehicle) {
       this._drawSelectionPanel(ctx, game);
+    }
+  }
+
+  _drawCompactHeader(ctx, game) {
+    const available = this.W - 112, cap = game.storageCap();
+    ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fillRect(0, 0, this.W, 76);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 13px monospace';
+    ctx.fillStyle = game.supplies >= cap ? '#ff8866' : '#ffdd44';
+    ctx.fillText(`Supplies: ${game.supplies} / ${cap}`, 12, 18, available);
+    const night = game.cycleTime() >= DAY_LENGTH;
+    const remaining = game.zombiesToSpawn.length + game.zombies.filter(z => !z.dead && !z.dormant).length;
+    const wave = game.waveActive ? `Wave ${game.waveNum}: ${remaining} left` : `Wave ${game.waveNum + 1} in ${Math.ceil(game.waveTimer)}s`;
+    ctx.fillStyle = game.waveActive || game.waveTimer <= WAVE_WARNING ? '#ff8866' : '#d8e5d9';
+    ctx.font = 'bold 12px monospace'; ctx.fillText(`${wave} | ${night ? 'Night' : 'Day'}`, 12, 41, available);
+    const flare = game.flareCooldown > 0 ? `${Math.ceil(game.flareCooldown)}s` : 'ready';
+    ctx.font = '11px monospace'; ctx.fillStyle = '#b5ccbd'; ctx.fillText(`Score: ${game.score} | Flare ${flare}`, 12, 64, available);
+    if (!game.waveActive && game.waveTimer <= WAVE_WARNING && game.waveDirections.length) {
+      const width = Math.min(290, available), x = 12;
+      ctx.fillStyle = 'rgba(49,16,12,0.9)'; roundRect(ctx, x, 80, width, 28, 4); ctx.fill();
+      ctx.strokeStyle = '#ff6740'; ctx.lineWidth = 1.5; roundRect(ctx, x, 80, width, 28, 4); ctx.stroke();
+      const label = this.W < 600 ? game.waveDirections.map(d => ['N', 'E', 'S', 'W'][d]).join(' + ') : game.waveDirectionLabel().toUpperCase();
+      ctx.fillStyle = '#ffd3a8'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.fillText('INCOMING: ' + label, x + width / 2, 94, width - 20);
     }
   }
 
@@ -1396,7 +1614,9 @@ class Renderer {
     ctx.globalAlpha = alpha;
     ctx.fillStyle = 'rgba(0,0,0,0.82)';
     const w = Math.min(360, Math.max(160, msg.text.length * 8 + 32));
-    const x = this.W / 2 - w / 2, y = 58;
+    const panel = mainMenuPanelRect(this.W);
+    const x = this.W / 2 - w / 2;
+    const y = input.menuOpen ? Math.min(this.H - 40, panel.y + panel.h + 8) : 58;
     roundRect(ctx, x, y, w, 32, 5); ctx.fill();
     ctx.strokeStyle = '#ffdd44';
     ctx.lineWidth = 1;
