@@ -8,10 +8,12 @@ const source = readFileSync(new URL('js/art.js', root), 'utf8');
 const manifest = JSON.parse(readFileSync(new URL('assets/rigged-full/manifest.json', root)));
 const registry = JSON.parse(readFileSync(new URL('assets/art-packs/registry.json', root)));
 const sizes = new Map();
-for (const meta of [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain]) {
-  const file = new URL(meta.image, new URL('assets/rigged-full/', root));
+const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain];
+const assetCount = records.reduce((n, meta) => n + 1 + (meta.nightImage ? 1 : 0), 0);
+for (const meta of records) for (const asset of [meta.image,meta.nightImage].filter(Boolean)) {
+  const file = new URL(asset, new URL('assets/rigged-full/', root));
   const data = readFileSync(file);
-  sizes.set(new URL(meta.image, 'http://game.test/assets/rigged-full/manifest.json').href,
+  sizes.set(new URL(asset, 'http://game.test/assets/rigged-full/manifest.json').href,
     [data.readUInt32BE(16), data.readUInt32BE(20)]);
 }
 
@@ -61,16 +63,16 @@ test('readiness and decoded progress wait for the last image, publishing the ski
   r.controls.gate = new Promise(resolve => {finish = resolve;});
   const boot = r.evaluate('startArtPacks()');
   await new Promise(resolve => setTimeout(resolve, 0));
-  assert.equal(r.evaluate('ART_PACK_STATE.progress.total'), 33);
-  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), 32);
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.total'), assetCount);
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), assetCount-1);
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), false);
   assert.equal(r.evaluate('SCULPTED_WORLD.characters.size'), 0);
   finish(); assert.equal(await boot, true);
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), true);
   assert.equal(r.evaluate('SCULPTED_WORLD.characters.size'), 18);
   assert.equal(r.evaluate('SCULPTED_WORLD.objects.size'), 14);
-  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), 33);
-  const counts = r.progress.filter(p => p.total === 33).map(p => p.loaded);
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), assetCount);
+  const counts = r.progress.filter(p => p.total === assetCount).map(p => p.loaded);
   assert.ok(counts.every((n, i) => !i || n >= counts[i - 1]));
 });
 
@@ -101,7 +103,7 @@ test('image failure keeps readiness false, removes the failed cache, and retries
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), false);
   assert.equal(r.evaluate('ART_PACK_CACHE.size'), 0);
   r.controls.failure = null; await r.evaluate('startArtPacks()');
-  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), 33);
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), assetCount);
   assert.equal(r.evaluate('ART_PACK_STATE.error'), null);
 });
 
@@ -109,4 +111,19 @@ test('invalid decoded frame geometry cannot mark assets ready', async () => {
   const r = runtime(); r.controls.manifest.characters.soldier.clips.idle.directions.S[0].x = 100000;
   await assert.rejects(r.evaluate('startArtPacks()'), /frame outside image/);
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), false);
+});
+
+test('a failed night image also blocks entry and retries without loading a partial skin', async () => {
+  const r=runtime();r.controls.failure='/night/hq.png';
+  await assert.rejects(r.evaluate('startArtPacks()'),/Decode failed/);
+  assert.equal(r.evaluate('SCULPTED_WORLD.ready'),false);
+  r.controls.failure=null;await r.evaluate('startArtPacks()');
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'),assetCount);
+});
+
+test('night variants are required for every world object but never for characters', async () => {
+  const r=runtime();delete r.controls.manifest.objects.hq.nightImage;
+  await assert.rejects(r.evaluate('startArtPacks()'),/Missing night artwork: hq/);
+  assert.equal(records.filter(meta=>meta.nightImage).length,15);
+  assert.ok(Object.values(manifest.characters).every(meta=>!meta.nightImage));
 });

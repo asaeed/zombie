@@ -28,6 +28,7 @@ export async function buildPages(destination,root=projectRoot){
     const manifest=JSON.parse(await fs.readFile(path.join(root,manifestFile),'utf8'));
     for(const record of [...Object.values(manifest.characters),...Object.values(manifest.objects),manifest.terrain]){
       files.add(publicAsset(record.image,path.dirname(path.join(root,manifestFile))+path.sep));
+      if(record.nightImage)files.add(publicAsset(record.nightImage,path.dirname(path.join(root,manifestFile))+path.sep));
     }
   }
   const hash=createHash('sha256');let bytes=0;

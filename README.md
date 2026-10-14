@@ -26,6 +26,11 @@ and validated assets; Start (or Continue) enables only when the full skin is
 ready. The game does not render, advance, or overwrite saves before entering.
 Failed downloads show Retry instead of falling back to older graphics.
 
+Buildings, supply caches, scenery, and terrain have pixel-aligned night PNGs.
+Their colors and built-in lights crossfade over the existing dusk/dawn period;
+unit sheets, fog of war, and gameplay light/vision ranges are unchanged. Rocks
+use half their former spawn frequency, including when loading an existing save.
+
 Saves remain in this browser's local storage. The hosted site has separate
 save data from localhost; existing local saves are not transferred.
 

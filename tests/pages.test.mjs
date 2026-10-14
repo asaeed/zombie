@@ -23,6 +23,7 @@ test('Pages export contains the current game and every referenced runtime asset,
     for(const record of [...Object.values(meta.characters),...Object.values(meta.objects),meta.terrain]){
       const image=path.resolve(output,'assets/rigged-full',record.image);
       assert.ok((await fs.stat(image)).size>0);
+      if(record.nightImage)assert.ok((await fs.stat(path.resolve(output,'assets/rigged-full',record.nightImage))).size>0);
     }
     const release=JSON.parse(await fs.readFile(path.join(output,'release.json'),'utf8'));
     assert.equal(release.release,result.release);assert.match(release.release,/^[0-9a-f]{64}$/);

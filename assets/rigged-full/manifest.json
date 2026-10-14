@@ -585272,7 +585272,8 @@
       "displaySize": {
         "width": 200,
         "height": 150
-      }
+      },
+      "nightImage": "night/hq.png"
     },
     "wall": {
       "image": "structures/wall.png",
@@ -585313,7 +585314,8 @@
       "displaySize": {
         "width": 58,
         "height": 56
-      }
+      },
+      "nightImage": "night/wall.png"
     },
     "tower": {
       "image": "structures/tower.png",
@@ -585354,7 +585356,8 @@
       "displaySize": {
         "width": 90,
         "height": 162
-      }
+      },
+      "nightImage": "night/tower.png"
     },
     "barracks": {
       "image": "structures/barracks.png",
@@ -585395,7 +585398,8 @@
       "displaySize": {
         "width": 136,
         "height": 105
-      }
+      },
+      "nightImage": "night/barracks.png"
     },
     "depot": {
       "image": "structures/depot.png",
@@ -585436,7 +585440,8 @@
       "displaySize": {
         "width": 136,
         "height": 101
-      }
+      },
+      "nightImage": "night/depot.png"
     },
     "light": {
       "image": "structures/light.png",
@@ -585477,7 +585482,8 @@
       "displaySize": {
         "width": 54,
         "height": 120
-      }
+      },
+      "nightImage": "night/light.png"
     },
     "clinic": {
       "image": "structures/clinic.png",
@@ -585518,7 +585524,8 @@
       "displaySize": {
         "width": 136,
         "height": 114
-      }
+      },
+      "nightImage": "night/clinic.png"
     },
     "mechanics": {
       "image": "structures/mechanics.png",
@@ -585559,7 +585566,8 @@
       "displaySize": {
         "width": 136,
         "height": 119
-      }
+      },
+      "nightImage": "night/mechanics.png"
     },
     "car": {
       "image": "world/car.png",
@@ -585598,7 +585606,8 @@
       "displaySize": {
         "width": 67,
         "height": 48
-      }
+      },
+      "nightImage": "night/car.png"
     },
     "cabin": {
       "image": "world/cabin.png",
@@ -585637,7 +585646,8 @@
       "displaySize": {
         "width": 72,
         "height": 76
-      }
+      },
+      "nightImage": "night/cabin.png"
     },
     "bin": {
       "image": "world/bin.png",
@@ -585676,7 +585686,8 @@
       "displaySize": {
         "width": 46,
         "height": 44
-      }
+      },
+      "nightImage": "night/bin.png"
     },
     "pine": {
       "image": "world/pine.png",
@@ -585715,7 +585726,8 @@
       "displaySize": {
         "width": 80,
         "height": 109
-      }
+      },
+      "nightImage": "night/pine.png"
     },
     "bush": {
       "image": "world/bush.png",
@@ -585754,7 +585766,8 @@
       "displaySize": {
         "width": 46,
         "height": 36
-      }
+      },
+      "nightImage": "night/bush.png"
     },
     "rock": {
       "image": "world/rock.png",
@@ -585793,7 +585806,8 @@
       "displaySize": {
         "width": 41,
         "height": 34
-      }
+      },
+      "nightImage": "night/rock.png"
     }
   },
   "terrain": {
@@ -586206,7 +586220,13 @@
     "production": {
       "method": "four-times native-density quiet two-tone terrain, antialiased diamond silhouette; no grain or dithering"
     },
-    "resolutionScale": 4
+    "resolutionScale": 4,
+    "nightImage": "night/terrain.png",
+    "nightBaseColors": {
+      "grass": "#4b5f59",
+      "dirt": "#5b6c80",
+      "water": "#32577b"
+    }
   },
   "production": {
     "method": "artist-rigged-3d-to-png",
@@ -586215,5 +586235,6 @@
     "modelLicense": "../rigged-pilot/source/character-license.txt",
     "animationLicense": "../rigged-pilot/source/animation-license.txt",
     "localOnly": true
-  }
+  },
+  "nightVariants": true
 }

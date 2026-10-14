@@ -1,0 +1,100 @@
+{
+  "stats": {
+    "hq": {
+      "width": 629,
+      "height": 472,
+      "alphaDifferences": 0,
+      "litPixels": 3440
+    },
+    "wall": {
+      "width": 259,
+      "height": 250,
+      "alphaDifferences": 0,
+      "litPixels": 245
+    },
+    "tower": {
+      "width": 261,
+      "height": 470,
+      "alphaDifferences": 0,
+      "litPixels": 6163
+    },
+    "barracks": {
+      "width": 417,
+      "height": 322,
+      "alphaDifferences": 0,
+      "litPixels": 1704
+    },
+    "depot": {
+      "width": 516,
+      "height": 383,
+      "alphaDifferences": 0,
+      "litPixels": 19161
+    },
+    "light": {
+      "width": 189,
+      "height": 420,
+      "alphaDifferences": 0,
+      "litPixels": 1671
+    },
+    "clinic": {
+      "width": 419,
+      "height": 351,
+      "alphaDifferences": 0,
+      "litPixels": 1839
+    },
+    "mechanics": {
+      "width": 421,
+      "height": 368,
+      "alphaDifferences": 0,
+      "litPixels": 16478
+    },
+    "car": {
+      "width": 595,
+      "height": 426,
+      "alphaDifferences": 0,
+      "litPixels": 1521
+    },
+    "cabin": {
+      "width": 524,
+      "height": 553,
+      "alphaDifferences": 0,
+      "litPixels": 2339
+    },
+    "bin": {
+      "width": 426,
+      "height": 408,
+      "alphaDifferences": 0,
+      "litPixels": 0
+    },
+    "pine": {
+      "width": 417,
+      "height": 568,
+      "alphaDifferences": 0,
+      "litPixels": 0
+    },
+    "bush": {
+      "width": 488,
+      "height": 382,
+      "alphaDifferences": 0,
+      "litPixels": 0
+    },
+    "rock": {
+      "width": 483,
+      "height": 401,
+      "alphaDifferences": 0,
+      "litPixels": 0
+    },
+    "terrain": {
+      "width": 4096,
+      "height": 384,
+      "alphaDifferences": 0,
+      "litPixels": 0
+    }
+  },
+  "palette": {
+    "grass": "#4b5f59",
+    "dirt": "#5b6c80",
+    "water": "#32577b"
+  },
+  "method": "Pixel-preserving RGB night grade, source-surface light masks, unchanged alpha and anchors"
+}

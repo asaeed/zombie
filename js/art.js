@@ -68,6 +68,7 @@ function validateArtManifest(manifest) {
     const meta = manifest.objects?.[id];
     if (!meta?.image || !anchor(meta) || !positive(meta.width) || !positive(meta.height) ||
         meta.displaySize && (!positive(meta.displaySize.width) || !positive(meta.displaySize.height))) throw new Error(`Incomplete object: ${id}`);
+    if (manifest.nightVariants && !meta.nightImage) throw new Error(`Missing night artwork: ${id}`);
   }
   const terrainScale = manifest.terrain?.resolutionScale ?? 1;
   if (!Number.isInteger(terrainScale) || terrainScale < 1 || terrainScale > 8) throw new Error('Invalid terrain resolution');
@@ -79,6 +80,12 @@ function validateArtManifest(manifest) {
     }
   }
   if (!manifest.terrain.image) throw new Error('Missing terrain image');
+  if (manifest.nightVariants) {
+    if (!manifest.terrain.nightImage) throw new Error('Missing night terrain');
+    for (const type of ['grass', 'dirt', 'water']) {
+      if (!/^#[0-9a-f]{6}$/i.test(manifest.terrain.nightBaseColors?.[type])) throw new Error(`Missing night terrain color: ${type}`);
+    }
+  }
 }
 
 async function loadArtPack(pack, progress = () => {}) {
@@ -87,24 +94,29 @@ async function loadArtPack(pack, progress = () => {}) {
   if (!response.ok) throw new Error(`Artwork: HTTP ${response.status}`);
   const manifest = await response.json(); validateArtManifest(manifest);
   const world = {characters: new Map(), objects: new Map(), terrain: null, ready: true};
-  const total = Object.keys(manifest.characters).length + Object.keys(manifest.objects).length + 1;
+  const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain];
+  const total = records.reduce((count, meta) => count + 1 + (meta.nightImage ? 1 : 0), 0);
   let loaded = 0; progress({loaded, total});
   const load = async (metadata, mask = false) => {
-    const image = new Image(); image.src = artPackAssetURL(metadata.image, url).href;
-    await image.decode();
     const frames = metadata.clips ? Object.values(metadata.clips).flatMap(clip => Object.values(clip.directions).flat()) : metadata.frames;
-    for (const frame of frames ?? [{x: 0, y: 0, width: metadata.width, height: metadata.height}]) {
-      if (![frame.x, frame.y, frame.width, frame.height].every(Number.isInteger) || frame.x < 0 || frame.y < 0 ||
-          frame.width <= 0 || frame.height <= 0 || frame.x + frame.width > image.naturalWidth ||
-          frame.y + frame.height > image.naturalHeight) throw new Error(`Artwork frame outside image: ${metadata.image}`);
-    }
-    const record = {image, metadata, imageSmoothing: manifest.imageSmoothing === true, imageSmoothingQuality: manifest.imageSmoothingQuality ?? 'low'};
+    const paths = [metadata.image, metadata.nightImage].filter(Boolean);
+    const [image, nightImage] = await Promise.all(paths.map(async path => {
+      const picture = new Image(); picture.src = artPackAssetURL(path, url).href; await picture.decode();
+      for (const frame of frames ?? [{x: 0, y: 0, width: metadata.width, height: metadata.height}]) {
+        if (![frame.x, frame.y, frame.width, frame.height].every(Number.isInteger) || frame.x < 0 || frame.y < 0 ||
+            frame.width <= 0 || frame.height <= 0 || frame.x + frame.width > picture.naturalWidth ||
+            frame.y + frame.height > picture.naturalHeight) throw new Error(`Artwork frame outside image: ${path}`);
+      }
+      return picture;
+    }));
+    if (nightImage && (nightImage.naturalWidth !== image.naturalWidth || nightImage.naturalHeight !== image.naturalHeight)) throw new Error(`Misaligned night artwork: ${metadata.image}`);
+    const record = {image, nightImage, metadata, imageSmoothing: manifest.imageSmoothing === true, imageSmoothingQuality: manifest.imageSmoothingQuality ?? 'low'};
     if (mask) {
       const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
       const ctx = canvas.getContext('2d', {willReadFrequently: true}); ctx.drawImage(image, 0, 0);
       record.alpha = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     }
-    progress({loaded: ++loaded, total}); return record;
+    loaded += paths.length; progress({loaded, total}); return record;
   };
   const jobs = [];
   for (const [id, metadata] of Object.entries(manifest.characters)) jobs.push(load(metadata).then(record => world.characters.set(id, record)));
@@ -126,7 +138,8 @@ async function selectArtPack(id, {persist = true, updateURL = true} = {}) {
     try {world = await ART_PACK_CACHE.get(id);} catch (error) {ART_PACK_CACHE.delete(id); throw error;}
     if (revision !== ART_PACK_STATE.revision) return false;
     Object.assign(SCULPTED_WORLD, world, {errors: []});
-    const total = world.characters.size + world.objects.size + 1;
+    const records = [...world.characters.values(), ...world.objects.values(), world.terrain];
+    const total = records.reduce((count, record) => count + 1 + (record.nightImage ? 1 : 0), 0);
     ART_PACK_STATE.progress = {loaded: total, total};
     ART_PACK_STATE.active = id; ART_PACK_STATE.pending = null;
     if (persist) {try {localStorage.setItem(ART_PACK_STORAGE_KEY, id);} catch {}}
@@ -166,6 +179,25 @@ const ART_PACK_READY = typeof document !== 'undefined' && typeof fetch === 'func
 function sculptedActor(type) {return SCULPTED_WORLD.ready ? SCULPTED_WORLD.characters.get(type) : null;}
 function sculptedObject(type) {return SCULPTED_WORLD.ready ? SCULPTED_WORLD.objects.get(type) : null;}
 
+function worldArtworkImage(record, darkness = 0) {
+  if (!record.nightImage || darkness <= 0) return record.image;
+  if (darkness >= 1) return record.nightImage;
+  const mix = Math.round(darkness * 255), revision = record.revision ?? 0;
+  if (record.blendMix === mix && record.blendRevision === revision) return record.blendCanvas;
+  const canvas = record.blendCanvas ??= document.createElement('canvas');
+  const width = record.image.naturalWidth || record.image.width, height = record.image.naturalHeight || record.image.height;
+  if (canvas.width !== width || canvas.height !== height) {canvas.width = width; canvas.height = height;}
+  const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, width, height);
+  // Add premultiplied contributions in isolation, preserving translucent silhouette edges.
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1 - mix / 255;
+  ctx.drawImage(record.image, 0, 0);
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = mix / 255;
+  ctx.drawImage(record.nightImage, 0, 0);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  record.blendMix = mix; record.blendRevision = revision;
+  return canvas;
+}
+
 function sculptedActorFrame(record, actor, time, working = null) {
   const meta = record.metadata, clips = meta.clips;
   const direction = meta.directions.includes(actor.facing) ? actor.facing : 'SE';
@@ -197,10 +229,12 @@ function sculptedObjectHit(record, rect, x, y) {
     record.alpha[(py * record.metadata.width + px) * 4 + 3] > 96;
 }
 
-function sculptedTerrainFrame(tile, tx, ty) {
+function sculptedTerrainFrame(tile, tx, ty, night = false) {
   const record = SCULPTED_WORLD.terrain; if (!record || !SCULPTED_WORLD.ready) return null;
   const variant = ((tx % 4 + 4) % 4) + ((ty % 4 + 4) % 4) * 4;
   const type = ['grass', 'dirt', 'water'][tile];
   const frame = record.metadata.frames.find(frame => frame.type === type && frame.variant === variant);
-  return frame ? {image: record.image, frame, baseColor: record.metadata.baseColors?.[type], imageSmoothing: record.imageSmoothing, imageSmoothingQuality: record.imageSmoothingQuality} : null;
+  return frame ? {image: night && record.nightImage ? record.nightImage : record.image, frame,
+    baseColor: (night ? record.metadata.nightBaseColors : record.metadata.baseColors)?.[type] ?? record.metadata.baseColors?.[type],
+    imageSmoothing: record.imageSmoothing, imageSmoothingQuality: record.imageSmoothingQuality} : null;
 }
