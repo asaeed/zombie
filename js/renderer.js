@@ -1507,14 +1507,8 @@ class Renderer {
     ctx.textBaseline = 'top';
     ctx.fillText('MAIN MENU', panel.x + 14, panel.y + 14);
 
-    ctx.fillStyle = '#99aa88';
-    ctx.font = '10px monospace';
-    ctx.fillText(`Auto: ${this._saveStamp(input.saveMeta.auto)}`, panel.x + 14, panel.y + 33);
-
     const labels = {
       'resume': 'RESUME',
-      'save-auto': 'SAVE NOW',
-      'load-auto': 'LOAD AUTO',
       'save-slot-1': 'SAVE 1',
       'load-slot-1': 'LOAD 1',
       'save-slot-2': 'SAVE 2',
@@ -1525,7 +1519,6 @@ class Renderer {
       'clear-saves': 'CLEAR SAVES',
     };
     const hasSave = action => {
-      if (action === 'load-auto') return !!input.saveMeta.auto;
       const m = /^load-slot-(\d)$/.exec(action);
       return !m || !!input.saveMeta.slots[m[1]];
     };

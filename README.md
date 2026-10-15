@@ -43,7 +43,7 @@ save data from localhost; existing local saves are not transferred.
 - Barracks: click for training (`Z`/`X`/`C`/`V`/`Q`/`E`/`Y`) · right-click sets rally point
 - Mechanics bay: select and press `U` or use its production button to build an armored truck
 - Armored truck: select and right-click ground to drive; right-click it with units selected to board (four seats); `E` or Unload to disembark
-- `F` + click: throw a signal flare (50 supplies, 60s cooldown) — lights terrain, lures the horde, wakes sleepers, and ignites nearby zombies
+- `F` + click: throw a signal flare (50 supplies, 60s cooldown) — lights terrain, wakes sleepers, and ignites nearby zombies without distracting them; burning zombies move 20% faster
 - Camera: wheel zoom · middle-drag / arrows / minimap click: pan
 - Click a screen edge to arm auto-scroll; moving off the edge stops it
 - `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert

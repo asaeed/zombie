@@ -671,7 +671,6 @@ class InputHandler {
   }
 
   _hasMenuSave(action) {
-    if (action === 'load-auto') return !!this.saveMeta.auto;
     const m = /^load-slot-(\d)$/.exec(action);
     return !m || !!this.saveMeta.slots[m[1]];
   }
