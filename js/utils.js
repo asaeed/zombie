@@ -1,5 +1,45 @@
 'use strict';
 
+// Broad-phase lookup; callers still apply their exact distance and eligibility rules.
+class SpatialGrid {
+  constructor(cellSize) {
+    this.cellSize = cellSize;
+    this.cells = new Map();
+    this.members = new Map();
+    this.maxRadius = 0;
+  }
+
+  add(entity) {
+    const key = `${Math.floor(entity.x / this.cellSize)},${Math.floor(entity.y / this.cellSize)}`;
+    let cell = this.cells.get(key);
+    if (!cell) this.cells.set(key, cell = []);
+    cell.push(entity);
+    this.members.set(entity, key);
+    this.maxRadius = Math.max(this.maxRadius, entity.def?.radius ?? 0);
+  }
+
+  move(entity) {
+    const key = `${Math.floor(entity.x / this.cellSize)},${Math.floor(entity.y / this.cellSize)}`;
+    const previous = this.members.get(entity);
+    if (previous === key) return;
+    if (previous !== undefined) {
+      const cell = this.cells.get(previous);
+      cell.splice(cell.indexOf(entity), 1);
+      if (!cell.length) this.cells.delete(previous);
+    }
+    this.add(entity);
+  }
+
+  *near(x, y, radius) {
+    const x0 = Math.floor((x - radius) / this.cellSize), x1 = Math.floor((x + radius) / this.cellSize);
+    const y0 = Math.floor((y - radius) / this.cellSize), y1 = Math.floor((y + radius) / this.cellSize);
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+      const cell = this.cells.get(`${cx},${cy}`);
+      if (cell) yield* cell;
+    }
+  }
+}
+
 function dist(ax, ay, bx, by) {
   const dx = bx - ax, dy = by - ay;
   return Math.sqrt(dx*dx + dy*dy);

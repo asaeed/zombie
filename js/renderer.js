@@ -141,53 +141,126 @@ class Renderer {
   }
 
   _drawTiles(ctx, game) {
-    const cam = game.camera, bounds = this._tileViewport(cam);
-    const { tx0, tx1, ty0, ty1 } = bounds, count = (tx1 - tx0) * (ty1 - ty0);
+    const ratio = this.pixelRatio, width = Math.ceil((this.W+2)*ratio)/ratio,
+      height = Math.ceil((this.H+2)*ratio)/ratio;
+    // Scroll only by whole backing pixels; fractional motion is applied once at presentation.
+    const cam = {...game.camera, x:Math.floor(game.camera.x * ratio) / ratio - 1,
+      y:Math.floor(game.camera.y * ratio) / ratio - 1};
+    const bounds = this._tileViewport(cam);
+    const {tx0, tx1, ty0, ty1} = bounds;
     const terrain = typeof SCULPTED_WORLD !== 'undefined' && SCULPTED_WORLD.ready ? SCULPTED_WORLD.terrain : null;
     const cache = this._groundCache;
-    let changed = !cache || cache.game !== game || cache.terrain !== terrain ||
-      cache.x !== cam.x || cache.y !== cam.y || cache.zoom !== cam.zoom ||
+    const fresh = !cache || cache.game !== game || cache.terrain !== terrain || cache.zoom !== cam.zoom ||
       cache.width !== this.W || cache.height !== this.H || cache.ratio !== this.pixelRatio;
-    const states = cache?.states.length === count ? cache.states : new Uint16Array(count);
-    // Exact visible tile/fog comparison keeps the cache valid as exploration changes.
+    const dx = fresh ? 0 : Math.round((cache.x-cam.x)*ratio)/ratio,
+      dy = fresh ? 0 : Math.round((cache.y-cam.y)*ratio)/ratio;
+    const full = fresh || Math.abs(dx) >= width || Math.abs(dy) >= height;
+    const dirty = {columns:Math.ceil(width / 128), rows:Math.ceil(height / 128), width, height};
+    dirty.cells = new Uint8Array(dirty.columns * dirty.rows);
+    dirty.changed = full;
+    if (full) dirty.cells.fill(1);
+    else {
+      if (dx) this._markGroundDirty(dirty, dx > 0 ? 0 : width + dx, 0, Math.abs(dx), height);
+      if (dy) this._markGroundDirty(dirty, 0, dy > 0 ? 0 : height + dy, width, Math.abs(dy));
+    }
+    const states = new Uint16Array((tx1-tx0) * (ty1-ty0));
     let n = 0;
     for (let ty = ty0; ty < ty1; ty++) for (let tx = tx0; tx < tx1; tx++) {
       const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
       const value = inMap ? game.tiles[ty][tx] | (game.tileExplored(tx, ty) ? 256 : 0) |
         (game.tileVisible(tx, ty) ? 512 : 0) : 1024;
-      if (states[n] !== value) changed = true;
+      const previous = !fresh && tx >= cache.bounds.tx0 && tx < cache.bounds.tx1 &&
+        ty >= cache.bounds.ty0 && ty < cache.bounds.ty1
+        ? cache.states[(ty-cache.bounds.ty0)*(cache.bounds.tx1-cache.bounds.tx0)+tx-cache.bounds.tx0] : -1;
+      if (!full && previous !== value) {
+        const p = worldToScreen(tx*TILE, ty*TILE, cam);
+        this._markGroundDirty(dirty, p.x-32*cam.zoom-2, p.y-2, 64*cam.zoom+4, 32*cam.zoom+4);
+      }
       states[n++] = value;
     }
-    if (changed) {
-      const layer = this._groundLayer ??= document.createElement('canvas');
-      if (layer.width !== this.canvas.width || layer.height !== this.canvas.height) {
-        layer.width = this.canvas.width; layer.height = this.canvas.height;
-      }
-      const ground = layer.getContext('2d');
-      ground.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
-      ground.clearRect(0, 0, this.W, this.H);
-      this._paintTiles(ground, game, bounds);
-      if (terrain?.nightImage) {
-        const nightLayer = this._nightGroundLayer ??= document.createElement('canvas');
-        if (nightLayer.width !== layer.width || nightLayer.height !== layer.height) {nightLayer.width = layer.width; nightLayer.height = layer.height;}
-        const nightGround = nightLayer.getContext('2d');
-        nightGround.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
-        nightGround.clearRect(0, 0, this.W, this.H);
-        this._paintTiles(nightGround, game, bounds, true);
-        const blend = this._groundBlend ??= {revision: 0};
-        Object.assign(blend, {image: layer, nightImage: nightLayer, revision: blend.revision + 1});
-      }
-      this._groundCache = { game, terrain, states, x:cam.x, y:cam.y, zoom:cam.zoom,
-        width:this.W, height:this.H, ratio:this.pixelRatio };
+    const darkness = terrain?.nightImage ? game.darkness() : 0;
+    const frame = {cam, bounds, dirty, width, height, dx, dy};
+    let dayReady = !full && cache.dayReady, nightReady = !full && cache.nightReady;
+    let revision = this._groundRevision ?? 0;
+    if (darkness < 1) {
+      if (!dayReady || dirty.changed) revision++;
+      this._paintGroundLayer('_groundLayer', game, frame, false, dayReady);
+      dayReady = true;
+    } else if (dirty.changed) dayReady = false;
+    if (darkness > 0) {
+      if (!nightReady || dirty.changed) revision++;
+      this._paintGroundLayer('_nightGroundLayer', game, frame, true, nightReady);
+      nightReady = true;
+    } else if (dirty.changed) nightReady = false;
+    if (darkness > 0 && darkness < 1) {
+      const blend = this._groundBlend ??= {};
+      Object.assign(blend, {image:this._groundLayer, nightImage:this._nightGroundLayer, revision});
     }
+    this._groundRevision = revision;
+    this._groundCache = {game, terrain, states, bounds, x:cam.x, y:cam.y, zoom:cam.zoom,
+      width:this.W, height:this.H, ratio, dayReady, nightReady, revision};
     ctx.save(); ctx.imageSmoothingEnabled = false;
-    const groundImage = terrain?.nightImage ? worldArtworkImage(this._groundBlend, game.darkness()) : this._groundLayer;
-    ctx.drawImage(groundImage, 0, 0, this.W, this.H);
+    const groundImage = darkness <= 0 ? this._groundLayer : darkness >= 1 ? this._nightGroundLayer
+      : worldArtworkImage(this._groundBlend, darkness);
+    ctx.drawImage(groundImage, cam.x-game.camera.x, cam.y-game.camera.y, width, height);
     ctx.restore();
   }
 
-  _paintTiles(ctx, game, { tx0, tx1, ty0, ty1 }, night = false) {
-    const cam = game.camera, z = cam.zoom;
+  _markGroundDirty(dirty, x, y, width, height) {
+    if (x >= dirty.width || y >= dirty.height || x+width <= 0 || y+height <= 0) return;
+    const x0 = Math.max(0, Math.floor(x/128)), x1 = Math.min(dirty.columns-1, Math.floor((x+width)/128));
+    const y0 = Math.max(0, Math.floor(y/128)), y1 = Math.min(dirty.rows-1, Math.floor((y+height)/128));
+    for (let row=y0; row<=y1; row++) for (let col=x0; col<=x1; col++) dirty.cells[row*dirty.columns+col]=1;
+    dirty.changed = true;
+  }
+
+  _groundTileDirty(dirty, x, y, width, height) {
+    const x0=Math.max(0,Math.floor(x/128)), x1=Math.min(dirty.columns-1,Math.floor((x+width)/128));
+    const y0=Math.max(0,Math.floor(y/128)), y1=Math.min(dirty.rows-1,Math.floor((y+height)/128));
+    for (let row=y0; row<=y1; row++) for (let col=x0; col<=x1; col++) {
+      if (dirty.cells[row*dirty.columns+col]) return true;
+    }
+    return false;
+  }
+
+  _paintGroundLayer(field, game, frame, night, valid) {
+    const {width, height, cam, bounds, dirty, dx, dy} = frame;
+    if (valid && !dirty.changed) return;
+    const physicalWidth=Math.ceil(width*this.pixelRatio), physicalHeight=Math.ceil(height*this.pixelRatio);
+    let layer = this[field] ??= document.createElement('canvas');
+    if (layer.width !== physicalWidth || layer.height !== physicalHeight) {
+      layer.width=physicalWidth; layer.height=physicalHeight; valid=false;
+    }
+    if (valid && (dx || dy)) {
+      const next = this._groundScratch ??= document.createElement('canvas');
+      if (next.width !== physicalWidth || next.height !== physicalHeight) {next.width=physicalWidth;next.height=physicalHeight;}
+      const copy=next.getContext('2d');
+      copy.setTransform(this.pixelRatio,0,0,this.pixelRatio,0,0);
+      copy.clearRect(0,0,width,height); copy.imageSmoothingEnabled=false;
+      copy.drawImage(layer,dx,dy,width,height);
+      this[field]=next; this._groundScratch=layer; layer=next;
+    }
+    const ground=layer.getContext('2d');
+    ground.setTransform(this.pixelRatio,0,0,this.pixelRatio,0,0);
+    ground.imageSmoothingEnabled=true;
+    if (valid) {
+      ground.save(); ground.beginPath();
+      for (let row=0; row<dirty.rows; row++) for (let col=0; col<dirty.columns; col++) {
+        if (!dirty.cells[row*dirty.columns+col]) continue;
+        ground.clearRect(col*128,row*128,128,128);
+        ground.rect(col*128,row*128,128,128);
+      }
+      ground.clip();
+      this._paintTiles(ground,game,bounds,night,cam,dirty);
+      ground.restore();
+    } else {
+      ground.clearRect(0,0,width,height);
+      this._paintTiles(ground,game,bounds,night,cam);
+    }
+  }
+
+  _paintTiles(ctx, game, { tx0, tx1, ty0, ty1 }, night = false, cam = game.camera, dirty = null) {
+    const z = cam.zoom;
 
     const w = 64 * z, h = 32 * z;
     for (let ty = ty0; ty < ty1; ty++) {
@@ -195,6 +268,7 @@ class Renderer {
         const inMap = tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
         const shade = (((tx + ty) % 2) + 2) % 2;
         const s = worldToScreen(tx * TILE, ty * TILE, cam);
+        if (dirty && !this._groundTileDirty(dirty,s.x-w/2-1,s.y-1,w+2,h+2)) continue;
         if (!inMap) {
           ctx.drawImage(this._tileSprites.waste[shade], s.x - w / 2, s.y, w, h);
           continue;
@@ -235,6 +309,13 @@ class Renderer {
   _drawEntities(ctx, game) {
     const drawables = [];
     this._unitDepths = new Map();
+    this._occlusionUnits = [];
+    this._depthObstacles = [
+      ...game.buildings.filter(b => !b.dead).map(b => ({...buildingGroundRect(b.type, b.tileX, b.tileY),
+        key:(b.tileX + b.tileY + 2 * b.def.tileSize) * TILE})),
+      ...game.caches.map(c => ({left:c.tileX*TILE, top:c.tileY*TILE,
+        right:(c.tileX+1)*TILE, bottom:(c.tileY+1)*TILE, key:(c.tileX+c.tileY+2)*TILE})),
+    ];
     for (const c of game.caches) {
       if (!game.tileExplored(c.tileX, c.tileY)) continue;
       drawables.push({ key: (c.tileX + 1) * TILE + (c.tileY + 1) * TILE,
@@ -252,6 +333,7 @@ class Renderer {
       if (!this._actorOnScreen(game, u)) continue;
       const key = this._unitDrawKey(game, u);
       this._unitDepths.set(u, key);
+      this._occlusionUnits.push(this._occlusionUnit(game, u, key));
       drawables.push({ key, draw: () => this._drawUnit(ctx, game, u) });
     }
     for (const v of game.vehicles) {
@@ -267,6 +349,8 @@ class Renderer {
     drawables.sort((a, b) => a.key - b.key);
     for (const d of drawables) d.draw();
     this._unitDepths = null;
+    this._occlusionUnits = null;
+    this._depthObstacles = null;
   }
 
   _actorOnScreen(game, actor) {
@@ -288,14 +372,15 @@ class Renderer {
       return (u.x >= x1 && u.x <= x1 + TILE && u.y >= y0 - r && u.y <= y1 + r) ||
         (u.y >= y1 && u.y <= y1 + TILE && u.x >= x0 - r && u.x <= x1 + r);
     };
-    for (const b of game.buildings) {
-      if (!b.dead && inFrontOf(buildingGroundRect(b.type, b.tileX, b.tileY))) {
-        key = Math.max(key, (b.tileX + b.def.tileSize + b.tileY + b.def.tileSize) * TILE + 0.1);
-      }
-    }
-    for (const c of game.caches) {
-      if (inFrontOf({left:c.tileX*TILE,top:c.tileY*TILE,right:(c.tileX+1)*TILE,bottom:(c.tileY+1)*TILE})) {
-        key = Math.max(key, (c.tileX + c.tileY + 2) * TILE + 0.1);
+    const obstacles = this._depthObstacles ?? [
+      ...game.buildings.filter(b => !b.dead).map(b => ({...buildingGroundRect(b.type, b.tileX, b.tileY),
+        key:(b.tileX + b.tileY + 2*b.def.tileSize)*TILE})),
+      ...game.caches.map(c => ({left:c.tileX*TILE,top:c.tileY*TILE,
+        right:(c.tileX+1)*TILE,bottom:(c.tileY+1)*TILE,key:(c.tileX+c.tileY+2)*TILE})),
+    ];
+    for (const obstacle of obstacles) {
+      if (inFrontOf(obstacle)) {
+        key = Math.max(key, obstacle.key + 0.1);
       }
     }
     return key;
@@ -309,42 +394,49 @@ class Renderer {
     const y0 = Math.max(0, Math.floor(Math.min(...corners.map(p => p.y)) / TILE));
     const x1 = Math.min(MAP_W, Math.ceil(Math.max(...corners.map(p => p.x)) / TILE));
     const y1 = Math.min(MAP_H, Math.ceil(Math.max(...corners.map(p => p.y)) / TILE));
-    const hq = game.buildings.find(b => b.type === 'hq');
-    for (let ty = y0; ty < y1; ty++) for (let tx = x0; tx < x1; tx++) {
-      if (!game.tileExplored(tx, ty) || game.tiles[ty][tx] !== TILE_GRASS) continue;
-      const hash = Math.imul(tx + 17, 73856093) ^ Math.imul(ty + 31, 19349663);
-      const seed = (hash >>> 0) % 1000;
-      const away = !hq || Math.hypot(tileCenterX(tx) - hq.x, tileCenterY(ty) - hq.y) > TILE * 10;
-      const kind = away && seed < 70 ? 'pine' : seed >= 70 && seed < 98 ? 'bush' : seed >= 98 && seed < 109 ? 'rock' : null;
-      if (!kind) continue;
-      const clearance = kind === 'pine' ? 1 : 0;
-      if (game.buildings.some(b => !b.dead && tx >= b.tileX - clearance && ty >= b.tileY - clearance &&
-          tx < b.tileX + b.def.tileSize + clearance && ty < b.tileY + b.def.tileSize + clearance) ||
-          game.caches.some(c => Math.abs(c.tileX - tx) <= clearance && Math.abs(c.tileY - ty) <= clearance)) continue;
-      const x = tileCenterX(tx), y = tileCenterY(ty), key = x + y;
+    const layout = game.buildings.map(b => `${b.type},${b.tileX},${b.tileY},${+b.dead}`).join(';') + '|' +
+      game.caches.map(c => `${c.tileX},${c.tileY}`).join(';');
+    if (this._environment?.game !== game || this._environment.tiles !== game.tiles || this._environment.layout !== layout) {
+      const props = [], hq = game.buildings.find(b => b.type === 'hq');
+      for (let ty = 0; ty < MAP_H; ty++) for (let tx = 0; tx < MAP_W; tx++) {
+        if (game.tiles[ty][tx] !== TILE_GRASS) continue;
+        const hash = Math.imul(tx + 17, 73856093) ^ Math.imul(ty + 31, 19349663);
+        const seed = (hash >>> 0) % 1000;
+        const away = !hq || Math.hypot(tileCenterX(tx) - hq.x, tileCenterY(ty) - hq.y) > TILE * 10;
+        const kind = away && seed < 70 ? 'pine' : seed >= 70 && seed < 98 ? 'bush' : seed >= 98 && seed < 109 ? 'rock' : null;
+        if (!kind) continue;
+        const clearance = kind === 'pine' ? 1 : 0;
+        if (game.buildings.some(b => !b.dead && tx >= b.tileX - clearance && ty >= b.tileY - clearance &&
+            tx < b.tileX + b.def.tileSize + clearance && ty < b.tileY + b.def.tileSize + clearance) ||
+            game.caches.some(c => Math.abs(c.tileX - tx) <= clearance && Math.abs(c.tileY - ty) <= clearance)) continue;
+        const x = tileCenterX(tx), y = tileCenterY(ty);
+        props.push({tx, ty, kind, x, y, key:x+y});
+      }
+      this._environment = {game, tiles:game.tiles, layout, props};
+    }
+    for (const {tx, ty, kind, x, y, key} of this._environment.props) {
+      if (tx < x0 || tx >= x1 || ty < y0 || ty >= y1 || !game.tileExplored(tx, ty)) continue;
       const record = sculptedObject(kind), foot = worldToScreen(x, y, cam), rect = sculptedObjectRect(record, foot, cam.zoom);
       if (rect.x + rect.width < 0 || rect.y + rect.height < 0 || rect.x > this.W || rect.y > this.H) continue;
       drawables.push({ key, draw: () => {
-        ctx.save();
+        const alpha = ctx.globalAlpha;
         ctx.globalAlpha = (game.tileVisible(tx, ty) ? 1 : .55) * this._unitOcclusionAlpha(game, [], key, record, rect);
         ctx.imageSmoothingEnabled = record.imageSmoothing; ctx.imageSmoothingQuality = record.imageSmoothingQuality;
         ctx.drawImage(record.nightImage ? worldArtworkImage(record, game.darkness()) : record.image, rect.x, rect.y, rect.width, rect.height);
-        ctx.restore();
+        ctx.globalAlpha = alpha;
       } });
     }
   }
 
-  _unitOcclusionAlpha(game, poly, drawKey, bitmap = null, rect = null) {
+  _occlusionUnit(game, u, key) {
     const cam = game.camera;
-    for (const u of game.units) {
-      if (u.dead || u.vehicle || (this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)) >= drawKey) continue;
-
-      const s = worldToScreen(u.x, u.y, cam);
-      const actor = sculptedActor(u.type);
-      const r = Math.max(4, u.def.radius * cam.zoom * (actor ? .5 : 1));
-      const bodyY = s.y - (actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .5 : r * 1.2);
-      const ry = actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .3 : r * .7;
-      const samples = [
+    const s = worldToScreen(u.x, u.y, cam);
+    const actor = sculptedActor(u.type);
+    const r = Math.max(4, u.def.radius * cam.zoom * (actor ? .5 : 1));
+    const bodyY = s.y - (actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .5 : r * 1.2);
+    const ry = actor ? actor.metadata.bodyHeight * actor.metadata.renderScale * cam.zoom * .3 : r * .7;
+    return {key, left:s.x-r, right:s.x+r, top:bodyY-ry, bottom:bodyY+ry,
+      samples: [
         [s.x, bodyY],
         [s.x - r * 0.7, bodyY],
         [s.x + r * 0.7, bodyY],
@@ -354,9 +446,23 @@ class Renderer {
         [s.x + r * 0.5, bodyY - ry * .7],
         [s.x - r * 0.5, bodyY + ry * .7],
         [s.x + r * 0.5, bodyY + ry * .7],
-      ];
-      const covered = samples.filter(([x, y]) => bitmap ? sculptedObjectHit(bitmap, rect, x, y) : pointInPolygon(x, y, poly)).length;
-      if (covered > samples.length / 2) return 0.42;
+      ]};
+  }
+
+  _unitOcclusionAlpha(game, poly, drawKey, bitmap = null, rect = null) {
+    const units = this._occlusionUnits ?? game.units.filter(u => !u.dead && !u.vehicle)
+      .map(u => this._occlusionUnit(game, u, this._unitDepths?.get(u) ?? this._unitDrawKey(game, u)));
+    const bounds = rect ?? {x:Math.min(...poly.map(p => p.x)), y:Math.min(...poly.map(p => p.y)),
+      width:Math.max(...poly.map(p => p.x))-Math.min(...poly.map(p => p.x)),
+      height:Math.max(...poly.map(p => p.y))-Math.min(...poly.map(p => p.y))};
+    for (const u of units) {
+      if (u.key >= drawKey || u.right < bounds.x || u.left > bounds.x + bounds.width ||
+          u.bottom < bounds.y || u.top > bounds.y + bounds.height) continue;
+      let covered = 0;
+      for (const [x, y] of u.samples) {
+        if (bitmap ? sculptedObjectHit(bitmap, rect, x, y) : pointInPolygon(x, y, poly)) covered++;
+      }
+      if (covered > u.samples.length / 2) return 0.42;
     }
     return 1;
   }
@@ -401,9 +507,9 @@ class Renderer {
       ctx.globalAlpha *= occlusionAlpha;
     }
     if (artwork) {
-      ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
-      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height);
     } else {
     face(E, S, shadeColor(def.color, 0.72)); // sun-side face
     face(S, W, shadeColor(def.color, 0.52)); // shade-side face
@@ -476,10 +582,12 @@ class Renderer {
       ctx.globalAlpha *= occlusionAlpha;
     }
     if (artwork) {
-      ctx.save(); ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      const alpha = ctx.globalAlpha;
+      ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
       if (c.empty) ctx.globalAlpha *= .45;
-      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height); ctx.restore();
+      ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height);
+      ctx.globalAlpha = alpha;
     } else {
     face(E, S, shadeColor(base, 0.72));
     face(S, W, shadeColor(base, 0.52));
@@ -646,12 +754,12 @@ class Renderer {
     const r = visualRadius * z;
     this._groundEllipse(ctx, s, visualRadius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
-    ctx.save();
+    const alpha = ctx.globalAlpha;
     ctx.globalAlpha = zb.dormant ? .43 : 1;
     this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, zb, game.gameTime), s, z);
     top = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z;
     by = s.y - artwork.metadata.bodyHeight * artwork.metadata.renderScale * z * .5;
-    ctx.restore();
+    ctx.globalAlpha = alpha;
     if (zb.dormant) return;
 
     if (zb.burning) {
@@ -679,11 +787,48 @@ class Renderer {
 
   _drawActorSprite(ctx, record, frame, foot, zoom) {
     const scale = record.metadata.renderScale * zoom, anchor = record.metadata.footAnchor;
-    ctx.save(); ctx.imageSmoothingEnabled = record.imageSmoothing;
-    ctx.imageSmoothingQuality = record.imageSmoothingQuality;
-    ctx.drawImage(record.image, frame.x, frame.y, frame.width, frame.height,
+    const ratio = this.pixelRatio || 1;
+    if (this._actorRasterZoom !== zoom || this._actorRasterRatio !== ratio) {
+      this._actorRasters = new Map(); this._actorRasterPixels = 0;
+      this._actorRasterZoom = zoom; this._actorRasterRatio = ratio;
+    }
+    this._actorRecordIds ??= new WeakMap();
+    let recordId = this._actorRecordIds.get(record);
+    if (recordId === undefined) {
+      recordId = this._actorRecordId = (this._actorRecordId || 0) + 1;
+      this._actorRecordIds.set(record,recordId);
+    }
+    const width = Math.max(1, Math.ceil(frame.width * scale * ratio));
+    const height = Math.max(1, Math.ceil(frame.height * scale * ratio));
+    const key = `${recordId},${frame.x},${frame.y},${frame.width},${frame.height},${width},${height}`;
+    const limit = 6 * 1024 * 1024; // 24 MiB of RGBA pixels, independent of army size.
+    if (width * height > limit) {
+      ctx.imageSmoothingEnabled = record.imageSmoothing;
+      ctx.imageSmoothingQuality = record.imageSmoothingQuality;
+      ctx.drawImage(record.image, frame.x, frame.y, frame.width, frame.height,
+        foot.x-anchor.x*scale, foot.y-anchor.y*scale, frame.width*scale, frame.height*scale);
+      return;
+    }
+    let raster = this._actorRasters.get(key);
+    if (raster) this._actorRasters.delete(key);
+    else {
+      const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+      const paint = canvas.getContext('2d');
+      paint.imageSmoothingEnabled = record.imageSmoothing; paint.imageSmoothingQuality = record.imageSmoothingQuality;
+      paint.drawImage(record.image,frame.x,frame.y,frame.width,frame.height,0,0,width,height);
+      while (this._actorRasters.size && this._actorRasterPixels + width*height > limit) {
+        const oldest = this._actorRasters.keys().next().value;
+        const evicted = this._actorRasters.get(oldest);
+        this._actorRasterPixels -= evicted.width * evicted.height;
+        this._actorRasters.delete(oldest);
+      }
+      raster = canvas; this._actorRasterPixels += width*height;
+    }
+    this._actorRasters.set(key,raster);
+    ctx.imageSmoothingEnabled = record.imageSmoothing;
+    ctx.imageSmoothingQuality = 'low'; // Already filtered once at the display's backing resolution.
+    ctx.drawImage(raster,
       foot.x - anchor.x * scale, foot.y - anchor.y * scale, frame.width * scale, frame.height * scale);
-    ctx.restore();
   }
 
   _drawThreatEffects(ctx, game) {

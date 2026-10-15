@@ -862,7 +862,7 @@ class Unit {
     this._faceMotion(target.x - this.x, target.y - this.y);
     if (this.type === 'heavy') {
       const vx = target.x - this.x, vy = target.y - this.y;
-      for (const z of game.zombies) {
+      for (const z of game.nearbyZombies(this.x, this.y, HEAVY_SWING_RADIUS)) {
         if (z.dead || z.dormant || dist2(this.x, this.y, z.x, z.y) > HEAVY_SWING_RADIUS ** 2) continue;
         if ((z.x - this.x) * vx + (z.y - this.y) * vy < 0) continue;
         z.takeDamage(this.def.atkDmg);
@@ -1268,7 +1268,7 @@ class Zombie {
     let nx = dx / d, ny = dy / d;
 
     // Separation from other zombies while chasing a specific unit
-    for (const z of game.zombies) {
+    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22))) {
       if (z === this || z.dead) continue;
       const sdx = this.x - z.x, sdy = this.y - z.y;
       const sd = Math.sqrt(sdx*sdx + sdy*sdy);
@@ -1282,8 +1282,8 @@ class Zombie {
     const len = Math.sqrt(nx*nx + ny*ny);
     if (len > 0) { nx /= len; ny /= len; }
 
-    if (!game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
-      ny * game.zombieSpeed(this) * dt)) this._flowMove(dt, game);
+    const step = game.zombieSpeed(this) * dt;
+    if (!game.moveGroundEntity(this, nx * step, ny * step)) this._flowMove(dt, game);
   }
 
   _flowMove(dt, game) {
@@ -1313,7 +1313,7 @@ class Zombie {
     if (nx === 0 && ny === 0) return;
 
     // Separation from other zombies
-    for (const z of game.zombies) {
+    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22))) {
       if (z === this || z.dead) continue;
       const sdx = this.x - z.x, sdy = this.y - z.y;
       const sd = Math.sqrt(sdx*sdx + sdy*sdy);
@@ -1327,7 +1327,7 @@ class Zombie {
     const len = Math.sqrt(nx*nx + ny*ny);
     if (len > 0) { nx /= len; ny /= len; }
 
-    game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
-      ny * game.zombieSpeed(this) * dt);
+    const step = game.zombieSpeed(this) * dt;
+    game.moveGroundEntity(this, nx * step, ny * step);
   }
 }
