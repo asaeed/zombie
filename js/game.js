@@ -32,6 +32,9 @@ class Game {
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
     this.toasts      = [];   // {text, kind, t, life} — attention messages
     this._toastLast  = {};
+    this.activity = [];
+    this._activityLast = {};
+    this.stats = { zombiesKilled: 0, humansLost: 0, buildingsDestroyed: 0, suppliesSpent: 0 };
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
     this.flares      = [];   // {x, y, t} — thrown flare: light + fire source
@@ -96,6 +99,8 @@ class Game {
       fogTimer: this._fogTimer,
       supplies: this.supplies,
       score: this.score,
+      stats: { ...this.stats },
+      activity: this.activity.map(event => ({ ...event })),
       waveNum: this.waveNum,
       waveTimer: this.waveTimer,
       waveActive: this.waveActive,
@@ -113,7 +118,7 @@ class Game {
       selectedBuildingId: targetId(this._selectedBuilding),
       buildings: this.buildings.map(b => ({
         id: b.id, type: b.type, tileX: b.tileX, tileY: b.tileY,
-        hp: b.hp, dead: b.dead, atkCooldown: b.atkCooldown,
+        hp: b.hp, dead: b.dead, deathHandled: !!b._deathHandled, atkCooldown: b.atkCooldown,
         atkTargetId: targetId(b.atkTarget),
         trainQueue: [...b.trainQueue], trainProgress: b.trainProgress,
         vehicleQueue: b.vehicleQueue, vehicleProgress: b.vehicleProgress,
@@ -121,11 +126,13 @@ class Game {
       })),
       vehicles: this.vehicles.map(v => ({
         id: v.id, type: v.type, x: v.x, y: v.y, hp: v.hp, dead: v.dead,
+        deathHandled: !!v._deathHandled,
         passengerIds: v.passengers.map(u => u.id),
         waypoints: v.waypoints.map(point), moveTarget: point(v.moveTarget),
       })),
       units: this.units.map(u => ({
         id: u.id, type: u.type, x: u.x, y: u.y, hp: u.hp, maxHp: u.maxHp, dead: u.dead,
+        deathHandled: !!u._deathHandled,
         selected: u.selected, atkCooldown: u.atkCooldown,
         atkTargetId: targetId(u.atkTarget), moveTarget: point(u.moveTarget),
         waypoints: u.waypoints.map(point), attackMove: u.attackMove,
@@ -148,6 +155,7 @@ class Game {
       })),
       zombies: this.zombies.map(z => ({
         id: z.id, type: z.type, x: z.x, y: z.y, hp: z.hp, dead: z.dead,
+        deathHandled: !!z._deathHandled,
         atkTargetId: targetId(z.atkTarget), atkCooldown: z.atkCooldown,
         maxHp: z.maxHp, dormant: z.dormant, burnTime: z.burnTime, burnMax: z.burnMax,
         burnParticleTimer: z._burnParticleTimer, shriekCooldown: z.shriekCooldown,
@@ -198,6 +206,16 @@ class Game {
 
     game.supplies = data.supplies ?? STARTING_SUPPLIES;
     game.score = data.score ?? 0;
+    for (const key of Object.keys(game.stats)) {
+      const value = data.stats?.[key];
+      if (Number.isFinite(value)) game.stats[key] = Math.max(0, Math.floor(value));
+    }
+    game.activity = (Array.isArray(data.activity) ? data.activity : []).filter(event =>
+      event && typeof event.text === 'string' && Number.isFinite(event.time)
+    ).slice(-40).map(event => ({
+      text: event.text.slice(0, 180), time: Math.max(0, event.time),
+      kind: ['info', 'warning', 'danger', 'success'].includes(event.kind) ? event.kind : 'info',
+    }));
     game.waveNum = data.waveNum ?? 0;
     game.waveTimer = data.waveTimer ?? FIRST_WAVE_DELAY;
     game.waveActive = !!data.waveActive;
@@ -220,6 +238,7 @@ class Game {
       b.id = s.id;
       b.hp = s.hp ?? b.maxHp;
       b.dead = !!s.dead;
+      b._deathHandled = !!s.deathHandled;
       b.atkCooldown = s.atkCooldown ?? 0;
       b.trainQueue = [...(s.trainQueue || [])].filter(type => UNIT_DEFS[type]);
       b.trainProgress = s.trainProgress ?? 0;
@@ -258,6 +277,7 @@ class Game {
       u.hp = s.hp ?? savedMaxHp;
       if (savedMaxHp !== u.maxHp) u.hp = clamp(u.hp / savedMaxHp, 0, 1) * u.maxHp;
       u.dead = !!s.dead;
+      u._deathHandled = !!s.deathHandled;
       u.selected = false;
       u.atkCooldown = s.atkCooldown ?? 0;
       u.moveTarget = copyPoint(s.moveTarget);
@@ -294,6 +314,7 @@ class Game {
       v.id = s.id;
       v.hp = s.hp ?? v.maxHp;
       v.dead = !!s.dead;
+      v._deathHandled = !!s.deathHandled;
       v.waypoints = (s.waypoints || []).map(copyPoint).filter(Boolean);
       v.moveTarget = copyPoint(s.moveTarget);
       v._savePassengerIds = s.passengerIds || [];
@@ -307,6 +328,7 @@ class Game {
       const savedMaxHp = s.maxHp ?? z.maxHp;
       z.hp = s.dead ? 0 : Math.max(1, Math.round(clamp((s.hp ?? savedMaxHp) / savedMaxHp, 0, 1) * z.maxHp));
       z.dead = !!s.dead;
+      z._deathHandled = !!s.deathHandled;
       z.atkCooldown = s.atkCooldown ?? 0;
       z.dormant = !!s.dormant;
       z.burnTime = s.burnTime ?? 0;
@@ -529,15 +551,18 @@ class Game {
 
   placeBuilding(type, tileX, tileY) {
     if (!this.canPlaceBuilding(type, tileX, tileY)) return false;
-    this.supplies -= BUILDING_DEFS[type].cost;
+    this.spendSupplies(BUILDING_DEFS[type].cost);
     this._addBuilding(type, tileX, tileY);
+    this.addActivity(`${BUILDING_DEFS[type].name} constructed`, 'success');
     return true;
   }
 
   sellBuilding(building) {
-    if (building.type === 'hq') return;
+    if (building.dead || building.type === 'hq') return;
     this.addSupplies(Math.floor(BUILDING_DEFS[building.type].cost * 0.5));
     building.dead = true;
+    building._deathHandled = true;
+    this.addActivity(`${building.def.name} sold`);
     this.flowDirty = true;
   }
 
@@ -561,12 +586,31 @@ class Game {
     return added;
   }
 
+  spendSupplies(amount) {
+    if (!Number.isFinite(amount) || amount < 0 || this.supplies < amount) return false;
+    this.supplies -= amount;
+    this.stats.suppliesSpent += amount;
+    return true;
+  }
+
+  addActivity(text, kind = 'info', key = null, cooldown = 0) {
+    if (key !== null) {
+      const last = this._activityLast[key];
+      if (last != null && this.gameTime - last < cooldown) return false;
+      this._activityLast[key] = this.gameTime;
+    }
+    this.activity.push({ text, kind, time: this.gameTime });
+    if (this.activity.length > 40) this.activity.shift();
+    return true;
+  }
+
   addToast(text, kind = 'info', key = text, cooldown = 5) {
     const now = this.gameTime;
     if (this._toastLast[key] != null && now - this._toastLast[key] < cooldown) return false;
     this._toastLast[key] = now;
     this.toasts.push({ text, kind, t: 0, life: 4 });
     if (this.toasts.length > 5) this.toasts.shift();
+    this.addActivity(text, kind);
     return true;
   }
 
@@ -601,15 +645,34 @@ class Game {
     }
     const cost = def.cost;
     if (this.supplies < cost) return false;
-    this.supplies -= cost;
+    this.spendSupplies(cost);
     barracks.trainQueue.push(type);
     return true;
   }
 
   buildVehicle(bay) {
     if (!bay || bay.dead || bay.type !== 'mechanics' || this.supplies < VEHICLE_DEFS.suv.cost) return false;
-    this.supplies -= VEHICLE_DEFS.suv.cost;
+    this.spendSupplies(VEHICLE_DEFS.suv.cost);
     bay.vehicleQueue++;
+    return true;
+  }
+
+  cancelProduction(building, index) {
+    if (!building || building.dead || !Number.isInteger(index) || index < 0) return false;
+    let def;
+    if (building.type === 'barracks' && index < building.trainQueue.length) {
+      def = UNIT_DEFS[building.trainQueue[index]];
+      building.trainQueue.splice(index, 1);
+      if (index === 0) building.trainProgress = 0;
+    } else if (building.type === 'mechanics' && index < building.vehicleQueue) {
+      def = VEHICLE_DEFS.suv;
+      building.vehicleQueue--;
+      if (index === 0) building.vehicleProgress = 0;
+    } else return false;
+    // Return prepaid supplies in full, even if storage has filled since queuing.
+    this.supplies += def.cost;
+    this.stats.suppliesSpent = Math.max(0, this.stats.suppliesSpent - def.cost);
+    this.addActivity(`${def.name} canceled (+${def.cost} supplies)`);
     return true;
   }
 
@@ -752,17 +815,17 @@ class Game {
     for (const b of this.buildings) {
       if (b.dead) continue;
       const distance = this.distanceToBuilding(x, y, b);
-      if (distance < radius) b.takeDamage(damageAt(buildingDamage, distance));
+      if (distance < radius) this.damageEntity(b, damageAt(buildingDamage, distance));
     }
     for (const u of this.units) {
       if (u.dead || u.vehicle) continue;
       const distance = Math.max(0, dist(x, y, u.x, u.y) - u.def.radius);
-      if (distance < radius) u.takeDamage(damageAt(unitDamage, distance));
+      if (distance < radius) this.damageEntity(u, damageAt(unitDamage, distance));
     }
     for (const v of this.vehicles) {
       if (v.dead) continue;
       const distance = Math.max(0, dist(x, y, v.x, v.y) - v.def.radius);
-      if (distance < radius) v.takeDamage(damageAt(buildingDamage * 0.6, distance));
+      if (distance < radius) this.damageEntity(v, damageAt(buildingDamage * 0.6, distance));
     }
     this.threatEffects.push({ x, y, radius, kind: 'blast', t: 0, life: 0.55 });
     for (let i = 0; i < 16; i++) {
@@ -788,7 +851,7 @@ class Game {
       this.addToast('Flares can only be thrown onto explored ground', 'warning', 'flare-unexplored', 2);
       return false;
     }
-    this.supplies -= FLARE_COST;
+    this.spendSupplies(FLARE_COST);
     this.flareCooldown = FLARE_COOLDOWN;
     this.flares.push({ x: wx, y: wy, t: 0 });
     this.wakeDormantNear(wx, wy, FLARE_LIGHT_RADIUS * TILE);  // light wakes sleepers
@@ -1034,12 +1097,38 @@ class Game {
   }
 
   // ── Events ───────────────────────────────────────────────────────────────────
+  damageEntity(entity, amount, source) {
+    const hp = entity.hp;
+    entity.takeDamage(amount, source);
+    if (entity.hp >= hp) return;
+    if (entity.dead) {
+      this.onEntityDied(entity);
+    } else if (!(entity instanceof Zombie)) {
+      // Bound notices both per individual and per type during a crowded fight.
+      if (entity._lastAttackNotice != null && this.gameTime - entity._lastAttackNotice < 20) return;
+      if (this.addActivity(`${entity.def.name} is under attack`, 'warning', `attack-${entity.type}`, 5)) {
+        entity._lastAttackNotice = this.gameTime;
+      }
+    }
+  }
+
   onEntityDied(entity) {
-    if (entity._deathHandled) return;
+    if (!entity.dead || entity._deathHandled) return;
     entity._deathHandled = true;
     if (entity instanceof Zombie) {
       this.score += entity.def.reward * 10;
+      this.stats.zombiesKilled++;
+      if (!['walker', 'runner'].includes(entity.type)) {
+        this.addActivity(`${entity.def.name} eliminated`, 'success', `kill-${entity.type}`, 3);
+      }
+    } else if (entity instanceof Unit) {
+      this.stats.humansLost++;
+      this.addActivity(`${entity.def.name} has fallen`, 'danger');
+    } else if (entity instanceof Vehicle) {
+      this.addActivity(`${entity.def.name} destroyed`, 'danger');
     } else if (entity instanceof Building) {
+      this.stats.buildingsDestroyed++;
+      this.addActivity(`${entity.def.name} destroyed`, 'danger');
       this.flowDirty = true;
       for (const z of this.zombies) {
         if (z.atkTarget === entity) z.atkTarget = null;
@@ -1213,10 +1302,11 @@ class Game {
     this.spreadZombieFire();
 
     // Update projectiles (may kill zombies or buildings)
-    for (const p of this.projectiles) p.update(dt);
+    for (const p of this.projectiles) p.update(dt, this);
 
     for (const v of this.vehicles) {
       if (!v.dead) continue;
+      this.onEntityDied(v);
       this.disembarkVehicle(v);
       if (this.selectedVehicle === v) this.selectedVehicle = null;
       this.addToast('Armored truck destroyed: passengers escaped', 'warning', `suv-lost-${v.id}`, 0);
@@ -1249,6 +1339,7 @@ class Game {
 
     // Death-drop: dying units spill their carried supplies as a bundle
     for (const u of this.units) {
+      if (u.dead) this.onEntityDied(u);
       if (u.dead && u.carrying > 0) {
         this.bundles.push({ id: nextId(), x: u.x, y: u.y, amount: u.carrying });
         u.carrying = 0;

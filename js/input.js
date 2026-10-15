@@ -8,6 +8,8 @@ class InputHandler {
     this.menuOpen = false;
     this.menuNotice = null;
     this.saveMeta = { auto: null, slots: {} };
+    this._productionPage = 0;
+    this._productionBuilding = null;
 
     // Mouse state
     this.mouseX = 0;
@@ -186,6 +188,11 @@ class InputHandler {
         this.attackMoveArm = false;
         this.flareArm = false;
         this.canvas.style.cursor = '';
+        this._clickHandled = true;
+        return;
+      }
+      if (this._handleProductionQueueClick(e.clientX, e.clientY)) {
+        game.buildMode = null;
         this._clickHandled = true;
         return;
       }
@@ -735,6 +742,34 @@ class InputHandler {
       if (sx >= rc.x && sx <= rc.x + rc.w && sy >= rc.y && sy <= rc.y + rc.h) return rc.type;
     }
     return null;
+  }
+
+  productionPage(building) {
+    if (this._productionBuilding !== building) {
+      this._productionBuilding = building;
+      this._productionPage = 0;
+    }
+    return this._productionPage;
+  }
+
+  _handleProductionQueueClick(sx, sy) {
+    const b = this.game._selectedBuilding;
+    if (!b || b.dead || !['barracks', 'mechanics'].includes(b.type)) return false;
+    const layout = productionPopupLayout(b, this.game.camera, this.productionPage(b));
+    const inside = r => sx >= r.x && sx <= r.x + r.w && sy >= r.y && sy <= r.y + r.h;
+    if (!inside(layout.panel)) return false;
+    this._productionPage = layout.page;
+    for (const row of layout.queue) {
+      if (inside(row.cancel)) {
+        this.game.cancelProduction(b, row.index);
+        return true;
+      }
+    }
+    if (layout.pages > 1) {
+      if (inside(layout.previous)) this._productionPage = Math.max(0, layout.page - 1);
+      if (inside(layout.next)) this._productionPage = Math.min(layout.pages - 1, layout.page + 1);
+    }
+    return true;
   }
 
   // Hit-tests in screen space against the projected, raised body (renderer
