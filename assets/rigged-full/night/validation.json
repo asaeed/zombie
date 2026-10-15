@@ -89,6 +89,54 @@
       "height": 384,
       "alphaDifferences": 0,
       "litPixels": 0
+    },
+    "pine-2": {
+      "width": 324,
+      "height": 389,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 430933,
+      "cleared": 43219
+    },
+    "pine-3": {
+      "width": 528,
+      "height": 596,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 638974,
+      "cleared": 50834
+    },
+    "bush-2": {
+      "width": 264,
+      "height": 211,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 659479,
+      "cleared": 34131
+    },
+    "bush-3": {
+      "width": 201,
+      "height": 223,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 457085,
+      "cleared": 35133
+    },
+    "rock-2": {
+      "width": 252,
+      "height": 178,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 514447,
+      "cleared": 14289
+    },
+    "rock-3": {
+      "width": 241,
+      "height": 185,
+      "alphaDifferences": 0,
+      "litPixels": 0,
+      "occupied": 483967,
+      "cleared": 16074
     }
   },
   "palette": {

@@ -585727,7 +585727,12 @@
         "width": 80,
         "height": 109
       },
-      "nightImage": "night/pine.png"
+      "nightImage": "night/pine.png",
+      "variants": [
+        "pine",
+        "pine-2",
+        "pine-3"
+      ]
     },
     "bush": {
       "image": "world/bush.png",
@@ -585767,7 +585772,12 @@
         "width": 46,
         "height": 36
       },
-      "nightImage": "night/bush.png"
+      "nightImage": "night/bush.png",
+      "variants": [
+        "bush",
+        "bush-2",
+        "bush-3"
+      ]
     },
     "rock": {
       "image": "world/rock.png",
@@ -585807,7 +585817,210 @@
         "width": 41,
         "height": 34
       },
-      "nightImage": "night/rock.png"
+      "nightImage": "night/rock.png",
+      "variants": [
+        "rock",
+        "rock-2",
+        "rock-3"
+      ]
+    },
+    "pine-2": {
+      "image": "world/pine-2-r2.png",
+      "nightImage": "night/pine-2-r2.png",
+      "group": "decoration",
+      "width": 324,
+      "height": 389,
+      "displaySize": {
+        "width": 54,
+        "height": 64.83333333333333
+      },
+      "footAnchor": {
+        "x": 165.74943610923148,
+        "y": 376.5220588235294
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/pine-2.png",
+        "crop": {
+          "x": 215,
+          "y": 165,
+          "width": 816,
+          "height": 992
+        },
+        "sourceSize": {
+          "width": 1199,
+          "height": 1312
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 43219,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "3dbdb80d5007f21ee1d7247352dbe2df682ae8ac9c64c7d6c2ff20ef53234c7e"
+      }
+    },
+    "pine-3": {
+      "image": "world/pine-3.png",
+      "nightImage": "night/pine-3.png",
+      "group": "decoration",
+      "width": 528,
+      "height": 596,
+      "displaySize": {
+        "width": 88,
+        "height": 99.33333333333333
+      },
+      "footAnchor": {
+        "x": 301.17414825521365,
+        "y": 582.9565217391304
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/pine-3.png",
+        "crop": {
+          "x": 20,
+          "y": 151,
+          "width": 1035,
+          "height": 1173
+        },
+        "sourceSize": {
+          "width": 1074,
+          "height": 1464
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 50834,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "4d95bbd1ad06fe30b320248edd88c31298f38534f7ca1e11a2c7e4b1fbb183dc"
+      }
+    },
+    "bush-2": {
+      "image": "world/bush-2-r2.png",
+      "nightImage": "night/bush-2-r2.png",
+      "group": "decoration",
+      "width": 264,
+      "height": 211,
+      "displaySize": {
+        "width": 44,
+        "height": 35.166666666666664
+      },
+      "footAnchor": {
+        "x": 121.12268542309121,
+        "y": 198.51488616462348
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/bush-2.png",
+        "crop": {
+          "x": 148,
+          "y": 121,
+          "width": 1142,
+          "height": 888
+        },
+        "sourceSize": {
+          "width": 1417,
+          "height": 1110
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 34131,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "01a0ec27930ba3d9a6aa6cd0a2f9a2766f35514b9334d6524fc646952f2627fa"
+      }
+    },
+    "bush-3": {
+      "image": "world/bush-3.png",
+      "nightImage": "night/bush-3.png",
+      "group": "decoration",
+      "width": 201,
+      "height": 223,
+      "displaySize": {
+        "width": 33.5,
+        "height": 37.166666666666664
+      },
+      "footAnchor": {
+        "x": 104.94331158663883,
+        "y": 209.89687500000002
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/bush-3.png",
+        "crop": {
+          "x": 251,
+          "y": 90,
+          "width": 855,
+          "height": 960
+        },
+        "sourceSize": {
+          "width": 1355,
+          "height": 1161
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 35133,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "ea3c30901292a779ba0dd17c026bebd973caaf812a0e8f04638473b37e4faee2"
+      }
+    },
+    "rock-2": {
+      "image": "world/rock-2.png",
+      "nightImage": "night/rock-2.png",
+      "group": "decoration",
+      "width": 252,
+      "height": 178,
+      "displaySize": {
+        "width": 42,
+        "height": 29.666666666666668
+      },
+      "footAnchor": {
+        "x": 130.61364744596207,
+        "y": 165.29944547134934
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/rock-2.png",
+        "crop": {
+          "x": 157,
+          "y": 242,
+          "width": 1082,
+          "height": 728
+        },
+        "sourceSize": {
+          "width": 1376,
+          "height": 1143
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 14289,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "787eecb12bb5354067af6e6c47b4ac7b70c04193c876654bd9130c30be3a0cdd"
+      }
+    },
+    "rock-3": {
+      "image": "world/rock-3.png",
+      "nightImage": "night/rock-3.png",
+      "group": "decoration",
+      "width": 241,
+      "height": 185,
+      "displaySize": {
+        "width": 40.166666666666664,
+        "height": 30.833333333333332
+      },
+      "footAnchor": {
+        "x": 95.14138294732457,
+        "y": 171.93145161290326
+      },
+      "production": {
+        "source": "tools/scenery-variants/source/rock-3.png",
+        "crop": {
+          "x": 205,
+          "y": 218,
+          "width": 992,
+          "height": 735
+        },
+        "sourceSize": {
+          "width": 1376,
+          "height": 1143
+        },
+        "pixelsPerCSSPixel": 6,
+        "alphaThreshold": 96,
+        "cleared": 16074,
+        "method": "Authored raster silhouette, one high-quality reduction, ground-contact registration",
+        "sha256": "86e3349097d90f11364a8741ce58cb842be5005a38a5ded42df3d14bfaf65c31"
+      }
     }
   },
   "terrain": {

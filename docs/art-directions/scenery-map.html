@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" data-art-autoload="manual">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="../../">
+  <title>Dead Zone | Scenery Study</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="docs/art-directions/scenery-map.css?v=20261015-r2">
+  <script defer src="js/config.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/pathfinding.js"></script>
+  <script defer src="js/entities.js"></script>
+  <script defer src="js/game.js"></script>
+  <script defer src="js/art.js?v=20261015-scenery-r2"></script>
+  <script defer src="js/renderer.js"></script>
+  <script defer src="docs/art-directions/scenery-map.js?v=20261015-r2"></script>
+</head>
+<body>
+  <header>
+    <h1>Dead Zone <span>Scenery Study</span></h1>
+    <div class="controls">
+      <fieldset aria-label="Time of day">
+        <label><input type="radio" name="phase" value="0" checked><span>Day</span></label>
+        <label><input type="radio" name="phase" value="0.5"><span>Dusk</span></label>
+        <label><input type="radio" name="phase" value="1"><span>Night</span></label>
+      </fieldset>
+      <label class="labels"><input id="labels" type="checkbox" checked> Labels</label>
+      <div class="zoom">
+        <button id="zoom-out" title="Zoom out" aria-label="Zoom out">&#x2212;</button>
+        <output id="zoom-value">100%</output>
+        <button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+        <button id="fit" title="Fit map" aria-label="Fit map">&#x26F6;</button>
+      </div>
+    </div>
+  </header>
+  <main id="map">
+    <canvas id="sample" aria-label="Sample map with all three trees, bushes and rocks"></canvas>
+    <div id="loading" role="status"><span id="load-message">Loading artwork</span><progress id="progress" max="60" value="0"></progress><button id="retry" hidden>Retry</button></div>
+  </main>
+  <footer><ol id="legend"></ol></footer>
+</body>
+</html>

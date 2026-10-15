@@ -1,0 +1,61 @@
+{
+  "tool": "Built-in image_gen.imagegen; model identity not exposed",
+  "method": "Reference-guided original raster artwork, one isolated source per variant. Native-alpha extraction, one filtered reduction to six source pixels per CSS pixel, contact pivot registration. Night colors use the existing pixel-preserving nightColor pass.",
+  "rejected": "The first spreading bush and its edited candidate retained a soft colored halo. Both were rejected; the accepted replacement was generated fresh from the original bush reference. User feedback rejected the sparse adult pine and the flat spreading bush. Replaced them with a smaller dense young pine and a compact rounded bush; preserved the approved broad pine and all other versions.",
+  "assets": [
+    {
+      "id": "pine-2",
+      "fileStem": "pine-2-r2",
+      "family": "pine",
+      "maxWidth": 50,
+      "maxHeight": 62,
+      "reference": "assets/rigged-full/world/pine.png",
+      "prompt": "Use case: stylized-concept. A single new YOUNG PINE SAPLING for an isometric RTS game. The two supplied trees are the exact appearance references: retain their sculpted hand-painted brushwork, olive-green highlights, deep blue-green shadows, warm ochre-brown bark and upper-right lighting. This is a healthy younger, smaller tree, not a sparse damaged adult. Compact, dense and softly irregular conical crown, several full branch whorls down to near the ground, thin mostly concealed central trunk, only a short visible stem at the foot. No bare dead side branches, no long exposed trunk, no scraggly silhouette. Clearly juvenile proportions with a broad base relative to its short height. Orthographic isometric camera at 30 degree elevation, complete tree upright centered, bottom root contact visible, generous transparent margins. Broad crisp painted leaf masses, not tiny noisy needles, not smooth 3D, not pixel art. High-resolution master, useful object about 700-1000 pixels tall, intended to display at roughly 60-65 CSS pixels tall beside the 100-109 pixel adult trees. One isolated tree, genuine transparent alpha, no ground, grass, ground tile, cast shadow, glow, blur, aura, text, border or watermark.",
+      "references": [
+        "assets/rigged-full/world/pine.png",
+        "assets/rigged-full/world/pine-3.png"
+      ]
+    },
+    {
+      "id": "pine-3",
+      "family": "pine",
+      "maxWidth": 84,
+      "maxHeight": 96,
+      "reference": "assets/rigged-full/world/pine.png",
+      "prompt": "Use case: stylized-concept. Create one transparent evergreen tree game sprite, a sibling variant of the exact provided hand-painted isometric pine. New silhouette: a shorter, wider mature pine with a slightly crooked trunk and broad uneven spreading tiers, blunt irregular crown, one prominent thick branch toward the left, denser canopy than the reference but visible warm brown trunk near the base. Make its shape substantially distinct from a regular triangular Christmas tree. Preserve the reference's restrained olive highlights, blue-green shaded foliage, ochre-brown bark, large sculpted brush shapes, sharp silhouette and upper-right lighting. Orthographic game camera elevation 30 degrees. Complete tree centered with full roots at bottom center, generous transparent gutters, clean genuine alpha. One isolated tree only, no ground, ground tile, grass, shadow, background, labels or watermark. Do not add flowers, snow or colorful fruit. No photoreal fine texture or speckled grain. High resolution artwork suited for filtered display at about 85-100 CSS pixels tall."
+    },
+    {
+      "id": "bush-2",
+      "fileStem": "bush-2-r2",
+      "family": "bush",
+      "maxWidth": 40,
+      "maxHeight": 32,
+      "reference": "assets/rigged-full/world/bush.png",
+      "prompt": "Create ONE new rounded shrub sprite for an isometric game, using the supplied bush as the exact visual style, palette, camera and lighting reference. Replace a rejected flat spreading hedge with a clearly FULL, ROUND, THREE-DIMENSIONAL compact shrub. Shape: a plump asymmetric dome with two overlapping rounded foliage lobes of unequal height, the larger lobe on the left, a small shoulder on the right, and a short forked woody stem barely visible beneath the center. Nearly as tall as it is wide, NOT flat, NOT a long hedge, NOT a horizontal strip. Use broad sculpted hand-painted olive green leaf clusters with deep blue-green shaded left surfaces and restrained yellow-green upper-right highlights, matching the reference's brushwork and lighting. Orthographic 30 degree elevation camera, whole isolated object centered with generous transparent padding, ground contact at bottom center. Crisp antialiased leaf edges and genuine transparent background immediately outside the foliage. High-resolution master intended to display around 38-44 CSS pixels wide and 30-35 tall. No luminous halo, glow, aura, bloom, soft feathering, fog, blur, background gradient, cast shadow, ground, grass, flowers, berries, other objects, text, border or watermark."
+    },
+    {
+      "id": "bush-3",
+      "family": "bush",
+      "maxWidth": 36,
+      "maxHeight": 33,
+      "reference": "assets/rigged-full/world/bush.png",
+      "prompt": "Create a game-ready transparent shrub cutout using the supplied bush as the exact style reference. ONE new shrub: taller and narrower than the original, an irregular upright two-lobed foliage shape with a visible short forked woody stem at bottom center and a few asymmetrical protruding leafy sprigs. Distinct silhouette, not a duplicate. Preserve the reference hand-painted broad angular brush shapes, muted olive-green highlights on upper right and deep blue-green shaded left, brown stem, isometric orthographic 30 degree elevation camera. Sharp opaque painted leaves with crisp antialiased edges and fully transparent exterior. Complete subject centered with generous clear gutters. No glow, colored halo, mist, blur, drop shadow, ground, grass, flowers, berries, text or watermark. A compact natural shrub that reads at about 32-40 CSS pixels wide and 36-42 pixels tall; generate a high-resolution master."
+    },
+    {
+      "id": "rock-2",
+      "family": "rock",
+      "maxWidth": 38,
+      "maxHeight": 28,
+      "reference": "assets/rigged-full/world/rock.png",
+      "prompt": "Use the supplied transparent rock sprite as exact style, material, palette, lighting and orthographic isometric camera reference. Create ONE new distinct rock sprite: a single broad low weathered angular boulder, flattened top, sloped broken left face and one smaller integrated chipped shoulder on the right. Not the reference's three blocky stepped rock masses. Broad pale warm grey stone planes lit from upper right, cool blue-grey shadows left, restrained ochre cracks, painterly sculpted brushwork, crisp outlined silhouette, very limited tiny surface detail. Camera elevation 30 degrees. Whole boulder centered with ample transparent gutters, bottom ground-contact plane clearly defined. Genuine transparent background. No cast shadow, ground tile, gravel, grass, glow, blur, labels or watermark. High-resolution master suitable for a roughly 42 CSS pixel wide game prop."
+    },
+    {
+      "id": "rock-3",
+      "family": "rock",
+      "maxWidth": 36,
+      "maxHeight": 28,
+      "reference": "assets/rigged-full/world/rock.png",
+      "prompt": "Create one transparent game prop: a loose compact cluster of THREE small weathered stones, distinct from the reference's single joined stepped rock formation. A larger squat rounded-but-faceted stone at back left, medium oblong stone in front right and a small low wedge in front left, with small clear gaps separating their silhouettes while keeping a compact isometric footprint. Match the supplied reference exactly in painterly sculpted broad stone planes, warm pale grey lit upper-right faces, blue-grey left-side shadows, restrained ochre cracks and camera elevation 30 degrees. More rounded erosion and lower profile than the reference, but not smooth cartoon pebbles. One complete isolated cluster centered with ample transparent padding, genuine alpha. No ground patch, gravel, grass, cast ground shadow, ambient glow, blur, labels, borders or watermark. Clear broad material shapes with restrained surface detail; high-resolution master to display at about 38-44 CSS pixels wide."
+    }
+  ]
+}

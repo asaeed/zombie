@@ -64,11 +64,16 @@ function validateArtManifest(manifest) {
           !ART_DIRECTIONS.every(d => Array.isArray(clip.directions?.[d]) && clip.directions[d].length)) throw new Error(`Incomplete clip: ${id}/${action}`);
     }
   }
-  for (const id of objects) {
-    const meta = manifest.objects?.[id];
+  for (const id of objects) if (!manifest.objects?.[id]) throw new Error(`Incomplete object: ${id}`);
+  for (const [id, meta] of Object.entries(manifest.objects)) {
     if (!meta?.image || !anchor(meta) || !positive(meta.width) || !positive(meta.height) ||
         meta.displaySize && (!positive(meta.displaySize.width) || !positive(meta.displaySize.height))) throw new Error(`Incomplete object: ${id}`);
     if (manifest.nightVariants && !meta.nightImage) throw new Error(`Missing night artwork: ${id}`);
+    if (meta.variants !== undefined && (!Array.isArray(meta.variants) || meta.variants.length < 1 ||
+        meta.variants.length > 8 || meta.variants[0] !== id || new Set(meta.variants).size !== meta.variants.length ||
+        meta.variants.some(variant => !manifest.objects[variant] || manifest.objects[variant].group !== 'decoration'))) {
+      throw new Error(`Invalid scenery variants: ${id}`);
+    }
   }
   const terrainScale = manifest.terrain?.resolutionScale ?? 1;
   if (!Number.isInteger(terrainScale) || terrainScale < 1 || terrainScale > 8) throw new Error('Invalid terrain resolution');
@@ -173,7 +178,8 @@ async function startArtPacks() {
 }
 
 // Loading starts during page boot; callers must explicitly enter the game after readiness.
-const ART_PACK_READY = typeof document !== 'undefined' && typeof fetch === 'function' && typeof Image !== 'undefined'
+const ART_PACK_READY = typeof document !== 'undefined' && document.documentElement?.dataset?.artAutoload !== 'manual' &&
+  typeof fetch === 'function' && typeof Image !== 'undefined'
   ? startArtPacks().then(() => true, () => false) : Promise.resolve(false);
 
 function sculptedActor(type) {return SCULPTED_WORLD.ready ? SCULPTED_WORLD.characters.get(type) : null;}

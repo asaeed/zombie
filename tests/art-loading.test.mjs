@@ -58,6 +58,16 @@ test('only the final, self-contained skin is registered and no pilot starts load
   }
 });
 
+test('a standalone manual-art review can load once without triggering automatic game preferences or downloads', async () => {
+  let requests=0;
+  const context=vm.createContext({document:{documentElement:{dataset:{artAutoload:'manual'}}},
+    fetch:()=>{requests++;throw Error('Unexpected automatic fetch');},Image:class{}});
+  vm.runInContext(source,context);
+  assert.equal(await vm.runInContext('ART_PACK_READY',context),false);
+  assert.equal(requests,0);
+  assert.equal(vm.runInContext('typeof loadArtPack',context),'function');
+});
+
 test('readiness and decoded progress wait for the last image, publishing the skin atomically', async () => {
   const r = runtime(); let finish;
   r.controls.gate = new Promise(resolve => {finish = resolve;});
@@ -70,7 +80,7 @@ test('readiness and decoded progress wait for the last image, publishing the ski
   finish(); assert.equal(await boot, true);
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), true);
   assert.equal(r.evaluate('SCULPTED_WORLD.characters.size'), 18);
-  assert.equal(r.evaluate('SCULPTED_WORLD.objects.size'), 14);
+  assert.equal(r.evaluate('SCULPTED_WORLD.objects.size'), Object.keys(manifest.objects).length);
   assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'), assetCount);
   const counts = r.progress.filter(p => p.total === assetCount).map(p => p.loaded);
   assert.ok(counts.every((n, i) => !i || n >= counts[i - 1]));
@@ -114,16 +124,18 @@ test('invalid decoded frame geometry cannot mark assets ready', async () => {
 });
 
 test('a failed night image also blocks entry and retries without loading a partial skin', async () => {
-  const r=runtime();r.controls.failure='/night/hq.png';
-  await assert.rejects(r.evaluate('startArtPacks()'),/Decode failed/);
-  assert.equal(r.evaluate('SCULPTED_WORLD.ready'),false);
-  r.controls.failure=null;await r.evaluate('startArtPacks()');
-  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'),assetCount);
+  for(const failure of ['/night/hq.png','/night/pine-3.png']) {
+    const r=runtime();r.controls.failure=failure;
+    await assert.rejects(r.evaluate('startArtPacks()'),/Decode failed/);
+    assert.equal(r.evaluate('SCULPTED_WORLD.ready'),false);
+    r.controls.failure=null;await r.evaluate('startArtPacks()');
+    assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'),assetCount);
+  }
 });
 
 test('night variants are required for every world object but never for characters', async () => {
   const r=runtime();delete r.controls.manifest.objects.hq.nightImage;
   await assert.rejects(r.evaluate('startArtPacks()'),/Missing night artwork: hq/);
-  assert.equal(records.filter(meta=>meta.nightImage).length,15);
+  assert.equal(records.filter(meta=>meta.nightImage).length,Object.keys(manifest.objects).length+1);
   assert.ok(Object.values(manifest.characters).every(meta=>!meta.nightImage));
 });
