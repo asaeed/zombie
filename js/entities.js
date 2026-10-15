@@ -20,7 +20,7 @@ class Projectile {
     this.dead = false;
   }
 
-  update(dt) {
+  update(dt, game) {
     if (this.dead) return;
     if (this.target?.vehicle) this.target = this.target.vehicle;
     if (this.target.dead) { this.dead = true; return; }
@@ -30,7 +30,8 @@ class Projectile {
     const d = Math.sqrt(dx*dx + dy*dy);
 
     if (d < this.speed * dt + 4) {
-      this.target.takeDamage(this.damage, this.source);
+      if (game) game.damageEntity(this.target, this.damage, this.source);
+      else this.target.takeDamage(this.damage, this.source);
       this.dead = true;
     } else {
       this.x += (dx/d) * this.speed * dt;
@@ -135,6 +136,7 @@ class Building {
         this.trainProgress = 0;
         this.trainQueue.shift();
         const u = game.spawnUnit(unitType, site.x, site.y);
+        game.addActivity(`${u.def.name} ready`, 'success');
         if (this.rally) {
           u.moveTo(this.rally.x + randFloat(-20, 20), this.rally.y + randFloat(-20, 20), game);
         }
@@ -150,6 +152,7 @@ class Building {
         this.vehicleQueue--;
         this.vehicleProgress = 0;
         game.spawnVehicle('suv', site.x, site.y);
+        game.addActivity(`${VEHICLE_DEFS.suv.name} ready`, 'success');
       }
     }
   }
@@ -981,7 +984,7 @@ class Unit {
     this.repairCooldown -= dt;
     if (this.repairCooldown <= 0 && game.supplies >= REPAIR_TICK_COST) {
       this.repairCooldown = REPAIR_TICK_INTERVAL;
-      game.supplies -= REPAIR_TICK_COST;
+      game.spendSupplies(REPAIR_TICK_COST);
       building.hp = Math.min(building.maxHp, building.hp + REPAIR_TICK_AMOUNT);
     }
   }
@@ -1220,17 +1223,17 @@ class Zombie {
         if (this.atkCooldown <= 0) {
           this.atkCooldown = 1 / this.def.atkRate;
           this.attackAnimStart = game.gameTime;
+          const target = this.atkTarget;
           if (this.type === 'spitter') {
             game.projectiles.push(new Projectile(
-              this.x, this.y, this.atkTarget, this.def.atkDmg, 180, '#a6e54a', 'acid'
+              this.x, this.y, target, this.def.atkDmg, 180, '#a6e54a', 'acid'
             ));
           } else {
-            this.atkTarget.takeDamage(this.def.atkDmg);
+            game.damageEntity(target, this.def.atkDmg);
           }
-          game.addAlert(this.atkTarget.x, this.atkTarget.y,
-                        this.atkTarget instanceof Building ? 'building' : 'unit');
-          if (this.atkTarget.dead) {
-            game.onEntityDied(this.atkTarget);
+          game.addAlert(target.x, target.y, target instanceof Building ? 'building' : 'unit');
+          if (target.dead) {
+            game.onEntityDied(target);
           }
         }
       }

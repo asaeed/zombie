@@ -84,7 +84,7 @@ class Renderer {
     this._drawMinimap(ctx, game);
     if (game._selectedBuilding && !game._selectedBuilding.dead &&
         (game._selectedBuilding.type === 'barracks' || game._selectedBuilding.type === 'mechanics')) {
-      this._drawProductionButtons(ctx, game, game._selectedBuilding);
+      this._drawProductionButtons(ctx, game, game._selectedBuilding, input);
     }
     if (game.status === 'gameover') this._drawGameOver(ctx);
     this._drawMainMenuButton(ctx, input);
@@ -974,8 +974,9 @@ class Renderer {
   }
 
   // ── Production popover ────────────────────────────────────────────────────
-  _drawProductionButtons(ctx, game, b) {
-    const rects = productionButtonRects(b, game.camera);
+  _drawProductionButtons(ctx, game, b, input) {
+    const layout = productionPopupLayout(b, game.camera, input?.productionPage(b) ?? 0);
+    const rects = layout.buttons;
     const startX = rects[0].x, startY = rects[0].y;
     const right = Math.max(...rects.map(rc => rc.x + rc.w));
     const bottom = Math.max(...rects.map(rc => rc.y + rc.h));
@@ -983,15 +984,11 @@ class Renderer {
     const hotkeys = { soldier:'Z', builder:'X', scout:'C', medic:'V', sniper:'Q', heavy:'E', torchbearer:'Y', suv:'U' };
     const isBay = b.type === 'mechanics';
 
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, bottom - startY + 44, 6); ctx.fill();
+    ctx.fillStyle = '#0b100e';
+    roundRect(ctx, layout.panel.x, layout.panel.y, layout.panel.w, layout.panel.h, 6); ctx.fill();
     ctx.strokeStyle = b.def.color; ctx.lineWidth = 2;
-    roundRect(ctx, startX - 8, startY - 6, totalW + 16, bottom - startY + 44, 6); ctx.stroke();
-
-    ctx.fillStyle = '#ff8844';
-    ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(isBay ? 'BUILD VEHICLE' : 'TRAIN UNIT', startX + totalW / 2, bottom + 9);
+    roundRect(ctx, layout.panel.x, layout.panel.y, layout.panel.w, layout.panel.h, 6); ctx.stroke();
+    ctx.textBaseline = 'middle';
 
     for (const rc of rects) {
       const def = isBay ? VEHICLE_DEFS[rc.type] : UNIT_DEFS[rc.type];
@@ -1023,15 +1020,60 @@ class Renderer {
       ctx.fillText(detail, rc.x + 26, rc.y + 47, rc.w - 30);
     }
 
-    const queued = isBay ? b.vehicleQueue : b.trainQueue.length;
-    if (queued > 0) {
-      const pct = isBay ? b.vehicleProgress / VEHICLE_DEFS.suv.trainTime
-        : b.trainProgress / UNIT_DEFS[b.trainQueue[0]].trainTime;
-      const barY = bottom + 18;
-      ctx.fillStyle = '#333';
-      ctx.fillRect(startX - 4, barY, totalW + 8, 6);
-      ctx.fillStyle = '#44aaff';
-      ctx.fillRect(startX - 4, barY, (totalW + 8) * pct, 6);
+    ctx.textAlign = 'left'; ctx.font = 'bold 10px monospace'; ctx.fillStyle = '#b8c7be';
+    ctx.fillText(`QUEUE (${layout.count})`, layout.queueTitle.x, layout.queueTitle.y);
+    let hovered = null;
+    for (const row of layout.queue) {
+      const def = isBay ? VEHICLE_DEFS.suv : UNIT_DEFS[row.type];
+      const active = row.index === 0;
+      const progress = active ? clamp((isBay ? b.vehicleProgress : b.trainProgress) / def.trainTime, 0, 1) : 0;
+      ctx.fillStyle = active ? '#253c37' : '#222a27';
+      roundRect(ctx, row.x, row.y, row.w, row.h, 3); ctx.fill();
+      ctx.fillStyle = '#e1e9e4'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(`${row.index + 1}. ${def.name}`, row.x + 6, row.y + 9, row.w - 83);
+      ctx.fillStyle = active ? '#96d2a3' : '#83938b'; ctx.font = '9px monospace';
+      const waiting = !isBay && !game.canTrainUnit(row.type);
+      const status = active ? (waiting ? 'Production paused' : `Training ${Math.floor(progress * 100)}%`) : 'Queued';
+      ctx.fillText(status, row.x + 6, row.y + 22);
+      ctx.fillStyle = '#efce70'; ctx.textAlign = 'right';
+      ctx.fillText(`+$${def.cost}`, row.cancel.x - 6, row.y + 15);
+      if (active) {
+        ctx.fillStyle = '#86c7ac'; ctx.fillRect(row.x, row.y + row.h - 2, row.w * progress, 2);
+      }
+      const rc = row.cancel;
+      const hover = input && input.mouseX >= rc.x && input.mouseX <= rc.x + rc.w &&
+        input.mouseY >= rc.y && input.mouseY <= rc.y + rc.h;
+      ctx.fillStyle = hover ? '#70413b' : '#493532';
+      roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 3); ctx.fill();
+      ctx.strokeStyle = '#ffb1a5'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(rc.x + 8, rc.y + 8); ctx.lineTo(rc.x + 16, rc.y + 16);
+      ctx.moveTo(rc.x + 16, rc.y + 8); ctx.lineTo(rc.x + 8, rc.y + 16); ctx.stroke();
+      if (hover) hovered = { row, text: `Cancel ${def.name} (+${def.cost} supplies)` };
+    }
+    if (!layout.count) {
+      ctx.fillStyle = '#83938b'; ctx.font = '11px monospace';
+      ctx.fillText('Queue empty', startX + 6, bottom + 40);
+    }
+    if (layout.pages > 1) {
+      for (const [rc, enabled, symbol] of [[layout.previous, layout.page > 0, '\u2039'],
+        [layout.next, layout.page < layout.pages - 1, '\u203a']]) {
+        ctx.fillStyle = enabled ? '#354b42' : '#202823';
+        roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 3); ctx.fill();
+        ctx.fillStyle = enabled ? '#d4e3da' : '#526359'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(symbol, rc.x + rc.w / 2, rc.y + rc.h / 2 - 1);
+      }
+      ctx.fillStyle = '#b8c7be'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`${layout.page * layout.queueRows + 1}-${Math.min(layout.count, (layout.page + 1) * layout.queueRows)} / ${layout.count}`,
+        layout.footer.x, layout.footer.y);
+    }
+    if (hovered) {
+      ctx.font = '11px monospace';
+      const width = ctx.measureText(hovered.text).width + 16;
+      const x = clamp(hovered.row.cancel.x + 24 - width, 8, this.W - width - 8);
+      const y = hovered.row.y - 28;
+      ctx.fillStyle = '#101713'; roundRect(ctx, x, y, width, 24, 3); ctx.fill();
+      ctx.fillStyle = '#edf3ee'; ctx.textAlign = 'left'; ctx.fillText(hovered.text, x + 8, y + 12);
     }
   }
 
@@ -1296,6 +1338,73 @@ class Renderer {
       ctx.textAlign = 'right';
       ctx.fillText(`[${hotkeys[rc.type]}]`, rc.x + rc.w - 6, rc.y + 39);
     }
+    this._drawActivityPanel(ctx, game);
+  }
+
+  _drawActivityPanel(ctx, game) {
+    const { feed, stats } = activityPanelRects(this.W, this.H);
+    ctx.save();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#84958f'; ctx.font = 'bold 10px monospace';
+    ctx.fillText('ACTIVITY', feed.x, feed.y + 6);
+    ctx.strokeStyle = '#303936'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (stats.compact) {
+      ctx.moveTo(stats.x, stats.y - 5); ctx.lineTo(stats.x + stats.w, stats.y - 5);
+    } else {
+      ctx.moveTo(stats.x - 12, stats.y + 10); ctx.lineTo(stats.x - 12, stats.y + stats.h);
+    }
+    ctx.stroke();
+
+    // Text fitting changes only when an event arrives or the viewport changes.
+    const latest = game.activity.at(-1);
+    let cache = this._activityText;
+    ctx.font = '11px monospace';
+    if (!cache || cache.source !== game.activity || cache.latest !== latest || cache.width !== feed.w) {
+      const fit = text => {
+        if (ctx.measureText(text).width <= feed.w - 48) return text;
+        while (text.length && ctx.measureText(text + '...').width > feed.w - 48) text = text.slice(0, -1);
+        return text + '...';
+      };
+      cache = this._activityText = {
+        source: game.activity, latest, width: feed.w,
+        rows: game.activity.slice(-feed.rows).reverse().map(event => ({
+          text: fit(event.text), kind: event.kind,
+          time: `${Math.floor(event.time / 60)}:${Math.floor(event.time % 60).toString().padStart(2, '0')}`,
+        })),
+      };
+    }
+    const colors = { danger: '#ff8e83', warning: '#efc66c', success: '#96d2a3', info: '#c5ceca' };
+    for (let i = 0; i < cache.rows.length; i++) {
+      const row = cache.rows[i], y = feed.y + 26 + i * 18;
+      ctx.fillStyle = '#77857f'; ctx.font = '10px monospace';
+      ctx.fillText(row.time, feed.x, y + 1, 38);
+      ctx.fillStyle = colors[row.kind] || colors.info; ctx.font = '11px monospace';
+      ctx.fillText(row.text, feed.x + 46, y);
+    }
+    if (!cache.rows.length) {
+      ctx.fillStyle = '#77857f'; ctx.fillText('All quiet', feed.x, feed.y + 26);
+    }
+
+    const counters = [
+      ['Zombies', 'killed', game.stats.zombiesKilled, '#96d2a3'],
+      ['Humans', 'lost', game.stats.humansLost, '#ffaaa0'],
+      ['Buildings', 'destroyed', game.stats.buildingsDestroyed, '#ffaaa0'],
+      ['Supplies', 'used', game.stats.suppliesSpent, '#efce70'],
+    ];
+    const cellWidth = stats.w / stats.columns;
+    for (let i = 0; i < counters.length; i++) {
+      const [noun, verb, count, color] = counters[i];
+      const x = stats.x + (i % stats.columns) * cellWidth;
+      const y = stats.y + Math.floor(i / stats.columns) * 44 + (stats.compact ? 0 : 10);
+      ctx.fillStyle = '#9ba9a2'; ctx.font = '9px monospace';
+      if (stats.compact) {
+        ctx.fillText(noun, x, y); ctx.fillText(verb, x, y + 12);
+      } else ctx.fillText(`${noun} ${verb}`, x, y);
+      ctx.fillStyle = color; ctx.font = 'bold 16px monospace';
+      ctx.fillText(count.toLocaleString('en-US'), x, y + (stats.compact ? 28 : 16), cellWidth - 10);
+    }
+    ctx.restore();
   }
 
   _drawSelectionPanel(ctx, game) {

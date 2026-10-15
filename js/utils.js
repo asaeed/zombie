@@ -221,8 +221,7 @@ function mainMenuActionRects(W) {
 function buildButtonRects(W, H) {
   const types = Object.keys(BUILDING_DEFS).filter(type => BUILDING_DEFS[type].canBuild);
   const cols = Math.min(4, Math.max(2, Math.floor((W - 14) / 106)));
-  const rows = Math.ceil(types.length / cols);
-  const h = 16 + rows * 54;
+  const h = bottomPanelHeight(W);
   const bw = Math.min(100, Math.floor((W - 20 - (cols - 1) * 6) / cols));
   return types.map((type, i) => ({
     type, x: 10 + (i % cols) * (bw + 6), y: H - h + 8 + Math.floor(i / cols) * 54,
@@ -233,25 +232,66 @@ function buildButtonRects(W, H) {
 function bottomPanelHeight(W) {
   const cols = Math.min(4, Math.max(2, Math.floor((W - 14) / 106)));
   const count = Object.values(BUILDING_DEFS).filter(def => def.canBuild).length;
-  return 16 + Math.ceil(count / cols) * 54;
+  return 16 + Math.ceil(count / cols) * 54 + (W < 1000 ? (W < 620 ? 164 : 124) : 0);
+}
+
+function activityPanelRects(W, H) {
+  if (W < 620) {
+    return {
+      feed: { x: 12, y: H - 164, w: W - 24, h: 78, rows: 3 },
+      stats: { x: 12, y: H - 84, w: W - 24, h: 50, columns: 4, compact: true },
+    };
+  }
+  const x = W < 1000 ? 12 : 448;
+  const y = H - (W < 1000 ? 124 : bottomPanelHeight(W));
+  return {
+    feed: { x, y, w: W - 260 - x, h: 104, rows: 4 },
+    stats: { x: W - 240, y, w: 228, h: 92, columns: 2, compact: false },
+  };
 }
 
 // Shared production popover geometry for renderer and hit-testing.
 function productionButtonRects(b, cam) {
+  return productionPopupLayout(b, cam).buttons;
+}
+
+function productionPopupLayout(b, cam, page = 0) {
   const types = b.type === 'mechanics' ? ['suv'] : TRAINABLE_UNITS;
   const BTW = 96, BTH = 58, gap = 6;
   const s = worldToScreen(b.x + b.width / 2, b.y + b.height / 2, cam); // south corner
   const cols = Math.min(4, Math.max(2, Math.floor((window.innerWidth - 16) / (BTW + gap))));
   const rows = Math.ceil(types.length / cols);
-  const totalW = Math.min(cols, types.length) * BTW + (Math.min(cols, types.length) - 1) * gap;
+  const totalW = Math.max(198, Math.min(cols, types.length) * BTW + (Math.min(cols, types.length) - 1) * gap);
   const totalH = rows * BTH + (rows - 1) * gap;
+  const mapBottom = window.innerHeight - bottomPanelHeight(window.innerWidth) - 8;
+  const queueRows = clamp(Math.floor((mapBottom - 88 - totalH - 50) / 34), 1, 3);
+  const height = totalH + 50 + queueRows * 34;
   const startX = clamp(s.x - totalW / 2, 8, Math.max(8, window.innerWidth - totalW - 8));
-  const startY = clamp(s.y + 12, 48,
-    Math.max(48, window.innerHeight - bottomPanelHeight(window.innerWidth) - totalH - 52));
-  return types.map((type, i) => ({
+  const startY = clamp(s.y + 12, 88, Math.max(88, mapBottom - height));
+  const buttons = types.map((type, i) => ({
     type, x: startX + (i % cols) * (BTW + gap),
-    y: startY + Math.floor(i / cols) * (BTH + gap), w: BTW, h: BTH,
+    y: startY + Math.floor(i / cols) * (BTH + gap), w: types.length === 1 ? totalW : BTW, h: BTH,
   }));
+  const count = b.type === 'mechanics' ? (b.vehicleQueue || 0) : (b.trainQueue?.length || 0);
+  const pages = Math.max(1, Math.ceil(count / queueRows));
+  page = clamp(Math.floor(page), 0, pages - 1);
+  const queue = [];
+  for (let i = page * queueRows; i < Math.min(count, (page + 1) * queueRows); i++) {
+    const y = startY + totalH + 24 + (i % queueRows) * 34;
+    queue.push({ index: i, type: b.type === 'mechanics' ? 'suv' : b.trainQueue[i],
+      x: startX, y, w: totalW, h: 30,
+      cancel: { x: startX + totalW - 28, y: y + 3, w: 24, h: 24 },
+    });
+  }
+  const footerY = startY + totalH + 24 + queueRows * 34;
+  return {
+    buttons, queue, count, page, pages, queueRows,
+    panel: { x: startX - 8, y: startY - 6, w: totalW + 16, h: height + 12 },
+    queueTitle: { x: startX, y: startY + totalH + 12 },
+    footer: { x: startX + totalW / 2, y: footerY + 11 },
+    previous: { x: startX, y: footerY, w: 28, h: 22 },
+    next: { x: startX + totalW - 28, y: footerY, w: 28, h: 22 },
+  };
 }
 
 function vehicleUnloadRect(W, H) {
