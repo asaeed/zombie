@@ -149,15 +149,13 @@ function mapCompass(W) {
 
 function mainMenuPanelRect(W) {
   const w = Math.min(270, W - 24);
-  return { x: W - w - 12, y: 44, w, h: 424 };
+  return { x: W - w - 12, y: 44, w, h: 300 };
 }
 
 function mainMenuActionRects(W) {
   const panel = mainMenuPanelRect(W);
   const rows = [
     ['resume'],
-    ['save-auto'],
-    ['load-auto'],
     ['save-slot-1', 'load-slot-1'],
     ['save-slot-2', 'load-slot-2'],
     ['save-slot-3', 'load-slot-3'],
@@ -165,7 +163,7 @@ function mainMenuActionRects(W) {
     ['clear-saves'],
   ];
   const rects = [];
-  let y = panel.y + 50;
+  let y = panel.y + 42;
   for (const row of rows) {
     if (row.length === 1) {
       rects.push({ action: row[0], x: panel.x + 14, y, w: panel.w - 28, h: 34 });

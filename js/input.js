@@ -301,7 +301,10 @@ class InputHandler {
       return;
     }
 
-    // Keep the current selection until a click or drag finds a new target.
+    // Empty map clicks dismiss production menus, but preserve other selections.
+    if (game._selectedBuilding?.type === 'barracks' || game._selectedBuilding?.type === 'mechanics') {
+      game._selectedBuilding = null;
+    }
     this._dragStart = { x: e.clientX, y: e.clientY };
     this._dragging = false;
   }
@@ -668,7 +671,6 @@ class InputHandler {
   }
 
   _hasMenuSave(action) {
-    if (action === 'load-auto') return !!this.saveMeta.auto;
     const m = /^load-slot-(\d)$/.exec(action);
     return !m || !!this.saveMeta.slots[m[1]];
   }

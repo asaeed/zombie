@@ -1146,31 +1146,6 @@ class Zombie {
       }
     }
 
-    // A burning flare is irresistible: drop long-range intent and shamble to it
-    if (game.flares.length > 0) {
-      let nf = null, nfD2 = (FLARE_PULL_RADIUS * TILE) ** 2;
-      for (const f of game.flares) {
-        const d2 = dist2(this.x, this.y, f.x, f.y);
-        if (d2 < nfD2) { nfD2 = d2; nf = f; }
-      }
-      if (nf) {
-        const engaged = this.atkTarget && !this.atkTarget.dead &&
-          (this.atkTarget instanceof Building
-            ? game.distanceToBuilding(this.x, this.y, this.atkTarget)
-            : dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y)) <= this.def.atkRange + 10;
-        if (!engaged) {
-          this.atkTarget = null;
-          const d = dist(this.x, this.y, nf.x, nf.y);
-          if (d > TILE) {
-            const nx = (nf.x - this.x) / d, ny = (nf.y - this.y) / d;
-            game.moveGroundEntity(this, nx * game.zombieSpeed(this) * dt,
-              ny * game.zombieSpeed(this) * dt);
-          }
-          return;  // transfixed while it burns
-        }
-      }
-    }
-
     if (this.type === 'exploder') {
       if (this.atkTarget?.vehicle) this.atkTarget = this.atkTarget.vehicle;
       if (this.atkTarget?.dead) this.atkTarget = null;

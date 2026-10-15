@@ -14,7 +14,7 @@ const UNIT_DEFS = {
   scout:   { name:'Scout',   maxHp:50,  speed:180, atkRange:120, atkDmg:9,  atkRate:2.0, radius:8,  cost:60,  color:'#00ffcc', trainTime:5 },
   medic:   { name:'Medic',   maxHp:70,  speed:100, atkRange:0,   atkDmg:0,  atkRate:0,   radius:9,  cost:90,  color:'#ff77aa', trainTime:9 },
   sniper: { name:'Sniper', maxHp:70, speed:78, atkRange:390, atkDmg:65, atkRate:0.55, radius:9, cost:150, color:'#54c76c', trainTime:12, requires:'mechanics' },
-  heavy: { name:'Heavy', maxHp:210, speed:62, atkRange:50, atkDmg:42, atkRate:0.7, radius:13, cost:140, color:'#373c40', trainTime:12, requires:'mechanics' },
+  heavy: { name:'Heavy', maxHp:420, speed:62, atkRange:50, atkDmg:42, atkRate:0.7, radius:13, cost:140, color:'#373c40', trainTime:12, requires:'mechanics' },
   torchbearer: { name:'Torchbearer', maxHp:85, speed:85, atkRange:90, atkDmg:8, atkRate:1.0, radius:10, cost:120, color:'#e8d12b', trainTime:10, requires:'mechanics' },
 };
 UNIT_DEFS.medic.requires = 'clinic';
@@ -38,11 +38,11 @@ const BUILDING_DEFS = {
 const ZOMBIE_DEFS = {
   walker: { name:'Walker', maxHp:80,  speed:35, atkRange:35, atkDmg:15, atkRate:0.8, radius:9,  reward:5,  color:'#b6c3bf' },
   runner: { name:'Runner', maxHp:40,  speed:110, atkRange:28, atkDmg:10, atkRate:1.5, radius:7,  reward:8,  color:'#b6c3bf' },
-  brute:  { name:'Brute',  maxHp:500, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#b6c3bf' },
+  brute:  { name:'Brute',  maxHp:1000, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#b6c3bf' },
   spitter: { name:'Spitter', maxHp:65, speed:30, atkRange:120, atkDmg:22, atkRate:0.55, radius:9, reward:12, color:'#a6d94e' },
   exploder: { name:'Exploder', maxHp:95, speed:72, atkRange:22, atkDmg:0, atkRate:0, radius:11, reward:15, color:'#ee7a38' },
   screamer: { name:'Screamer', maxHp:110, speed:42, atkRange:32, atkDmg:8, atkRate:0.6, radius:10, reward:18, color:'#d883d2' },
-  boss: { name:'Boss Brute', maxHp:1800, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#b6c3bf' },
+  boss: { name:'Boss Brute', maxHp:3600, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#b6c3bf' },
 };
 
 const WAVE_TABLE = [
@@ -122,10 +122,10 @@ const FLARE_COST = 50;
 const FLARE_COOLDOWN = 60;               // seconds
 const FLARE_DURATION = 10;               // seconds burning
 const FLARE_LIGHT_RADIUS = 9;            // tiles of light/vision while burning
-const FLARE_PULL_RADIUS = 12;            // tiles: zombies aggro to the flare
 const FLARE_FIRE_RADIUS = 4;             // tiles: zombies ignited near a flare
 const FIRE_DURATION = 6;                 // seconds a zombie burns
 const FIRE_DPS = 12;                     // fire damage per second
+const FIRE_SPEED_FACTOR = 1.2;           // burning zombies move faster, never stop for flares
 const FIRE_LIGHT_RADIUS = 3;             // burning zombies are moving light sources
 const FIRE_SPREAD_RADIUS = 24;            // world px: only near-contact spreads fire
 const FIRE_SPREAD_FACTOR = 0.6;           // each hop burns for less time

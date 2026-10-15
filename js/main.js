@@ -115,13 +115,6 @@
   }
 
   const menuActions = {
-    saveAuto: () => ({ text: 'Saved', meta: writeSave(SAVE_KEY_AUTO) }),
-    loadAuto: () => {
-      const loaded = loadSave(SAVE_KEY_AUTO);
-      if (!loaded) return { text: 'No save found', meta: readSaveMeta() };
-      installGame(loaded);
-      return { text: 'Loaded autosave', meta: readSaveMeta(), closeMenu: true };
-    },
     saveSlot: slot => ({ text: `Saved slot ${slot}`, meta: writeSave(`${SAVE_KEY_PREFIX}${slot}`) }),
     loadSlot: slot => {
       const loaded = loadSave(`${SAVE_KEY_PREFIX}${slot}`);

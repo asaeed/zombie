@@ -34,7 +34,7 @@ class Game {
     this._toastLast  = {};
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
-    this.flares      = [];   // {x, y, t} — thrown flare: light + zombie magnet + fire source
+    this.flares      = [];   // {x, y, t} — thrown flare: light + fire source
     this.flareCooldown = 0;  // seconds remaining before another throw
 
     this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
@@ -125,7 +125,7 @@ class Game {
         waypoints: v.waypoints.map(point), moveTarget: point(v.moveTarget),
       })),
       units: this.units.map(u => ({
-        id: u.id, type: u.type, x: u.x, y: u.y, hp: u.hp, dead: u.dead,
+        id: u.id, type: u.type, x: u.x, y: u.y, hp: u.hp, maxHp: u.maxHp, dead: u.dead,
         selected: u.selected, atkCooldown: u.atkCooldown,
         atkTargetId: targetId(u.atkTarget), moveTarget: point(u.moveTarget),
         waypoints: u.waypoints.map(point), attackMove: u.attackMove,
@@ -253,7 +253,10 @@ class Game {
     game.units = (data.units || []).map(s => {
       const u = new Unit(s.type, s.x, s.y);
       u.id = s.id;
-      u.hp = s.hp ?? u.maxHp;
+      // Older unit saves omitted maxHp; their Heavy had 210 HP.
+      const savedMaxHp = s.maxHp ?? (u.type === 'heavy' ? 210 : u.maxHp);
+      u.hp = s.hp ?? savedMaxHp;
+      if (savedMaxHp !== u.maxHp) u.hp = clamp(u.hp / savedMaxHp, 0, 1) * u.maxHp;
       u.dead = !!s.dead;
       u.selected = false;
       u.atkCooldown = s.atkCooldown ?? 0;
@@ -699,14 +702,15 @@ class Game {
   }
 
   zombieSpeed(zombie) {
-    if (zombie.type === 'screamer') return zombie.def.speed;
+    const speed = zombie.def.speed * (zombie.burning ? FIRE_SPEED_FACTOR : 1);
+    if (zombie.type === 'screamer') return speed;
     for (const z of this.zombies) {
       if (z.type === 'screamer' && !z.dead && !z.dormant &&
           dist2(z.x, z.y, zombie.x, zombie.y) <= SCREAMER_AURA_RADIUS ** 2) {
-        return zombie.def.speed * SCREAMER_SPEED_FACTOR;
+        return speed * SCREAMER_SPEED_FACTOR;
       }
     }
-    return zombie.def.speed;
+    return speed;
   }
 
   wakeDormantNear(x, y, radius) {
@@ -766,7 +770,7 @@ class Game {
     this.addAlert(x, y, 'building');
   }
 
-  // Throw a flare at an explored point: light + zombie magnet + fire source
+  // Throw a flare at an explored point: light + fire source
   throwFlare(wx, wy) {
     if (this.flareCooldown > 0) {
       this.addToast(`Flare recharging: ${Math.ceil(this.flareCooldown)}s`, 'warning', 'flare-cooldown', 1);
