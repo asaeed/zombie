@@ -649,10 +649,14 @@ class Game {
   }
 
   // ── Queries ──────────────────────────────────────────────────────────────────
+  nearbyZombies(x, y, radius) {
+    return this._zombieGrid ? this._zombieGrid.near(x, y, radius) : this.zombies;
+  }
+
   nearestZombie(x, y, range, includeDormant = false) {
     const nightRule = this.isNight();
     let best = null, bestD2 = range * range;
-    for (const z of this.zombies) {
+    for (const z of this.nearbyZombies(x, y, range)) {
       if (z.dead || (!includeDormant && z.dormant)) continue;
       if (nightRule && !this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const d2 = dist2(x, y, z.x, z.y);
@@ -664,7 +668,7 @@ class Game {
   priorityZombie(x, y, range) {
     const priority = { spitter: 1, screamer: 1, exploder: 1, boss: 2 };
     let best = null, bestScore = Infinity;
-    for (const z of this.zombies) {
+    for (const z of this.nearbyZombies(x, y, range)) {
       if (z.dead || z.dormant) continue;
       if (this.isNight() && !this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) continue;
       const d2 = dist2(x, y, z.x, z.y);
@@ -704,7 +708,7 @@ class Game {
   zombieSpeed(zombie) {
     const speed = zombie.def.speed * (zombie.burning ? FIRE_SPEED_FACTOR : 1);
     if (zombie.type === 'screamer') return speed;
-    for (const z of this.zombies) {
+    for (const z of this._screamers ?? this.zombies) {
       if (z.type === 'screamer' && !z.dead && !z.dormant &&
           dist2(z.x, z.y, zombie.x, zombie.y) <= SCREAMER_AURA_RADIUS ** 2) {
         return speed * SCREAMER_SPEED_FACTOR;
@@ -794,7 +798,7 @@ class Game {
   }
 
   igniteZombiesNear(x, y, radius) {
-    for (const z of this.zombies) {
+    for (const z of this.nearbyZombies(x, y, radius)) {
       if (z.dead) continue;
       if (dist2(x, y, z.x, z.y) <= radius * radius) z.ignite();
     }
@@ -803,7 +807,7 @@ class Game {
   spreadZombieFire() {
     const sources = this.zombies.filter(z => !z.dead && z.burning);
     for (const source of sources) {
-      for (const target of this.zombies) {
+      for (const target of this.nearbyZombies(source.x, source.y, FIRE_SPREAD_RADIUS)) {
         if (target === source || target.dead ||
             dist2(source.x, source.y, target.x, target.y) > FIRE_SPREAD_RADIUS ** 2) continue;
         target.ignite(source.burnTime * FIRE_SPREAD_FACTOR);
@@ -1165,6 +1169,14 @@ class Game {
       }
     }
 
+    // Keep the index live as zombies move, so later entities see current positions.
+    this._zombieGrid = new SpatialGrid(2 * TILE);
+    this._screamers = [];
+    for (const zombie of this.zombies) {
+      if (!zombie.dead) this._zombieGrid.add(zombie);
+      if (zombie.type === 'screamer') this._screamers.push(zombie);
+    }
+
     // Update buildings
     for (const b of this.buildings) {
       b.update(dt, this);
@@ -1183,6 +1195,7 @@ class Game {
     for (const z of this.zombies) {
       const x = z.x, y = z.y;
       z.update(dt, this);
+      if (!z.dead) this._zombieGrid.move(z);
       z.recordMotion(z.x - x, z.y - y, this.gameTime);
     }
 
@@ -1241,6 +1254,9 @@ class Game {
         u.carrying = 0;
       }
     }
+
+    this._zombieGrid = null;
+    this._screamers = null;
 
     // Cleanup dead entities
     this.buildings   = this.buildings.filter(b => !b.dead);

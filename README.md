@@ -106,6 +106,7 @@ save data from localhost; existing local saves are not transferred.
 - Rendering is true 2:1 isometric. ALL iso math lives in `worldToScreen` /
   `screenToWorld` in `js/utils.js`; renderer and input route through them
 - Tests: `node --test tests/*.test.mjs`
+
 - The default game now uses reference-generated Sculpted Pixel art for all
   seven player roles, seven zombie types, three additional grey walker
   appearances, eight buildings, resource caches, the white SUV, and forest
@@ -135,6 +136,25 @@ save data from localhost; existing local saves are not transferred.
   `?artPilot=1` remains an alias for diorama. `npm install && npm run art:bake`
   regenerates all three independently authored directional animation sets;
   these older studies remain available separately from the default world art.
+
+### Performance Checks
+
+Idle actors use one fixed pose; walking, combat, and work keep their full clips.
+The simulation uses a moving spatial grid for nearby zombie queries. Rendering
+reuses scenery placement, projected unit occlusion samples, and terrain pixels
+while panning; only exposed or changed screen regions are repainted. Day/night
+terrain layers are prepared only when needed. Offscreen simulation is not paused.
+Sprite frames are filtered once at the current zoom and display density, then
+reused through a 24 MiB LRU cache instead of rescaling large sheets every draw.
+
+After `npm install`, run `node tools/benchmark-performance.mjs` against the local
+server at port 8787, or pass a game URL or export directory and optional label.
+It uses an isolated Chrome session with 180 humans and 500 zombies, exercising
+idle, crowded, panning, and night scenes. JSON timings, CPU profiles, and screen
+captures go to a temporary folder printed by the command. `BENCH_OUTPUT`,
+`BENCH_DPR`, and `CHROME_PATH` override the output directory, density, and browser.
+Compare identical scenes and densities. CPU frame work and browser refresh
+intervals are reported separately; neither is a universal FPS guarantee.
 
 ## Project docs
 - Design spec: `docs/superpowers/specs/2026-07-13-overhaul-design.md`

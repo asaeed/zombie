@@ -201,7 +201,7 @@ function worldArtworkImage(record, darkness = 0) {
 function sculptedActorFrame(record, actor, time, working = null) {
   const meta = record.metadata, clips = meta.clips;
   const direction = meta.directions.includes(actor.facing) ? actor.facing : 'SE';
-  let name = 'idle', elapsed = time;
+  let name = 'idle', elapsed = 0;
   const strike = clips[meta.strike], attackElapsed = time - actor.attackAnimStart;
   if (strike && attackElapsed >= 0 && attackElapsed < strike.directions[direction].length / strike.fps) {
     name = meta.strike; elapsed = attackElapsed;

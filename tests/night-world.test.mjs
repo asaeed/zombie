@@ -56,7 +56,8 @@ test('rock eligibility is halved while existing tree and bush choices stay uncha
 
 test('dusk and dawn blend cached day/night terrain without repainting the whole map',()=>{
   const layers=[],draws=[];
-  const create=()=>{const layer={width:0,height:0,getContext:()=>({setTransform(){},clearRect(){}})};layers.push(layer);return layer;};
+  const create=()=>{const layer={width:0,height:0,getContext:()=>({setTransform(){},clearRect(){},drawImage(){},
+    save(){},restore(){},beginPath(){},rect(){},clip(){}})};layers.push(layer);return layer;};
   const c=vm.createContext({document:{createElement:create},TILE:32,MAP_W:20,MAP_H:20,
     clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),screenToWorld:(x,y,cam)=>({x:x/ cam.zoom+cam.x,y:y/cam.zoom+cam.y}),
     SCULPTED_WORLD:{ready:true,terrain:{nightImage:{}}},worldArtworkImage:(record,phase)=>phase?record.nightImage:record.image});
@@ -69,7 +70,9 @@ test('dusk and dawn blend cached day/night terrain without repainting the whole 
   const ctx={save(){},restore(){},drawImage:(...args)=>draws.push(args)};
   for(const value of [0,.25,.5,.75,1,.75,.5,.25,0]){phase=value;r._drawTiles(ctx,g);}
   assert.equal(paints,2);assert.equal(draws.length,9);assert.equal(layers.length,2);
-  assert.ok(layers.every(layer=>layer.width===128&&layer.height===96));
+  assert.ok(layers.every(layer=>layer.width===132&&layer.height===100));
   const revision=r._groundBlend.revision;g.camera.x+=1;r._drawTiles(ctx,g);
-  assert.equal(paints,4);assert.equal(r._groundBlend.revision,revision+1);
+  assert.equal(paints,3);assert.equal(r._groundCache.revision,revision+1);
+  const previous=r._groundRevision;r._groundCache=null;phase=.5;r._drawTiles(ctx,g);
+  assert.ok(r._groundBlend.revision>previous,'clearing the cache cannot reuse an old blended image');
 });
