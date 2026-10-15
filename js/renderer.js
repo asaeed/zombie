@@ -410,13 +410,17 @@ class Renderer {
             tx < b.tileX + b.def.tileSize + clearance && ty < b.tileY + b.def.tileSize + clearance) ||
             game.caches.some(c => Math.abs(c.tileX - tx) <= clearance && Math.abs(c.tileY - ty) <= clearance)) continue;
         const x = tileCenterX(tx), y = tileCenterY(ty);
-        props.push({tx, ty, kind, x, y, key:x+y});
+        const variation = (Math.imul(tx + 91, 83492791) ^ Math.imul(ty + 47, 2971215073)) >>> 0;
+        props.push({tx, ty, kind, variation, x, y, key:x+y});
       }
       this._environment = {game, tiles:game.tiles, layout, props};
     }
-    for (const {tx, ty, kind, x, y, key} of this._environment.props) {
+    for (const {tx, ty, kind, variation, x, y, key} of this._environment.props) {
       if (tx < x0 || tx >= x1 || ty < y0 || ty >= y1 || !game.tileExplored(tx, ty)) continue;
-      const record = sculptedObject(kind), foot = worldToScreen(x, y, cam), rect = sculptedObjectRect(record, foot, cam.zoom);
+      const base = sculptedObject(kind), variants = base.metadata?.variants;
+      const id = variants?.[variation % variants.length];
+      const record = id && id !== kind ? sculptedObject(id) : base;
+      const foot = worldToScreen(x, y, cam), rect = sculptedObjectRect(record, foot, cam.zoom);
       if (rect.x + rect.width < 0 || rect.y + rect.height < 0 || rect.x > this.W || rect.y > this.H) continue;
       drawables.push({ key, draw: () => {
         const alpha = ctx.globalAlpha;
