@@ -1080,6 +1080,8 @@ class Zombie {
     this.animDistance = 0;
     this.lastMotionAt = -Infinity;
     this.attackAnimStart = -Infinity;
+    this._route = null;
+    this._routeRetryIn = 0;
   }
 
   get def() { return ZOMBIE_DEFS[this.type]; }
@@ -1115,6 +1117,7 @@ class Zombie {
 
   update(dt, game) {
     if (this.dead) return;
+    this._routeRetryIn = Math.max(0, (this._routeRetryIn ?? 0) - dt);
 
     if (this.burning) {
       this._updateBurn(dt, game);
@@ -1265,6 +1268,8 @@ class Zombie {
   }
 
   _directMoveToward(tx, ty, dt, game) {
+    const target = this.atkTarget;
+    if (target && this._followRoute(dt, game, target)) return;
     const dx = tx - this.x, dy = ty - this.y;
     const d = Math.sqrt(dx*dx + dy*dy);
     if (d < 1) return;
@@ -1286,10 +1291,71 @@ class Zombie {
     if (len > 0) { nx /= len; ny /= len; }
 
     const step = game.zombieSpeed(this) * dt;
-    if (!game.moveGroundEntity(this, nx * step, ny * step)) this._flowMove(dt, game);
+    const moved = game.moveGroundEntity(this, nx * step, ny * step);
+    if (target && (!moved || this._movementStalled(dt))) this._followRoute(dt, game, target, true);
+  }
+
+  _movementStalled(dt) {
+    const progress = this._moveProgress ??= { x: this.x, y: this.y, time: 0 };
+    progress.time += dt;
+    if (progress.time < 1.5) return false;
+    const stalled = Math.hypot(this.x - progress.x, this.y - progress.y) < 8;
+    progress.x = this.x; progress.y = this.y; progress.time = 0;
+    return stalled;
+  }
+
+  _followRoute(dt, game, target, force = false) {
+    let route = this._route;
+    const changed = route && (route.target !== target || route.field !== game.flowField ||
+      dist2(route.goalX, route.goalY, target.x, target.y) > (TILE / 2) ** 2);
+    if (changed) { this._route = route = null; this._routeRetryIn = 0; }
+    if (!route && !force) return false;
+    if (!route) {
+      if (this._routeRetryIn > 0) return false;
+      this._routeRetryIn = 1;
+      const radius = this.def.radius;
+      const targetRadius = target instanceof Building ? Math.max(target.width, target.height) / 2 :
+        this.type === 'exploder' ? target.def.radius : 0;
+      const inRange = (tx, ty) => {
+        const x = tileCenterX(tx), y = tileCenterY(ty);
+        const distance = target instanceof Building ? game.distanceToBuilding(x, y, target) :
+          Math.hypot(x - target.x, y - target.y) - (this.type === 'exploder' ? target.def.radius : 0);
+        return distance <= this.def.atkRange;
+      };
+      const blocked = new Int8Array(MAP_W * MAP_H);
+      const isBlocked = (tx, ty) => {
+        const index = ty * MAP_W + tx;
+        if (!blocked[index]) blocked[index] = game.canOccupyGround(tileCenterX(tx), tileCenterY(ty), radius) ? -1 : 1;
+        return blocked[index] === 1;
+      };
+      // Route to an attack position, never into the target's blocked footprint.
+      const points = findPath(this.x, this.y, target.x, target.y, isBlocked, {
+          isGoal: inRange, goalRadius: Math.ceil((targetRadius + this.def.atkRange) / TILE) + 1,
+          maxIterations: MAP_W * MAP_H,
+        });
+      if (!points) {
+        const obstacle = game.nearestBuildingTo(this.x, this.y);
+        if (obstacle && obstacle !== target) this.atkTarget = obstacle;
+        return false;
+      }
+      this._route = route = {target, goalX:target.x, goalY:target.y, field:game.flowField, points, index:0};
+    }
+    const point = route.points[route.index];
+    if (!point) { this._route = null; return false; }
+    const dx = point.x - this.x, dy = point.y - this.y, distance = Math.hypot(dx, dy);
+    const step = Math.min(distance, game.zombieSpeed(this) * dt);
+    const moved = distance === 0 || game.moveGroundEntity(this, dx / distance * step, dy / distance * step);
+    if (distance <= step && moved) route.index++;
+    if (!moved || this._movementStalled(dt)) this._route = null;
+    return true;
   }
 
   _flowMove(dt, game) {
+    if (this._route) {
+      const target = this.atkTarget || (!this._route.target.dead && this._route.target);
+      if (target && this._followRoute(dt, game, target)) return;
+      if (!target) this._route = null;
+    }
     const tx = Math.floor(this.x / TILE);
     const ty = Math.floor(this.y / TILE);
 
@@ -1331,6 +1397,10 @@ class Zombie {
     if (len > 0) { nx /= len; ny /= len; }
 
     const step = game.zombieSpeed(this) * dt;
-    game.moveGroundEntity(this, nx * step, ny * step);
+    const moved = game.moveGroundEntity(this, nx * step, ny * step);
+    if (!moved || this._movementStalled(dt)) {
+      const target = this.atkTarget || game.nearestBuildingTo(this.x, this.y);
+      if (target) this._followRoute(dt, game, target, true);
+    }
   }
 }
