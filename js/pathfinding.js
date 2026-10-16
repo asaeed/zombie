@@ -1,21 +1,24 @@
 'use strict';
 
 // A* pathfinding - returns array of {x,y} world-space waypoints, or null if no path
-function findPath(startX, startY, goalX, goalY, blockedFn) {
+function findPath(startX, startY, goalX, goalY, blockedFn, options = {}) {
   const sx = Math.floor(startX / TILE);
   const sy = Math.floor(startY / TILE);
   const gx = Math.floor(goalX / TILE);
   const gy = Math.floor(goalY / TILE);
 
-  if (sx === gx && sy === gy) return [];
+  const isGoal = options.isGoal || ((x, y) => x === gx && y === gy);
+  if (isGoal(sx, sy)) return [];
   if (gx < 0 || gy < 0 || gx >= MAP_W || gy >= MAP_H) return null;
-  if (blockedFn(gx, gy)) {
+  if (!options.isGoal && blockedFn(gx, gy)) {
     // Try to find a nearby open tile
     return null;
   }
 
   const encode = (x, y) => y * MAP_W + x;
-  const H = (x, y) => Math.abs(x - gx) + Math.abs(y - gy);
+  const H = options.isGoal
+    ? (x, y) => Math.max(0, Math.max(Math.abs(x - gx), Math.abs(y - gy)) - (options.goalRadius ?? 0))
+    : (x, y) => Math.abs(x - gx) + Math.abs(y - gy);
 
   const gScore = new Map();
   const fScore = new Map();
@@ -33,7 +36,7 @@ function findPath(startX, startY, goalX, goalY, blockedFn) {
   ];
 
   let iters = 0;
-  while (openSet.size > 0 && iters++ < 3000) {
+  while (openSet.size > 0 && iters++ < (options.maxIterations ?? 3000)) {
     // Pick node with lowest fScore
     let current = -1, bestF = Infinity;
     for (const k of openSet) {
@@ -44,7 +47,7 @@ function findPath(startX, startY, goalX, goalY, blockedFn) {
     const cx = current % MAP_W;
     const cy = Math.floor(current / MAP_W);
 
-    if (cx === gx && cy === gy) {
+    if (isGoal(cx, cy)) {
       // Reconstruct path
       const path = [];
       let k = current;
