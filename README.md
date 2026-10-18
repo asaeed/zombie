@@ -65,7 +65,9 @@ save data from localhost; existing local saves are not transferred.
   stays on the map, but zombies are only visible where you have vision
 - The HQ stores 500 supplies, each depot adds 250 more, and banking stops when
   storage is full. Right-click the HQ or a depot with a carrying unit selected
-  to send it home to dump cargo
+  to send it home to dump cargo. A destroyed depot loses only its equal share
+  of supplies above the HQ's capacity, divided among depots before the loss.
+  Losses round down to whole supplies; the remainder stays in surviving depots
 - Kills score points but pay nothing; each cleared wave pays a small bonus
   (always banked, even over cap); repairs cost supplies
 - Night falls every 3 minutes (2 minutes long): vision shrinks to flashlight
@@ -87,7 +89,8 @@ save data from localhost; existing local saves are not transferred.
   where two wall corners meet
 - Builders automatically move to and repair damaged buildings nearby; repairs
   are slower now, at one repair tick per second, and builders return to their
-  previous station afterward
+  previous station afterward. Range includes building footprints, and builders
+  respond to new nearby damage during the return trip
 - Survival is endless now: waves keep escalating until the HQ falls
 - Wave 4 brings spitters that lob acid over walls; wave 6 adds exploders
   whose shot-down blast is wider and loses damage with distance; wave 8 adds screamers that speed nearby zombies
