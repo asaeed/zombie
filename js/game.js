@@ -566,8 +566,7 @@ class Game {
     this.flowDirty = true;
   }
 
-  // HQ plus depots define supply storage. Supplies already banked above the cap
-  // persist (spend-only) — losing a depot never destroys what you have.
+  // HQ plus depots define supply storage. Bonuses and refunds may exceed the cap.
   storageCap() {
     const hqCap = this.buildings.some(b => !b.dead && b.type === 'hq') ? HQ_STORAGE : 0;
     const depotCap = DEPOT_STORAGE * this.buildings.filter(b => !b.dead && b.type === 'depot').length;
@@ -1128,7 +1127,18 @@ class Game {
       this.addActivity(`${entity.def.name} destroyed`, 'danger');
     } else if (entity instanceof Building) {
       this.stats.buildingsDestroyed++;
-      this.addActivity(`${entity.def.name} destroyed`, 'danger');
+      let suppliesLost = 0;
+      if (entity.type === 'depot') {
+        const hqCapacity = this.buildings.some(b => !b.dead && b.type === 'hq') ? HQ_STORAGE : 0;
+        // Include this depot and other deaths still awaiting handling this frame.
+        const depotCount = 1 + this.buildings.filter(b => b !== entity && b.type === 'depot' &&
+          (!b.dead || !b._deathHandled)).length;
+        // Keep whole supplies; any remainder stays in the surviving depots.
+        suppliesLost = Math.floor(Math.max(0, this.supplies - hqCapacity) / depotCount);
+        this.supplies -= suppliesLost;
+      }
+      const lossNotice = suppliesLost > 0 ? ` (${suppliesLost} supplies lost)` : '';
+      this.addActivity(`${entity.def.name} destroyed${lossNotice}`, 'danger');
       this.flowDirty = true;
       for (const z of this.zombies) {
         if (z.atkTarget === entity) z.atkTarget = null;

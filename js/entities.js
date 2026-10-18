@@ -802,7 +802,10 @@ class Unit {
       return;
     }
 
-    if (this._supportReturning) this._updateSupportReturn(dt, game);
+    if (this._supportReturning) {
+      if (this.type === 'builder' && this._updateBuilderAutoRepair(dt, game)) return;
+      this._updateSupportReturn(dt, game);
+    }
 
     if (!this._supportReturning && this.type === 'builder') {
       if (this.repairTarget && !this.repairTarget.dead && this.repairTarget.hp < this.repairTarget.maxHp) {
@@ -911,15 +914,19 @@ class Unit {
   }
 
   _updateBuilderAutoRepair(dt, game) {
-    let target = null, bestD2 = BUILDER_REPAIR_RADIUS * BUILDER_REPAIR_RADIUS;
+    let target = null, bestDistance = BUILDER_REPAIR_RADIUS;
     for (const b of game.buildings) {
       if (b.dead || b.hp >= b.maxHp) continue;
-      const d2 = dist2(this.x, this.y, b.x, b.y);
-      if (d2 < bestD2) { bestD2 = d2; target = b; }
+      // A building is in range when its footprint is, even if its center is not.
+      const distance = game.distanceToBuilding(this.x, this.y, b);
+      if (distance <= bestDistance) { bestDistance = distance; target = b; }
     }
     if (!target) return false;
 
     if (!this.supportHome) this.supportHome = { x: this.x, y: this.y };
+    this._supportReturning = false;
+    this.waypoints = [];
+    this.moveTarget = null;
     this.repairTarget = target;
     this._repairBuilding(dt, game, target);
     return true;
