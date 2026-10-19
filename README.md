@@ -8,11 +8,11 @@ of zombies through day and night.
 
 ## Screenshots
 
-Day and night views of the Rigged Tactics outpost.
+Gameplay during the day and at night.
 
 | Day | Night |
 | --- | --- |
-| ![Isometric outpost in daylight with survivors, zombies and buildings](docs/media/outpost-day.png) | ![The same outpost at night with lit buildings and pools of warm light](docs/media/outpost-night.png) |
+| ![Dead Zone RTS in daylight, with survivors, guard towers, a clinic and camp buildings](docs/media/outpost-day.jpg) | ![Dead Zone RTS at night, with a lit camp, incoming wave warning and building controls](docs/media/outpost-night.jpg) |
 
 ## Animation previews
 
