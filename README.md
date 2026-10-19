@@ -6,6 +6,8 @@ Browser zombie-survival RTS. Vanilla JS + Canvas 2D, no build step or runtime
 dependencies. Scavenge supplies, build an outpost, and survive escalating waves
 of zombies through day and night.
 
+**Read more:** [Dead Zone RTS on niltoid.com](https://niltoid.com/blog/dead-zone-rts/).
+
 ## Screenshots
 
 Gameplay during the day and at night.
