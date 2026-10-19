@@ -1,9 +1,10 @@
 # Dead Zone RTS
 
-**Play the game:** [Dead Zone RTS on GitHub Pages](https://asaeed.github.io/zombie/)
+**[Play Dead Zone RTS](https://asaeed.github.io/zombie/)**
 
 Browser zombie-survival RTS. Vanilla JS + Canvas 2D, no build step or runtime
-dependencies. Serve over HTTP (`python3 -m http.server`) and open localhost.
+dependencies. Scavenge supplies, build an outpost, and survive escalating waves
+of zombies through day and night.
 
 ## Screenshots
 
@@ -15,7 +16,7 @@ Day and night views of the Rigged Tactics outpost.
 
 ## Animation previews
 
-Actual production sprite frames, enlarged for inspection.
+Walking, running, and directional sprite previews.
 
 | Soldier walking | Builder walking |
 | --- | --- |
@@ -29,60 +30,8 @@ Actual production sprite frames, enlarged for inspection.
 
 <img src="docs/media/suv-turnaround.gif" width="192" height="192" alt="White armored truck stepping through eight directional poses">
 
-The vehicle preview cycles through its eight directional poses; it is not a
-wheel animation. The original GIF exports are also included in the
-[Sprite Animation Skill examples](https://github.com/asaeed/sprite-animation-skill#delivered-examples).
-
-<details>
-<summary>Earlier visual directions</summary>
-
-These concept boards show the earlier art exploration, before the production
-sprites above.
-
-**Pixel art**
-
-![Pixel-art HQ, light tower and four unit concepts](docs/art-directions/pixel-art-concept.png)
-
-**Graphic novel**
-
-![Illustrated HQ, light tower and four unit concepts](docs/art-directions/graphic-novel-concept.png)
-
-**Pre-rendered 3D**
-
-![Low-poly HQ, light tower and four unit concepts](docs/art-directions/pre-rendered-3d-concept.png)
-
-</details>
-
-## GitHub Pages
-
-The public site is published from the `gh-pages` branch root. [Source code](https://github.com/asaeed/zombie)
-is public. Publishing uses a runtime-only snapshot, excluding
-source-art masters, review documents, tools, tests, and dependencies.
-
-Run `node tools/build-pages.mjs` to create a fresh export in a temporary
-directory, or pass an empty output directory explicitly. Commit the exported
-files to `gh-pages` to deploy an update; local source changes do not publish
-automatically. `release.json` identifies the exact exported content.
-
-The shipped game uses only the final Rigged Tactics artwork. Earlier graphics
-experiments and their loaders stay archived in the source checkout, not in the
-Pages export. Approved structures and vehicle art are packaged with the final
-skin, without downloading any intermediate character sheets.
-
-Assets begin loading on the start screen. Progress counts downloaded, decoded,
-and validated assets; Start (or Continue) enables only when the full skin is
-ready. The game does not render, advance, or overwrite saves before entering.
-Failed downloads show Retry instead of falling back to older graphics.
-
-Buildings, supply caches, scenery, and terrain have pixel-aligned night PNGs.
-Their colors and built-in lights crossfade over the existing dusk/dawn period;
-unit sheets, fog of war, and gameplay light/vision ranges are unchanged. Rocks
-use half their former spawn frequency, including when loading an existing save.
-
-Saves remain in this browser's local storage. The hosted site has separate
-save data from localhost; existing local saves are not transferred.
-
 ## Controls
+
 - Left click / drag: select units · selected unit + cache click: auto-gather
 - Right click: move / attack / gather / dump cargo / repair
 - Build: `W`all, `T`ower, `B`arracks, `D`epot, `L`ight tower, clinic (`K`), mechanics bay (`M`) · one placement per selection · Esc: cancel · Del: sell
@@ -98,6 +47,7 @@ save data from localhost; existing local saves are not transferred.
 - Menu: top-right `MENU` button for pause, save/load slots, and restart
 
 ## Gameplay
+
 - Supplies come from scavenging: search the wrecked cars, cabins and bins
   scattered across the map (walk a unit onto one; contents are unknown until
   searched), then haul the loot back to the HQ or a depot to bank it. A selected
@@ -135,11 +85,10 @@ save data from localhost; existing local saves are not transferred.
   unharmed. Heavies cannot swing and medics cannot heal while aboard
 - Intact buildings and walls block zombie movement, including diagonal gaps
   where two wall corners meet
-- Builders automatically move to and repair damaged buildings nearby; repairs
-  are slower now, at one repair tick per second, and builders return to their
-  previous station afterward. Range includes building footprints, and builders
-  respond to new nearby damage during the return trip
-- Survival is endless now: waves keep escalating until the HQ falls
+- Builders automatically move to and repair damaged buildings nearby, at one
+  repair tick per second, then return to their station. Range includes building
+  footprints, and builders respond to new nearby damage during the return trip
+- Waves keep escalating until the HQ falls
 - Wave 4 brings spitters that lob acid over walls; wave 6 adds exploders
   whose shot-down blast is wider and loses damage with distance; wave 8 adds screamers that speed nearby zombies
   and shriek to wake dormant guards only when a human unit comes close.
@@ -152,73 +101,34 @@ save data from localhost; existing local saves are not transferred.
   The menu also has three local save slots for manual save points
 
 ## Architecture
-- Simulation runs on a square 80×80 tile grid in world coordinates
-  (`js/game.js`, `js/entities.js`, `js/pathfinding.js`) — unchanged by rendering
-- Rendering is true 2:1 isometric. ALL iso math lives in `worldToScreen` /
-  `screenToWorld` in `js/utils.js`; renderer and input route through them
-- Tests: `node --test tests/*.test.mjs`
 
-- The default game now uses reference-generated Sculpted Pixel art for all
-  seven player roles, seven zombie types, three additional grey walker
-  appearances, eight buildings, resource caches, the white SUV, and forest
-  terrain/props. Animation uses an articulated 2D texture rig, not live 3D.
-  All actors now render at half their previous size, around 21 body pixels
-  for ordinary humans/walkers at zoom 1, with unchanged foot anchors and
-  gameplay ranges. Ground uses at most two subtle shades per material.
-  Attack/work clips use planted legs and action-specific arm ownership;
-  walk/shoot clips retain their existing animation.
-- Full-scene review: `docs/art-directions/sculpted-world.html`; individual
-  action/facing inspector: `docs/art-directions/sculpted-pixel-sprites.html`.
-  Rebuild the expanded set with `node tools/sculpted-pixel/bake-world.mjs`;
-  browser-check with `node tools/sculpted-pixel/verify-world.mjs` while the
-  local server is running. Generated sources and exact prompts are retained
-  in `assets/sculpted-pixel/source/`; runtime assets and validation are in
-  `assets/sculpted-pixel/world/`. New artwork remains open to user refinement.
-- New complete Brushwork cutout skin: `?artPack=brushwork-layered`, with
-  all player/zombie roles, generated torso/limb components, 16-frame walks,
-  role-specific work/combat clips and high-quality edge filtering. Matching
-  painted world art and quiet terrain are retained; older skins remain
-  available in menu Graphics. Review `docs/art-directions/brushwork-full-world.html`
-  and `brushwork-full-sprites.html`; recipe/evidence in `docs/art-packs.md`.
-- `?artPilot=off` retains the earlier game art. Saved simulation state and
-  pathfinding are unchanged; forest decorations are nonblocking cosmetic art.
-- Opt-in sprite comparison: `?artPilot=diorama`, `?artPilot=pixel`, or
-  `?artPilot=horror` renders a sniper and one regular walker appearance.
-  `?artPilot=1` remains an alias for diorama. `npm install && npm run art:bake`
-  regenerates all three independently authored directional animation sets;
-  these older studies remain available separately from the default world art.
+- Simulation runs on an 80×80 tile grid in world coordinates:
+  [game state](js/game.js), [entities](js/entities.js), and
+  [pathfinding](js/pathfinding.js).
+- Rendering uses Canvas 2D with a 2:1 isometric projection. Coordinate conversion
+  lives in `worldToScreen` and `screenToWorld` in [js/utils.js](js/utils.js).
+- The Rigged Tactics artwork includes seven player roles, seven zombie types,
+  three additional walker appearances, eight building types, an armored truck,
+  supply caches, and forest scenery. Sprite sheets contain directional animation
+  clips; buildings, scenery, and terrain have day/night variants. The
+  [art manifest](assets/rigged-full/manifest.json) defines frames and anchors.
+- The [renderer](js/renderer.js) caches terrain and scenery while panning and
+  uses a 24 MiB LRU cache for scaled sprite frames. The simulation uses a spatial
+  grid for nearby zombie queries.
 
-### Performance Checks
+## Development
 
-Idle actors use one fixed pose; walking, combat, and work keep their full clips.
-The simulation uses a moving spatial grid for nearby zombie queries. Rendering
-reuses scenery placement, projected unit occlusion samples, and terrain pixels
-while panning; only exposed or changed screen regions are repainted. Day/night
-terrain layers are prepared only when needed. Offscreen simulation is not paused.
-Sprite frames are filtered once at the current zoom and display density, then
-reused through a 24 MiB LRU cache instead of rescaling large sheets every draw.
+Serve the repository over HTTP:
 
-After `npm install`, run `node tools/benchmark-performance.mjs` against the local
-server at port 8787, or pass a game URL or export directory and optional label.
-It uses an isolated Chrome session with 180 humans and 500 zombies, exercising
-idle, crowded, panning, and night scenes. JSON timings, CPU profiles, and screen
-captures go to a temporary folder printed by the command. `BENCH_OUTPUT`,
-`BENCH_DPR`, and `CHROME_PATH` override the output directory, density, and browser.
-Compare identical scenes and densities. CPU frame work and browser refresh
-intervals are reported separately; neither is a universal FPS guarantee.
+```sh
+python3 -m http.server 8787
+```
 
-## Project docs
-- Design spec: `docs/superpowers/specs/2026-07-13-overhaul-design.md`
-- Threat and the clinic/mechanics expansion are in place; the remaining
-  planned structures and final art/polish are still open
-- Visual mockups: `docs/mockups/visual-directions.html`
-- Visual review (art directions and favicon options): `docs/art-directions/review.html`
-- Five native-grid sprite options: `docs/art-directions/native-sprite-options.html`
-- Zombie cast and animation review: `docs/art-directions/zombie-lineup.html`
-- Three zombie redesign directions: `docs/art-directions/zombie-directions.html`
-- Six whole-game art directions (structures, units, zombies, and motion poses): `docs/art-directions/whole-game-directions.html`
-- Selected voxel-diorama art direction and comparisons: `docs/art-directions/pixel-diorama-directions.html`
-- Sprite-sheet animation pilot: `docs/art-directions/sprite-sheet-pilot.html`
-- Phase-7 art direction notes: `docs/art-directions/README.md`
-- Current Sculpted Pixel scene: `docs/art-directions/sculpted-world.html`
-- Complete sprite roster: `docs/art-directions/sculpted-pixel-sprites.html`
+Open [localhost:8787](http://localhost:8787/). Saves are stored in the browser's
+local storage.
+
+Run the tests with Node.js:
+
+```sh
+node --test tests/*.test.mjs
+```
