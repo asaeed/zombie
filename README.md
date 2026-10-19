@@ -5,6 +5,54 @@
 Browser zombie-survival RTS. Vanilla JS + Canvas 2D, no build step or runtime
 dependencies. Serve over HTTP (`python3 -m http.server`) and open localhost.
 
+## Screenshots
+
+Day and night views of the Rigged Tactics outpost.
+
+| Day | Night |
+| --- | --- |
+| ![Isometric outpost in daylight with survivors, zombies and buildings](docs/media/outpost-day.png) | ![The same outpost at night with lit buildings and pools of warm light](docs/media/outpost-night.png) |
+
+## Animation previews
+
+Actual production sprite frames, enlarged for inspection.
+
+| Soldier walking | Builder walking |
+| --- | --- |
+| <img src="docs/media/soldier-walk.gif" width="192" height="192" alt="Soldier's sixteen-frame southeast walking cycle"> | <img src="docs/media/builder-walk.gif" width="192" height="192" alt="Builder's sixteen-frame southeast walking cycle"> |
+
+| Walker | Running exploder |
+| --- | --- |
+| <img src="docs/media/walker-walk.gif" width="192" height="192" alt="Grey zombie's sixteen-frame southeast walking cycle"> | <img src="docs/media/exploder-run.gif" width="192" height="192" alt="Exploder's sixteen-frame running cycle with orange markers"> |
+
+**Armored truck: eight-view turnaround**
+
+<img src="docs/media/suv-turnaround.gif" width="192" height="192" alt="White armored truck stepping through eight directional poses">
+
+The vehicle preview cycles through its eight directional poses; it is not a
+wheel animation. The original GIF exports are also included in the
+[Sprite Animation Skill examples](https://github.com/asaeed/sprite-animation-skill#delivered-examples).
+
+<details>
+<summary>Earlier visual directions</summary>
+
+These concept boards show the earlier art exploration, before the production
+sprites above.
+
+**Pixel art**
+
+![Pixel-art HQ, light tower and four unit concepts](docs/art-directions/pixel-art-concept.png)
+
+**Graphic novel**
+
+![Illustrated HQ, light tower and four unit concepts](docs/art-directions/graphic-novel-concept.png)
+
+**Pre-rendered 3D**
+
+![Low-poly HQ, light tower and four unit concepts](docs/art-directions/pre-rendered-3d-concept.png)
+
+</details>
+
 ## GitHub Pages
 
 The public site is published from the `gh-pages` branch root. [Source code](https://github.com/asaeed/zombie)
