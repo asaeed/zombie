@@ -40,7 +40,7 @@ const ZOMBIE_DEFS = {
   runner: { name:'Runner', maxHp:40,  speed:110, atkRange:28, atkDmg:10, atkRate:1.5, radius:7,  reward:8,  color:'#b6c3bf' },
   brute:  { name:'Brute',  maxHp:1000, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#b6c3bf' },
   spitter: { name:'Spitter', maxHp:65, speed:30, atkRange:120, atkDmg:22, atkRate:0.55, radius:9, reward:12, color:'#a6d94e' },
-  exploder: { name:'Exploder', maxHp:95, speed:72, atkRange:22, atkDmg:0, atkRate:0, radius:11, reward:15, color:'#ee7a38' },
+  exploder: { name:'Exploder', maxHp:95, speed:110, atkRange:22, atkDmg:0, atkRate:0, radius:11, reward:15, color:'#ee7a38' },
   screamer: { name:'Screamer', maxHp:110, speed:42, atkRange:32, atkDmg:8, atkRate:0.6, radius:10, reward:18, color:'#d883d2' },
   boss: { name:'Boss Brute', maxHp:3600, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#b6c3bf' },
 };
