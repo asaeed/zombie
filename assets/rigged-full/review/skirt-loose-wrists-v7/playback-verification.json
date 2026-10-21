@@ -1,0 +1,19 @@
+[
+  {
+    "folder": "skirt-loose-wrists-v7",
+    "httpStatus": 200,
+    "errors": [],
+    "animationFrameAdvanced": true,
+    "renderedPixelsChanged": true,
+    "normalAndQuarterSpeedPlayback": [
+      "walk",
+      "attack"
+    ],
+    "checkedCanvases": 640,
+    "actors": [
+      "walker-dress"
+    ],
+    "directions": 8,
+    "screenshot": "/private/tmp/skirt-loose-wrists-v7-fixed.png"
+  }
+]

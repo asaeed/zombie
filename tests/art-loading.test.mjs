@@ -108,7 +108,7 @@ test('registry failure blocks boot rather than silently loading fallback artwork
 });
 
 test('image failure keeps readiness false, removes the failed cache, and retries cleanly', async () => {
-  const r = runtime(); r.controls.failure = '/walker.png';
+  const r = runtime(); r.controls.failure = '/' + manifest.characters.walker.image;
   await assert.rejects(r.evaluate('startArtPacks()'), /Decode failed/);
   assert.equal(r.evaluate('SCULPTED_WORLD.ready'), false);
   assert.equal(r.evaluate('ART_PACK_CACHE.size'), 0);

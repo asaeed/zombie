@@ -1,0 +1,9 @@
+{
+  "unchangedLegPoses": 320,
+  "unchangedHandPoses": 64,
+  "unchangedSkirtPoses": 320,
+  "unchangedHairPoses": 320,
+  "changedHandPoses": 256,
+  "unchangedArmPoses": 320,
+  "unchangedShortGait": true
+}

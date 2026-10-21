@@ -1,0 +1,18 @@
+{
+  "checkedFrames": 384,
+  "lowerBodyPixelDifferences": 0,
+  "diffMinY": 160,
+  "diffMaxY": 0,
+  "alphaDifferences": 0,
+  "detachedLegFrames": {
+    "before": [],
+    "updated": []
+  },
+  "image": "walker-b6e8159df628.png",
+  "imageSha256": "b6e8159df6284b7b7240e742d353be0e00209f85d14628c777164dca0d20609f",
+  "lowerBodyCrop": {
+    "fromY": 100,
+    "footAnchorY": 136
+  },
+  "note": "Comparison excludes changed hands, which project through rows 90 to 97."
+}

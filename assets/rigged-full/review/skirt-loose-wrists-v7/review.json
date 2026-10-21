@@ -1,0 +1,59 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-eb68e1c2351a.png",
+  "method": "existing licensed rig rendered to sprite atlas",
+  "scope": "Loose downward wrists and palms during walk and attack; accepted arm reach, skirt, gait, hair and idle preserved",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "actions": [
+      "idle",
+      "walk",
+      "attack"
+    ],
+    "facings": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "observations": [
+      "Wrists hang below the forearms with palms facing mostly down in walking and attacking",
+      "Arm reach and elbow positions are preserved",
+      "Hip-fitted skirt, leg coverage and head-attached bob remain unchanged"
+    ],
+    "timedArtisticPlayback": "not independently reviewed; browser playback verified separately"
+  },
+  "renderedCoverage": {
+    "poses": 320,
+    "visibleLegPixelsThroughFabric": 0,
+    "projectedOverlapPixels": 407296
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedHandPoses": 64,
+    "unchangedSkirtPoses": 320,
+    "unchangedHairPoses": 320,
+    "changedHandPoses": 256,
+    "unchangedArmPoses": 320,
+    "unchangedShortGait": true
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  }
+}

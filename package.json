@@ -1,0 +1,13 @@
+{
+  "name": "dead-zone-rts-art-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "art:bake": "node tools/bake-diorama.mjs",
+    "art:test": "node --test tests/diorama-art.test.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0",
+    "three": "0.186.1"
+  }
+}

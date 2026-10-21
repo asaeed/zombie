@@ -28,7 +28,19 @@ test('Pages export contains the current game and every referenced runtime asset,
     const release=JSON.parse(await fs.readFile(path.join(output,'release.json'),'utf8'));
     assert.equal(release.release,result.release);assert.match(release.release,/^[0-9a-f]{64}$/);
     assert.ok(release.files>40);assert.ok(release.bytes>1000000);
-    assert.ok(release.bytes<50000000,'only the final artwork belongs in the release');
+    const expected=new Set(['index.html','style.css','assets/favicon.svg','assets/favicon-32.png','assets/favicon-64.png',
+      'assets/rigged-full/intro.webp','assets/art-packs/registry.json','assets/rigged-full/manifest.json',
+      ...['config','utils','pathfinding','entities','game','art','renderer','input','main'].map(name=>'js/'+name+'.js')]);
+    for(const record of [...Object.values(meta.characters),...Object.values(meta.objects),meta.terrain])
+      for(const image of [record.image,record.nightImage].filter(Boolean))expected.add(path.posix.normalize('assets/rigged-full/'+image));
+    const exported=[];
+    async function list(dir,relative=''){for(const item of await fs.readdir(dir,{withFileTypes:true})){
+      const name=path.posix.join(relative,item.name);if(item.isDirectory())await list(path.join(dir,item.name),name);else exported.push(name);
+    }}
+    await list(output);assert.deepEqual(exported.sort(),[...expected,'.nojekyll','release.json'].sort(),'exact runtime dependency closure; no production assets');
+    assert.equal(release.files,expected.size);
+    let runtimeBytes=0;for(const file of expected)runtimeBytes+=(await fs.stat(path.join(output,file))).size;
+    assert.equal(release.bytes,runtimeBytes);
     for(const script of (await fs.readFile(path.join(output,'index.html'),'utf8')).matchAll(/<script[^>]+src="([^"]+)"/g))
       assert.ok((await fs.stat(path.join(output,script[1].split('?')[0]))).size>0);
     assert.equal((await fs.stat(path.join(output,'.nojekyll'))).size,0);

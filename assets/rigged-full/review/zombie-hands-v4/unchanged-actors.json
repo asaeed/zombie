@@ -1,0 +1,54 @@
+{
+  "soldier": {
+    "image": "soldier.png",
+    "sha256": "a2d359ee3e662fa00dc6e37f17a8b821630b957c4166d07fe8e39ffed3fb05e1"
+  },
+  "suv": {
+    "image": "suv.png",
+    "sha256": "d270b491b1ffae568996538bc2bb62cf1ace9462a6e9ecab13c9c19b1ee27693"
+  },
+  "scout": {
+    "image": "scout.png",
+    "sha256": "267a7c42dd2b560fcbbb58202807a7e9d5e11a4235420cc06ce52f4930c799ff"
+  },
+  "builder": {
+    "image": "builder.png",
+    "sha256": "cc0acbd95bb442d719d72341ad179bcb2057ab29c402f0de1564d7e473f5136b"
+  },
+  "heavy": {
+    "image": "heavy-68e214b1d38f.png",
+    "sha256": "68e214b1d38fc44119137150144d6fc212cbff0cf625e205e1579d885201bbbd"
+  },
+  "torchbearer": {
+    "image": "torchbearer.png",
+    "sha256": "d9e2598dcc9f60bdd6ee02ad7799aa6cbafdea2f540ce0f237f85128303a6168"
+  },
+  "runner": {
+    "image": "runner-06e19e87db62.png",
+    "sha256": "06e19e87db623f76b577bc58f7513cc3b5d4748bb6bd2f290b4ddd69f2103b2e"
+  },
+  "medic": {
+    "image": "medic.png",
+    "sha256": "787cd80bf11cbdc23cfc439935a4e6c8a9328a3c921180a18f69dc3fc6d1edff"
+  },
+  "sniper": {
+    "image": "sniper.png",
+    "sha256": "3760514a7f79a824644b2bcf266ad0ca622ead6b589fa038e60264e3c838a3f6"
+  },
+  "brute": {
+    "image": "brute-d6ff2557a9ae.png",
+    "sha256": "d6ff2557a9ae216216877627ad4a82afe26ac2e038fc437cba854ce0abf2233f"
+  },
+  "exploder": {
+    "image": "exploder-3ac1dbdf56f5.png",
+    "sha256": "3ac1dbdf56f512b12beaad03e5c55960debd5b47ceed83b31d65c5881f7577ea"
+  },
+  "boss": {
+    "image": "boss-f2733fb20fef.png",
+    "sha256": "f2733fb20fef76b88a9a44f428c4d5bffef4dcda7a8bb3f39dfbbabe55a40eca"
+  },
+  "walker-cap": {
+    "image": "walker-cap-f0dfafe61a3f.png",
+    "sha256": "f0dfafe61a3f3627df2e2813e905d872abc0915b34101aac9dca72e207732a76"
+  }
+}
