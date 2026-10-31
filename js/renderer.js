@@ -61,6 +61,9 @@ class Renderer {
   }
 
   render(game, input) {
+    this._wallTiles = new Set(game.buildings.filter(b => !b.dead && b.type === 'wall').map(b => `${b.tileX},${b.tileY}`));
+    this._wallPreview = game.buildMode === 'wall' && input.mouseTile &&
+      game.canPlaceBuilding('wall', input.mouseTile.tx, input.mouseTile.ty) ? input.mouseTile : null;
     const ctx = this.ctx;
     ctx.fillStyle = '#12180d';               // far wasteland beyond the skirt band
     ctx.fillRect(0, 0, this.W, this.H);
@@ -493,7 +496,7 @@ class Renderer {
       { x: W.x, y: W.y - h },
     ];
     const drawKey = (b.tileX + ts) * TILE + (b.tileY + ts) * TILE;
-    const artwork = sculptedObject(b.type);
+    const artwork = b.type === 'wall' ? null : sculptedObject(b.type);
     const rect = artwork ? sculptedObjectRect(artwork, S, z) : null;
     const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey, artwork, rect);
     const cx = (N.x + S.x) / 2;
@@ -510,7 +513,9 @@ class Renderer {
       ctx.save();
       ctx.globalAlpha *= occlusionAlpha;
     }
-    if (artwork) {
+    if (b.type === 'wall') {
+      this._drawWall(ctx, game, b.tileX, b.tileY, this._wallPreview);
+    } else if (artwork) {
       ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
       ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height);
@@ -1082,6 +1087,64 @@ class Renderer {
   }
 
   // ── Build Ghost ───────────────────────────────────────────────────────────
+  _drawWall(ctx, game, tileX, tileY, preview = null) {
+    const cam = game.camera, z = cam.zoom, h = ISO_HEIGHTS.wall * z;
+    const shape = wallShape(this._wallTiles ?? game.buildings, tileX, tileY, preview);
+    const artwork = sculptedObject('wall');
+    const image = artwork ? worldArtworkImage(artwork, game.darkness()) : null;
+    if (artwork) {
+      ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
+    }
+    const project = p => worldToScreen(p.x, p.y, cam);
+    const polygon = (points, color) => {
+      ctx.fillStyle = color; ctx.beginPath();
+      points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+      ctx.closePath(); ctx.fill();
+    };
+    // Panel, cap and post samples use the original wall's 259 by 250 source coordinates.
+    const texture = (points, source) => {
+      if (!image) return;
+      const width = image.naturalWidth || image.width, height = image.naturalHeight || image.height;
+      const [o,u,v] = source.map(([x,y]) => ({x:x*width/259,y:y*height/250}));
+      const ux=u.x-o.x, uy=u.y-o.y, vx=v.x-o.x, vy=v.y-o.y, det=ux*vy-uy*vx;
+      const tx=points[1].x-points[0].x, ty=points[1].y-points[0].y;
+      const bx=points[3].x-points[0].x, by=points[3].y-points[0].y;
+      const a=(tx*vy-bx*uy)/det, b=(ty*vy-by*uy)/det;
+      const c=(bx*ux-tx*vx)/det, d=(by*ux-ty*vx)/det;
+      ctx.save(); ctx.beginPath();
+      points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+      ctx.closePath(); ctx.clip();
+      ctx.transform(a,b,c,d,points[0].x-a*o.x-c*o.y,points[0].y-b*o.x-d*o.y);
+      ctx.drawImage(image,0,0); ctx.restore();
+    };
+    const brightness = 1 - game.darkness() * .5;
+    const stone = factor => shadeColor('#b1aba0', brightness * factor);
+    for (const edge of shape.edges.filter(e => e.face === 1 || e.face === 2)) {
+      const a=project(edge.a), b=project(edge.b);
+      const points=[{x:a.x,y:a.y-h},{x:b.x,y:b.y-h},b,a];
+      polygon(points,stone(edge.face === 1 ? .65 : .82));
+      texture(points,[[78,86],[162,126],[78,158]]);
+      if (image && edge.face === 1) polygon(points,'rgba(26,31,35,.14)');
+    }
+    for (const roof of shape.roofs) {
+      const points=roof.map(p => {const s=project(p);return {x:s.x,y:s.y-h};});
+      polygon(points,stone(1));
+      texture(points,[[78,65],[159,104],[68,73]]);
+    }
+    if (image) for (const post of shape.posts) {
+      const foot=project(post), sx=.095*z, sy=.16*z;
+      ctx.save();
+      ctx.translate(foot.x-55*sx,foot.y-147*sy); ctx.scale(sx,sy);
+      ctx.beginPath();
+      for (const [i,[x,y]] of [[61,18],[94,34],[94,57],[74,64],[74,143],[53,153],[19,138],[19,39]].entries()) {
+        if (i) ctx.lineTo(x,y); else ctx.moveTo(x,y);
+      }
+      ctx.closePath(); ctx.clip();
+      ctx.drawImage(image,0,0,259,250); ctx.restore();
+    }
+  }
+
   // Keep the ground footprint visible below the artwork preview.
   _drawBuildGhost(ctx, game, tile) {
     const cam = game.camera;
@@ -1097,6 +1160,12 @@ class Renderer {
     ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = valid ? '#ffffff' : '#ff0000'; ctx.lineWidth = 2; ctx.stroke();
+    if (game.buildMode === 'wall') {
+      ctx.save(); ctx.globalAlpha = valid ? .65 : .28;
+      this._drawWall(ctx, game, tile.tx, tile.ty);
+      ctx.restore();
+      return;
+    }
     const artwork = sculptedObject(game.buildMode);
     if (artwork) {
       const rect = sculptedObjectRect(artwork, S, cam.zoom);

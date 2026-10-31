@@ -89,7 +89,7 @@ assert.equal(normalizedSave.waveSpawnIndex, restored.waveSpawnIndex);
 
 const spitterGame = bareGame();
 const wall = new Building('wall', 25, 25);
-spitterGame.buildings.push(wall);
+spitterGame.buildings = [wall];
 const spitter = new Zombie('spitter', wall.x - 90, wall.y);
 spitter.atkTarget = wall;
 spitterGame.zombies = [spitter];
@@ -102,7 +102,7 @@ assert.equal(Game.fromSaveData(spitterGame.toSaveData()).zombies[0].maxHp, spitt
 
 const blastGame = bareGame();
 const blastWall = new Building('wall', 25, 25);
-blastGame.buildings.push(blastWall);
+blastGame.buildings = [blastWall];
 const exploder = new Zombie('exploder', blastWall.x + blastWall.width / 2 + 5, blastWall.y);
 blastGame.zombies = [exploder];
 exploder.update(0.05, blastGame);

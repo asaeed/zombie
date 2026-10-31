@@ -2,3 +2,6 @@
 .playwright-mcp/
 .superpowers/
 node_modules/
+
+.env.local
+analytics-config.json

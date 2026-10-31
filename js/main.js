@@ -97,7 +97,8 @@
     return Game.fromSaveData(save.data);
   }
 
-  function installGame(nextGame) {
+  function installGame(nextGame, mode = 'resume') {
+    window.gameAnalytics?.begin(nextGame, mode);
     game = nextGame;
     input.game = game;
     input.resetTransient();
@@ -109,7 +110,7 @@
   function newGame() {
     const fresh = new Game();
     fresh.start();
-    installGame(fresh);
+    installGame(fresh, 'new');
     writeSave(SAVE_KEY_AUTO);
     input.setSaveMeta(readSaveMeta());
   }
@@ -176,6 +177,7 @@
 
     input.updateCamera(dt);
     if (!game.paused) game.update(dt);
+    window.gameAnalytics?.update();
     autoSaveIn -= dt;
     if (autoSaveIn <= 0) {
       autoSaveIn = 3;

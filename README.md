@@ -134,3 +134,39 @@ Run the tests with Node.js:
 ```sh
 node --test tests/*.test.mjs
 ```
+
+## Gameplay analytics
+
+PostHog receives only custom gameplay events; autocapture and session replay are disabled.
+An anonymous browser ID is stored in local storage, with no cookies or identified profiles.
+The game remains playable if analytics configuration or the SDK cannot load.
+
+Create an ignored `.env.local` with `POSTHOG_PROJECT_TOKEN`, `POSTHOG_HOST`, and
+`POSTHOG_ASSET_HOST`, using the project's public ingestion configuration. Then run:
+
+```sh
+node --env-file=.env.local tools/configure-analytics.mjs
+node tools/build-pages.mjs /tmp/dead-zone-pages
+```
+
+Use a fresh output directory. The public `analytics-config.json` is included in the Pages
+export; `.env.local` is never exported. Publish the exported files to `gh-pages` through
+the existing release process. Without generated configuration, analytics stays disabled.
+
+Events are `dz_session_started` (`mode`: `new` or `resume`), `dz_wave_reached`, and
+`dz_session_ended` (`reason`: `defeat`, `restart`, `load`, or `leave`). Save restoration
+starts a resumed play session without replaying past waves. Defeat is recorded once per
+loaded play session; loading an already defeated save emits no start or ending event.
+`survival_minutes` measures simulated game time including restored progress;
+`active_minutes` measures simulated time since this play session began. End events on
+page leave are best effort, so crashes and blocked requests can undercount endings.
+Browser back/forward restoration starts a new resumed play session.
+
+The Dead Zone RTS section on the shared PostHog dashboard uses production
+`asaeed.github.io` events only, with `app=dead-zone-rts` and `environment=production`.
+It shows daily players, new games versus resumes, survival time at defeat, wave reach,
+session endings, and daily return retention. These are project-specific definitions,
+not approved Data Catalog metrics. Retention follows browsers, not cross-device people;
+clearing local storage resets identity. No historical gameplay data can be backfilled.
+
+Verify with `node --test tests/analytics.test.mjs tests/startup.test.mjs tests/pages.test.mjs`.

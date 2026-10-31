@@ -12,7 +12,11 @@ export async function buildPages(destination,root=projectRoot){
   await fs.mkdir(output,{recursive:true});
   if((await fs.readdir(output)).length)throw new Error('Use an empty output directory to avoid publishing extra files');
   const files=new Set(['index.html','style.css','assets/favicon.svg','assets/favicon-32.png','assets/favicon-64.png',
-    'assets/rigged-full/intro.webp',...['config','utils','pathfinding','entities','game','art','renderer','input','main'].map(name=>'js/'+name+'.js')]);
+    'assets/rigged-full/intro.webp',...['config','utils','pathfinding','entities','game','art','renderer','input','analytics','main'].map(name=>'js/'+name+'.js')]);
+  try {
+    await fs.access(path.join(root,'analytics-config.json'));
+    files.add('analytics-config.json');
+  } catch (error) {if(error.code!=='ENOENT')throw error;}
   const registryFile='assets/art-packs/registry.json';files.add(registryFile);
   const registry=JSON.parse(await fs.readFile(path.join(root,registryFile),'utf8'));
   const publicAsset=(relative,base=root+path.sep)=>{
