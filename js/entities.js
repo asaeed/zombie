@@ -1125,6 +1125,7 @@ class Zombie {
   update(dt, game) {
     if (this.dead) return;
     this._routeRetryIn = Math.max(0, (this._routeRetryIn ?? 0) - dt);
+    this._wallRetryIn = Math.max(0, (this._wallRetryIn ?? 0) - dt);
 
     if (this.burning) {
       this._updateBurn(dt, game);
@@ -1178,6 +1179,8 @@ class Zombie {
         this.atkTarget = target;
       }
       if (target) {
+        if (this._handleWall(dt, game)) return;
+        target = this.atkTarget;
         const targetDistance = target instanceof Building
           ? game.distanceToBuilding(this.x, this.y, target)
           : Math.max(0, dist(this.x, this.y, target.x, target.y) - target.def.radius);
@@ -1219,6 +1222,8 @@ class Zombie {
       }
     }
 
+    if (this._handleWall(dt, game)) return;
+
     if (this.atkTarget && !this.atkTarget.dead) {
       const targetX = this.atkTarget.x, targetY = this.atkTarget.y;
       const d = this.atkTarget instanceof Building
@@ -1226,7 +1231,7 @@ class Zombie {
         : dist(this.x, this.y, targetX, targetY);
 
       if (d > this.def.atkRange) {
-        if (this.atkTarget instanceof Unit || this.atkTarget instanceof Vehicle) this._directMoveToward(targetX, targetY, dt, game);
+        if (this.atkTarget instanceof Unit || this.atkTarget instanceof Vehicle || this.atkTarget.type === 'wall') this._directMoveToward(targetX, targetY, dt, game);
         else this._flowMove(dt, game);
       } else {
         // Attack
@@ -1311,6 +1316,108 @@ class Zombie {
     return stalled;
   }
 
+  _handleWall(dt, game) {
+    if (this._route?.wall && this._route.index > this._route.crossing) this._route.wall = null;
+    if (this._route?.wall && this.atkTarget === this._route.target && !this.atkTarget.dead &&
+        this._followRoute(dt, game, this.atkTarget)) return true;
+    let target = this.atkTarget;
+    if (!target || target instanceof Building && target.type === 'wall') {
+      target = this._wallPursuit && !this._wallPursuit.dead ? this._wallPursuit : null;
+      if (!target) {
+        let best = Infinity;
+        for (const b of game.buildings) {
+          if (b.dead || b.type === 'wall') continue;
+          const d = game.distanceToBuilding(this.x,this.y,b);
+          if (d < best) { best=d; target=b; }
+        }
+      }
+    }
+    if (target?.vehicle) target = target.vehicle;
+    if (!target || target.dead) return false;
+    const targetDistance = target instanceof Building ? game.distanceToBuilding(this.x,this.y,target) :
+      dist(this.x,this.y,target.x,target.y) - (this.type === 'exploder' ? target.def.radius : 0);
+    if (targetDistance <= this.def.atkRange) {
+      this.atkTarget = target;
+      this._route = null;
+      return false;
+    }
+    let wall = null, nearest = Infinity;
+    for (const b of game.buildings) {
+      if (b.dead || b.type !== 'wall') continue;
+      const distance = game.distanceToBuilding(this.x,this.y,b);
+      if (distance > Math.max(1.5*TILE,this.def.atkRange) || distance >= nearest) continue;
+      let enter=0, exit=1;
+      for (const [origin,delta,center,size] of [[this.x,target.x-this.x,b.x,b.width],
+          [this.y,target.y-this.y,b.y,b.height]]) {
+        const low=center-size/2-this.def.radius, high=center+size/2+this.def.radius;
+        if (!delta) { if (origin < low || origin > high) exit=-1; }
+        else {
+          const a=(low-origin)/delta, c=(high-origin)/delta;
+          enter=Math.max(enter,Math.min(a,c)); exit=Math.min(exit,Math.max(a,c));
+        }
+      }
+      if (enter <= exit) { wall=b; nearest=distance; }
+    }
+    if (!wall) {
+      if (this.atkTarget?.type === 'wall') this.atkTarget=target;
+      this._wallPursuit = null;
+      return false;
+    }
+    const previous=this._wallPlan;
+    const changed=!previous || previous.wall!==wall || previous.target!==target || previous.field!==game.flowField ||
+      dist2(previous.x,previous.y,this.x,this.y)>TILE*TILE ||
+      dist2(previous.goalX,previous.goalY,target.x,target.y)>(TILE/2)**2;
+    if (changed || this._wallRetryIn <= 0) {
+      this._wallRetryIn=1;
+      this._wallPlan={wall,target,field:game.flowField,x:this.x,y:this.y,goalX:target.x,goalY:target.y};
+      const axis=Math.abs(this.x-wall.x)>Math.abs(this.y-wall.y)?'x':'y';
+      const sign=Math.sign(wall[axis]-this[axis]);
+      const far=wall[axis]+sign*((axis==='x'?wall.width:wall.height)/2+this.def.radius);
+      const points=this._routePoints(game,target,{axis,sign,far});
+      if (points?.length) {
+        const crossing=points.findIndex(p => sign*(p[axis]-far)>=0);
+        if (crossing>=0 && points.slice(0,crossing+1).every(p =>
+            dist2(this.x,this.y,p.x,p.y)<=ZOMBIE_SIGHT_RADIUS**2)) {
+          this.atkTarget=target;
+          this._wallPursuit=null;
+          this._route={target,wall,crossing,goalX:target.x,goalY:target.y,field:game.flowField,points,index:0};
+          return this._followRoute(dt,game,target);
+        }
+      }
+    }
+    this._route=null;
+    this._wallPursuit=target;
+    this.atkTarget=wall;
+    return false;
+  }
+
+  _routePoints(game, target, detour = null) {
+    const radius = this.def.radius;
+    const targetRadius = target instanceof Building ? Math.max(target.width, target.height) / 2 :
+      this.type === 'exploder' ? target.def.radius : 0;
+    const inRange = (tx, ty) => {
+      const x = tileCenterX(tx), y = tileCenterY(ty);
+      const distance = target instanceof Building ? game.distanceToBuilding(x, y, target) :
+        Math.hypot(x - target.x, y - target.y) - (this.type === 'exploder' ? target.def.radius : 0);
+      return distance <= this.def.atkRange;
+    };
+    const blocked = new Int8Array(MAP_W * MAP_H);
+    const isBlocked = (tx, ty) => {
+      if (detour) {
+        const point = {x:tileCenterX(tx),y:tileCenterY(ty)};
+        if (detour.sign*(point[detour.axis]-detour.far)<0 &&
+            dist2(this.x,this.y,point.x,point.y)>ZOMBIE_SIGHT_RADIUS**2) return true;
+      }
+      const index = ty * MAP_W + tx;
+      if (!blocked[index]) blocked[index] = game.canOccupyGround(tileCenterX(tx), tileCenterY(ty), radius) ? -1 : 1;
+      return blocked[index] === 1;
+    };
+    return findPath(this.x, this.y, target.x, target.y, isBlocked, {
+      isGoal: inRange, goalRadius: Math.ceil((targetRadius + this.def.atkRange) / TILE) + 1,
+      maxIterations: MAP_W * MAP_H,
+    });
+  }
+
   _followRoute(dt, game, target, force = false) {
     let route = this._route;
     const changed = route && (route.target !== target || route.field !== game.flowField ||
@@ -1320,26 +1427,7 @@ class Zombie {
     if (!route) {
       if (this._routeRetryIn > 0) return false;
       this._routeRetryIn = 1;
-      const radius = this.def.radius;
-      const targetRadius = target instanceof Building ? Math.max(target.width, target.height) / 2 :
-        this.type === 'exploder' ? target.def.radius : 0;
-      const inRange = (tx, ty) => {
-        const x = tileCenterX(tx), y = tileCenterY(ty);
-        const distance = target instanceof Building ? game.distanceToBuilding(x, y, target) :
-          Math.hypot(x - target.x, y - target.y) - (this.type === 'exploder' ? target.def.radius : 0);
-        return distance <= this.def.atkRange;
-      };
-      const blocked = new Int8Array(MAP_W * MAP_H);
-      const isBlocked = (tx, ty) => {
-        const index = ty * MAP_W + tx;
-        if (!blocked[index]) blocked[index] = game.canOccupyGround(tileCenterX(tx), tileCenterY(ty), radius) ? -1 : 1;
-        return blocked[index] === 1;
-      };
-      // Route to an attack position, never into the target's blocked footprint.
-      const points = findPath(this.x, this.y, target.x, target.y, isBlocked, {
-          isGoal: inRange, goalRadius: Math.ceil((targetRadius + this.def.atkRange) / TILE) + 1,
-          maxIterations: MAP_W * MAP_H,
-        });
+      const points = this._routePoints(game, target);
       if (!points) {
         const obstacle = game.nearestBuildingTo(this.x, this.y);
         if (obstacle && obstacle !== target) this.atkTarget = obstacle;

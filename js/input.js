@@ -836,7 +836,23 @@ class InputHandler {
       if (b.dead) continue;
       const hw = b.width/2 + 2, hh = b.height/2 + 2;
       let onBuilding = wx > b.x - hw && wx < b.x + hw && wy > b.y - hh && wy < b.y + hh;
-      const artwork = sculptedObject(b.type);
+      const artwork = b.type === 'wall' ? null : sculptedObject(b.type);
+      if (b.type === 'wall') {
+        const h = ISO_HEIGHTS.wall * this.game.camera.zoom;
+        const shape = wallShape(this.game.buildings, b.tileX, b.tileY);
+        const project = p => worldToScreen(p.x,p.y,this.game.camera);
+        const z = this.game.camera.zoom;
+        onBuilding ||= shape.posts.some(p => {
+          const foot=project(p);
+          return screen.x>=foot.x-4*z && screen.x<=foot.x+4*z && screen.y>=foot.y-21*z && screen.y<=foot.y+z;
+        });
+        onBuilding ||= shape.roofs.some(roof => pointInPolygon(screen.x,screen.y,
+          roof.map(p => {const s=project(p);return {x:s.x,y:s.y-h};}))) ||
+          shape.edges.some(edge => {
+            const a=project(edge.a),c=project(edge.b);
+            return pointInPolygon(screen.x,screen.y,[a,c,{x:c.x,y:c.y-h},{x:a.x,y:a.y-h}]);
+          });
+      }
       if (artwork) {
         const foot = worldToScreen((b.tileX + b.def.tileSize) * TILE, (b.tileY + b.def.tileSize) * TILE, this.game.camera);
         onBuilding ||= sculptedObjectHit(artwork, sculptedObjectRect(artwork, foot, this.game.camera.zoom), screen.x, screen.y);

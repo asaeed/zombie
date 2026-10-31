@@ -104,6 +104,7 @@ const VISION = { soldier: 8, builder: 6, scout: 12, medic: 7, sniper: 9, heavy: 
 const FOG_INTERVAL = 0.1;                // seconds between visibility recomputes
 const GUARD_STRAYS = 10;
 const GUARD_WAKE_RADIUS = 3 * TILE;      // proximity wake
+const ZOMBIE_SIGHT_RADIUS = 6 * TILE;
 const GUARD_GUNFIRE_RADIUS = 6 * TILE;   // gunfire wake (from the shooter)
 const REPAIR_TICK_COST = 5;              // supplies per repair tick
 const REPAIR_TICK_AMOUNT = 20;

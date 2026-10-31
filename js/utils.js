@@ -312,3 +312,37 @@ function buildingGroundRect(type, tileX, tileY) {
   const height = (def.footprint?.height ?? def.tileSize) * TILE;
   return {left:right-width, top:bottom-height, right, bottom, width, height};
 }
+
+function wallShape(buildings, tileX, tileY, preview = null) {
+  const hasWall = (x,y) => buildings.has ? buildings.has(`${x},${y}`) :
+    buildings.some(b => !b.dead && b.type === 'wall' && b.tileX === x && b.tileY === y);
+  const neighbors = [[-1,0],[0,-1],[1,0],[0,1]].map(([dx,dy]) =>
+    hasWall(tileX + dx,tileY + dy) ||
+    !!preview && preview.tx === tileX + dx && preview.ty === tileY + dy);
+  const connected = neighbors.some(Boolean);
+  const cells = [[1,1]];
+  for (let i = 0; i < 4; i++) if (neighbors[i] || !connected && (i === 0 || i === 2)) {
+    cells.push([[0,1],[1,0],[2,1],[1,2]][i]);
+  }
+  const grid = connected ? [0,.43,.57,1] : [.08,.43,.57,.92];
+  const point = (x,y) => ({x:(tileX + grid[x])*TILE, y:(tileY + grid[y])*TILE});
+  const roofs = [], edges = [];
+  for (const [x,y] of cells) {
+    const corners = [point(x,y),point(x+1,y),point(x+1,y+1),point(x,y+1)];
+    roofs.push(corners);
+    for (const [i,dx,dy] of [[0,0,-1],[1,1,0],[2,0,1],[3,-1,0]]) {
+      if (cells.some(c => c[0] === x+dx && c[1] === y+dy)) continue;
+      const joins = connected && (i === 0 && y === 0 && neighbors[1] ||
+        i === 1 && x === 2 && neighbors[2] || i === 2 && y === 2 && neighbors[3] ||
+        i === 3 && x === 0 && neighbors[0]);
+      if (!joins) edges.push({a:corners[i], b:corners[(i+1)%4], face:i});
+    }
+  }
+  const count = neighbors.filter(Boolean).length;
+  const corner = count === 2 && neighbors[0] !== neighbors[2];
+  const posts = !connected ? [{x:(tileX+.1)*TILE,y:(tileY+.5)*TILE},
+    {x:(tileX+.9)*TILE,y:(tileY+.5)*TILE}] :
+    count !== 2 || corner || (tileX+tileY)%4 === 0 ?
+      [{x:(tileX+.5)*TILE,y:(tileY+.5)*TILE}] : [];
+  return {roofs, edges, posts};
+}
