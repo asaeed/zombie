@@ -1,0 +1,52 @@
+{
+  "actor": "walker-cap",
+  "image": "walker-cap-57529cb39d3a.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Slightly raised resting and walking reach with 18-degree downward palm roll",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeCycleSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after phase grids plus complete directional cycles",
+    "timedNativePlayback": "not reviewed; browser playback is checked separately",
+    "observations": [
+      "Resting and walking hands sit slightly higher",
+      "Palms roll downward while retaining their inward orientation",
+      "Loose fingers and all leg poses are preserved"
+    ]
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedLooseFingerPoses": 320
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Idle and attack share the same ready pose at frame zero",
+  "deferredHandCorrections": [
+    "spitter",
+    "exploder",
+    "screamer",
+    "walker-onearm"
+  ]
+}

@@ -1,0 +1,1046 @@
+{
+  "tool": "built-in image_gen",
+  "model": "not disclosed by tool",
+  "reference": "docs/art-directions/focused-sculpted-pixel.png",
+  "baseAcceptedByUser": true,
+  "newAssets": "pending user review",
+  "jobs": [
+    {
+      "id": "flat-terrain",
+      "kind": "terrain-texture-sheet",
+      "date": "2026-10-08",
+      "prompt": "Use case: precise-object-edit. Edit target: image 1 is the current grass/earth/water surface texture sheet. Preserve exactly three equal-width vertical panels and their palette family: green grass on the left, muted earth in the middle, blue-teal water on the right. CHANGE ONLY THE TEXTURE COMPLEXITY. Make each material almost a SOLID FLAT COLOR with just ONE extremely broad, smooth-edged patch occupying no more than 10 percent of that panel. Exactly TWO flat solid color shades per material, and just six flat colors total. Base shade covers at least 90 percent of the panel, the single patch differs only very slightly in brightness. No gradients, mottling, stippling, grain, speckles, little pixel clusters, shadows, highlights, pebbles, grass blades, waves, outlines, grid, text, borders, margins or objects. This is the quiet floor underneath a busy RTS with detailed units and buildings, and it should never draw attention. The color patches should be at least one quarter of a panel wide and have simple clean broad shapes. Output wide 3:1 format, three square panels side by side, fully opaque edge to edge.",
+      "references": ["assets/sculpted-pixel/source/world/quiet-terrain.png"],
+      "destination": "assets/sculpted-pixel/source/world/flat-terrain.png",
+      "generatedSize": {"width":2172,"height":724},
+      "requestedTransparency": false,
+      "pngHasAlphaChannel": false,
+      "runtimeTarget": {"tileWidth":64,"tileHeight":32,"materials":["grass","dirt","water"],"variantsPerMaterial":16},
+      "packaging": "Reduce each material to an 8x8 broad-patch mask; map to exactly two low-contrast colors without dithering; sample square patches and project to isometric tiles",
+      "supersedes": ["quiet-terrain"],
+      "userFeedback": "Ground was still too noisy; simplify further and use fewer colors."
+    },
+    {
+      "id": "quiet-terrain",
+      "kind": "terrain-texture-sheet",
+      "date": "2026-10-08",
+      "prompt": "Use case: stylized-concept. Asset type: production surface texture sheet for a busy isometric RTS, not a concept illustration. Create a VERY QUIET, almost-flat opaque material sheet with exactly THREE equal-width VERTICAL panels filling the entire image from edge to edge. Left third: subdued medium forest-green grass ground, with only a few broad soft patches of slightly lighter and darker green. Middle third: muted grey-brown packed earth, with a few broad soft earthen patches. Right third: muted medium blue-teal water with only a few broad, faint horizontal ripple shapes. Make the sheet wide, ideally three square panels side by side. Same sculpted-pixel material family as the reference, but significantly LESS detailed than the reference ground. IMPORTANT: no grain, speckles, stipple, tiny pixel noise, cracks, pebbles, grass blades, leaves, islands, stones, flowers, sharp tiny highlights, detailed waves, or borders. Each material is around 95% uniform middle tone; variation is extremely low contrast, about +/- 5% in luminance. Use broad understated blocky/painterly shapes, not a photographic texture. Intended reduction: each quarter-square patch becomes a 32x32 surface projected to a 64x32 tile, so all texture detail must remain quiet at that scale. Top-down orthographic flat surface, no perspective, no scene, no props, no characters, no raised cube or tile geometry, no shadows or lighting gradient. No text, labels, divider lines, margins, grid, or watermark. All three panels opaque and seamless-looking within each material. Keep boundaries precisely at one third and two thirds of the width. Image 1 is a style and palette reference only; do not reproduce its scene or high-contrast ground detail.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/quiet-terrain.png",
+      "generatedSize": {
+        "width": 2172,
+        "height": 724
+      },
+      "requestedTransparency": false,
+      "pngHasAlphaChannel": false,
+      "runtimeTarget": {
+        "tileWidth": 64,
+        "tileHeight": 32,
+        "materials": [
+          "grass",
+          "dirt",
+          "water"
+        ],
+        "variantsPerMaterial": 16
+      },
+      "packaging": "Inset square samples from three equal-width vertical material panels; downsample to 32x32, then isometric projection",
+      "supersedes": [
+        "grass",
+        "dirt",
+        "water"
+      ],
+      "userFeedback": "First ground pass was too noisy; simplify the texture."
+    },
+    {
+      "id": "hq",
+      "kind": "building",
+      "prompt": "Create ONE HQ building game sprite, in the exact richly shaded SCULPTED PIXEL style of reference image 1. This is an actual reusable sprite, not a scene or concept board. A fortified stone-and-timber headquarters with a vivid purple tiled gable roof, warm glowing amber windows and open door, broad grey stone foundations, small wooden porch/steps, restrained purple banner with a simple white diamond symbol. Match the HQ in the reference but eliminate the surrounding walls, trees, ground, and characters. Orthographic 2:1 isometric view: visible front and right sides, roof seen from above, building footprint a clean diamond whose width is twice its depth, entire building aligned to the game's isometric grid. Ground contact footprint must be a square in world space, projected diamond 2:1, 3x3 tiles. Warm upper-left highlights, cool shadow-side stone, readable large planes and crisp sculpted pixel clusters. Rich but not noisy; designed to display about 192 screen pixels wide and 160 pixels tall beside units about 43 pixels tall. All structure and steps fit within its own footprint; no side towers protruding outside it. Purple roof is the immediate identifying feature. Full building centered with generous transparent margins. True alpha, no ground shadow, no floating grass island, no text/labels, grid, scenery, other buildings or figures.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/hq.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 200,
+        "height": 151,
+        "footAnchor": {
+          "x": 90.24518267150134,
+          "y": 147
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "wall",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE modular fortified wall segment. Weathered grey stone footing and rough vertical timber palisade above it, a few moss flecks, no tower or gateway. Low enough to leave characters visible. Occupies exactly one square world tile (64x32 isometric footprint), projected as a 2:1 diamond. Compact 64-pixel-wide building with height about 36 pixels; all ground-contact geometry inside the diamond. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/wall.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 70,
+        "height": 56,
+        "footAnchor": {
+          "x": 43.679285627141724,
+          "y": 52
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "tower",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Guard Tower. Two-storey timber watchtower on a grey stone base, stout diagonal wooden braces, crenellated guard platform, a small mounted dark rifle/ballista-like turret and amber lanterns. Small mustard-yellow roof panels, not purple. Occupies a square 2x2-tile footprint, projected width128 depth64, height about110 pixels. No human guard, surrounding fence or decorative ground island. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/tower.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 103,
+        "height": 162,
+        "footAnchor": {
+          "x": 50.28350462556554,
+          "y": 158
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "barracks",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Barracks. Low fortified grey stone and warm timber barracks lodge, brick-red tiled pitched roof, wide wooden door, small amber-lit windows, a few orderly equipment crates tucked against the walls. Square 2x2 tile footprint, width128 depth64, total height about94 pixels. No figures or surroundings. Bold red roof identifies it. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/barracks.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 136,
+        "height": 100,
+        "footAnchor": {
+          "x": 55.119490271384905,
+          "y": 96
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "depot",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Supply Depot. A compact fortified stone storehouse with teal-grey slate roof, thick timber doorway and an orderly stack of green and ochre supply crates under a timber awning. Warm tiny lantern by its door. Square 2x2 tile footprint, width128 depth64, height about78 pixels. Roof and crates are broad readable forms, no writing or signs. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/depot.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 136,
+        "height": 106,
+        "footAnchor": {
+          "x": 63.18995492835394,
+          "y": 102
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "light",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Light Tower. Tall slim timber beacon/watch lantern on a compact grey stone plinth with diagonal braces, oversized warm golden lantern in an open wooden housing at top, little cream/yellow roof. NOT a streetlamp. Exactly 1x1 tile square footprint, isometric diamond width64 depth32, height about100 pixels. Warm lamp but no giant diffuse halo outside sprite. Match the reference's illuminated timber tower. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/light.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 69,
+        "height": 120,
+        "footAnchor": {
+          "x": 34.36833793378102,
+          "y": 116
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "clinic",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Clinic. A small grey stone and timber medical lodge, muted rose-red tiled roof, cream door surround, white medical cross painted neatly on the roof/front sign, clean pale cloth awning, pink medical supply chest inside footprint, warm windows. Square 2x2 tile footprint, width128 depth64, height about90 pixels. No other lettering or people. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/clinic.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 136,
+        "height": 109,
+        "footAnchor": {
+          "x": 58.139632790728925,
+          "y": 105
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "mechanics",
+      "kind": "building",
+      "prompt": "Production transparent game sprite in the exact rich SCULPTED PIXEL style of references. Image1 defines the entire game's sculpted forms, crisp broad pixel clusters, grey stone/warm timber materials and warm upper-left sunlight with cool shadow faces. Image2 is the new HQ and controls how other structures should match it. ONE Mechanics Bay. Fortified workshop in grey stone and warm timber, blue-grey slate roof, broad open garage door, visible simple workbench and a few dark tires, a small ochre hoist arm INSIDE the footprint, warm amber workshop lighting. Square 2x2 tile footprint width128 depth64, height about96 pixels. No vehicle or people outside it, no writing. One orthographic 2:1 isometric building, front/right sides visible, camera above at the same angle as the references. Full intact structure centered with generous margin. Designed for a busy RTS screen beside 43-pixel-tall characters: rich shading, large readable shapes, restrained tiny details. Keep its ground-contact footprint a proper projected diamond and place no extension outside it. Actual true alpha, no backdrop, floor, terrain patch, cast ground shadow, labels, grids, other buildings, or characters. No blurred glow field.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/mechanics.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 136,
+        "height": 107,
+        "footAnchor": {
+          "x": 59.69723436279563,
+          "y": 103
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "soldier",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER SOLDIER: cobalt/sky BLUE combat uniform and helmet, warm skin, brown boots, dark knee pads, compact dark assault rifle held with both hands across his chest and pointing in his facing direction. A sturdy ordinary soldier, matching the sniper's proportions but BLUE rather than green. No scope or huge rifle. Rear view points rifle away from camera, hands naturally hidden. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/soldier-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "scout",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER SCOUT: leaner lighter scout in bright CYAN/TEAL uniform, matching soft military cap (not helmet), small light backpack, warm skin, dark boots. A compact pistol held low in one hand and pointing in his facing direction, other hand free. Same grounded proportions but slightly narrower and less armored than the soldier. No long rifle. Fast and nimble silhouette. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/scout-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.6933333333333334,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "builder",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER BUILDER: vivid ORANGE work jacket and ORANGE hard hat, warm skin, grey work trousers, brown boots, compact tool belt. Large simple steel wrench in one hand hanging beside the body, free hand relaxed. Strong readable orange identity, no gun held, no rifle, no yellow outfit. Same character proportions as sniper; clearly visible elbows, hands, knees and boots for a 2D rig. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/builder-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "medic",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER MEDIC: muted but bright PINK/ROSE medical jacket and cap, pale cream vest, neat WHITE plus sign on cap/medical satchel, warm skin, grey trousers, dark boots. Small rose medical satchel strapped to one hip, both hands free relaxed slightly forward, gloved hands, no held gun. A readable calm medic, matching the sniper's proportions and lighting, not a wizard or superhero. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/medic-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "heavy",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER HEAVY: broad stocky heavily armored human with DARK CHARCOAL GREY armor and helmet, small warm skin face, black boots, wide shoulders and a grey utility belt. One large steel-headed melee sledgehammer held low across his front with both hands, shaft and head entirely below shoulder height. No rifle, no spear, no colored neon marks. Noticeably wider/sturdier than sniper without becoming a giant. Articulate arms and knees are visible. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/heavy-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.84,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "torchbearer",
+      "kind": "unit",
+      "prompt": "Create an EIGHT-VIEW neutral character master sheet for a Sculpted Pixel RTS. Reference1 is the approved green sniper: it controls sculpted anatomy, beautiful broad light/shadow clusters, warm upper-left light, crisp shaded pixel finish, common scale and camera. Reference2 supplies only the exact eight angles/layout. PLAYER TORCHBEARER: golden YELLOW utility jacket and helmet with charcoal trousers, warm skin, brown boots. Carries a short wood-handled burning torch in one hand at chest/shoulder height, clear compact orange-yellow flame, other hand free. Torch tip stays near shoulder, not far above head, no huge light halo. Readable yellow role color separate from orange builder. No rifle, no gun held. Exactly four columns by two rows of the SAME character: top row FRONT (S) looking toward viewer, FRONT-RIGHT (SE), RIGHT PROFILE (E), BACK-RIGHT (NE); bottom row directly BACK (N) fully away, BACK-LEFT (NW), LEFT PROFILE (W), FRONT-LEFT (SW). Facing controls weapon direction too, not eight side-facing copies. Slightly elevated orthographic/isometric camera matching the sniper. All are stationary neutral stance with feet separated, knees slightly bent, complete head/equipment/hands/boots, consistent size in every view. Full silhouettes with generous empty gutters and outer margins. Eight views only, true transparent alpha, no grid, names, ground, shadow, backdrop, other characters or outfits. Broad readable color planes, restrained texture, actual illustrated quality like reference1, not procedural shapes.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/torchbearer-turnaround.png",
+      "generatedSize": {
+        "width": 1585,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "runner",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. RUNNER ZOMBIE: small pale-grey human zombie moving like an agile chimp, hunched VERY LOW in a four-point stance, crooked bent rear legs and long arms/knuckles reaching down near the ground. Light-grey torn pants and ragged charcoal top, no colorful clothes, no glowing marks. Human skull, hollow dark sockets, not an actual monkey. Neutral four-point crouch for a rapid crawling rig; hands and rear feet clearly separated. Side silhouette is long and low, not an upright walker. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/runner-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 40.5,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "brute",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. BRUTE ZOMBIE: large broad pale-grey muscular human zombie, oversized hunched shoulders, massive long arms/fists, small irregular human skull (NOT cube), dark charcoal torn trousers. One fixed bright CYAN crystalline growth on the upper RIGHT shoulder, visible from every appropriate angle, a crisp identity feature like the reference. No multicolored clothes, no armor suit, no helmet. Heavy wide low stance, knees slightly bent and fists hanging separately from torso; lumbering anatomy. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/brute-turnaround.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 1.04,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "spitter",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. SPITTER ZOMBIE: gaunt pale-grey human zombie, hunched thin arms and crooked knees, charcoal torn top and LIGHTER GREY trousers. A conspicuous neon LIME GREEN swollen throat/chest sac and small lime-lit mouth, stable in every view; rest of figure stays grey. Irregular human skull, no cube head or green skin. Long neck bent forward with mouth slightly open to spit, arms loosely ahead and down, wide stationary feet. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/spitter-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "exploder",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. EXPLODER ZOMBIE: stocky swollen pale-grey human zombie, charcoal ragged upper clothes and light-grey trousers. A large distinct orange-AMBER glowing swollen abdominal sac, hot orange fissures in its belly only. Grey head with hollow dark eyes, no cube shape, no gore. Stable same design in every facing. Short heavy arms held a little away from belly, broad neutral feet, clear separate joints. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/exploder-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.8133333333333334,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "screamer",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. SCREAMER ZOMBIE: slender pale-grey human zombie with elongated neck, charcoal ragged clothes, light-grey pants and worn dark shoes. A bold neon MAGENTA throat and mouth feature, same stable identity in all eight views. Slightly tilted human skull and open dark mouth, hands clawed near lower chest but separated from torso. No cube head, no colored costume or green skin. Neutral wide standing feet with crooked knees. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/screamer-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7733333333333333,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "boss",
+      "kind": "zombie",
+      "prompt": "Production EIGHT-VIEW character master sprite sheet in the same rich SCULPTED PIXEL art style as the references. Reference1 controls the entire game's style and special-zombie anatomy. Reference2 is the approved grey walker, controlling greyscale skin/clothes, pixel-cluster finish, consistent upper-left warm highlights and cool shadows. BOSS BRUTE ZOMBIE: enormous hulking pale-grey human mutant with a small irregular human skull, gigantic hunched shoulders, massive arms and fists, dark charcoal torn trousers. Bigger and broader silhouette than ordinary brute. Distinct bright CYAN crystalline growths on BOTH shoulders and upper back, gold-yellow eyes, fixed design every facing. Not a stone golem, no cubic head, no armor or colorful clothes. Wide planted knees bent slightly; fists hang low clearly separate from torso. Match the concept's huge grey cyan-shouldered monster. EXACT layout four columns by two rows: S front, SE front-right, E right profile, NE back-right; second row N directly back, NW back-left, W left profile, SW front-left. All eight must be genuinely different camera facings of this same character and equipment/features must rotate consistently. Slightly elevated orthographic game camera. Neutral stance (except runner's crouched four-point stance) suitable for articulated limb animation, complete visible feet/hands/head with generous gaps between silhouettes. Rich broad readable sculpted light/shadow planes at small game scale, restrained detail. True alpha, eight figures only, no text, grid, props, scenery, ground shadows or colored background. Do not make eight copies of the same side view.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/boss-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 1.28,
+        "cell": {
+          "width": 120,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 60,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "soldier-gather",
+      "kind": "unit-pose",
+      "prompt": "Create a hands-free GATHERING neutral turnaround of the exact soldier in reference1, preserving every color, garment, face, proportions, shading, lighting and pixel style. Put the rifle safely slung flat on the backpack; NO gun held in either hand. Hands are free and relaxed slightly forward at sides, clear elbows/hands, same upright separated-foot stance for a gathering rig. Reference2 only controls the eight angles and 4x2 layout. Top row S front, SE front-right, E right profile, NE back-right. Bottom row N fully back, NW back-left, W left profile, SW front-left. Exact same character across all eight facings, same elevated orthographic/isometric camera. Complete figures with generous gutters and margins, true alpha, no scenery, floor shadow, text, grid, props or additional people.",
+      "references": [
+        "assets/sculpted-pixel/source/soldier-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/soldier-gather-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "scout-gather",
+      "kind": "unit-pose",
+      "prompt": "Create a hands-free GATHERING neutral turnaround of the exact scout in reference1, preserving every color, garment, face, proportions, shading, lighting and pixel style. Put the pistol holstered on the belt; NO gun held in either hand. Hands are free and relaxed slightly forward at sides, clear elbows/hands, same upright separated-foot stance for a gathering rig. Reference2 only controls the eight angles and 4x2 layout. Top row S front, SE front-right, E right profile, NE back-right. Bottom row N fully back, NW back-left, W left profile, SW front-left. Exact same character across all eight facings, same elevated orthographic/isometric camera. Complete figures with generous gutters and margins, true alpha, no scenery, floor shadow, text, grid, props or additional people.",
+      "references": [
+        "assets/sculpted-pixel/source/scout-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/scout-gather-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.6933333333333334,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "grass",
+      "kind": "terrain",
+      "prompt": "Produce ONE seamless square TOP DOWN terrain texture for an isometric RTS in the sculpted pixel style of the reference. Subject: mossy forest grass, muted fresh leaf greens and deeper pine green, a few tiny scattered olive grass tufts, very sparse grey pebbles, rich soft chunky pixel clusters. Predominantly mid green; low contrast to keep units readable. Entire image filled with a flat ground material, no borders, no diamond tile, no raised cubes, no perspective, no objects, no buildings, no character, no text. Handcrafted broad pixel clusters with subtle painterly shading, match the reference's forest floor materials. Attractive but understated, for downsampling to a 64x32 game tile. This is a surface texture, not a diorama scene. Opaque edge-to-edge.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/grass.png",
+      "generatedSize": {
+        "width": 1254,
+        "height": 1254
+      },
+      "requestedTransparency": false,
+      "pngHasAlphaChannel": false,
+      "runtimeTarget": {
+        "tileWidth": 64,
+        "tileHeight": 32,
+        "variants": 16
+      },
+      "packaging": "Square source samples downsampled to 32x32, then isometric projection"
+    },
+    {
+      "id": "dirt",
+      "kind": "terrain",
+      "prompt": "Produce ONE seamless square TOP DOWN terrain texture for an isometric RTS in the sculpted pixel style of the reference. Subject: a worn forest clearing of compact earth, warm muted ochre brown mixed with a little mossy green, sparse small grey stones. Mostly open bare dirt, not a rock field, no huge cracks, medium lightness. Entire image filled with a flat ground material, no borders, no diamond tile, no raised cubes, no perspective, no objects, no buildings, no character, no text. Handcrafted broad pixel clusters with subtle painterly shading, match the reference's forest floor materials. Attractive but understated, for downsampling to a 64x32 game tile. This is a surface texture, not a diorama scene. Opaque edge-to-edge.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/dirt.png",
+      "generatedSize": {
+        "width": 1254,
+        "height": 1254
+      },
+      "requestedTransparency": false,
+      "pngHasAlphaChannel": false,
+      "runtimeTarget": {
+        "tileWidth": 64,
+        "tileHeight": 32,
+        "variants": 16
+      },
+      "packaging": "Square source samples downsampled to 32x32, then isometric projection"
+    },
+    {
+      "id": "water",
+      "kind": "terrain",
+      "prompt": "Produce ONE seamless square TOP DOWN terrain texture for an isometric RTS in the sculpted pixel style of the reference. Subject: quiet forest pond water in muted blue teal with subtle green reflection, a few restrained soft blue ripples. Not a waterfall, no foam, no shoreline, no land, low contrast. Entire image filled with a flat ground material, no borders, no diamond tile, no raised cubes, no perspective, no objects, no buildings, no character, no text. Handcrafted broad pixel clusters with subtle painterly shading, match the reference's forest floor materials. Attractive but understated, for downsampling to a 64x32 game tile. This is a surface texture, not a diorama scene. Opaque edge-to-edge.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/water.png",
+      "generatedSize": {
+        "width": 1254,
+        "height": 1254
+      },
+      "requestedTransparency": false,
+      "pngHasAlphaChannel": false,
+      "runtimeTarget": {
+        "tileWidth": 64,
+        "tileHeight": 32,
+        "variants": 16
+      },
+      "packaging": "Square source samples downsampled to 32x32, then isometric projection"
+    },
+    {
+      "id": "car",
+      "kind": "resource-cache",
+      "prompt": "Create a production-ready isolated isometric game sprite: one abandoned compact car, worn desaturated teal body, rusty copper scratches, broken blue-grey windows, dusty black tyres, one small green supply crate resting on its hood. Readable car shape, no base platform. Style reference1: sculpted pixel art, rich broad shaded pixel clusters, chunky readable volumes, restrained texture, top-left warm light and cool shadow. Reference2 controls stone, timber, crates and lighting material family. Same elevated orthographic isometric camera with two sides visible, 2:1 ground axes. ONE object centered and completely visible, generous transparent margins. True transparent background, no scenery, no terrain tile, no text, no UI, no cast ground shadow, no background glow. This will be displayed about 50-64 pixels wide, keep details simple and major surfaces clear.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/car.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 69,
+        "height": 48,
+        "footAnchor": {
+          "x": 29.498941384490397,
+          "y": 44
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "cabin",
+      "kind": "resource-cache",
+      "prompt": "Create a production-ready isolated isometric game sprite: one small abandoned timber and grey-stone forest cabin, faded olive shingled roof, shuttered windows, boarded door, a green supply crate beside the entrance, minimal moss. A humble rural cottage, not a castle or HQ. Style reference1: sculpted pixel art, rich broad shaded pixel clusters, chunky readable volumes, restrained texture, top-left warm light and cool shadow. Reference2 controls stone, timber, crates and lighting material family. Same elevated orthographic isometric camera with two sides visible, 2:1 ground axes. ONE object centered and completely visible, generous transparent margins. True transparent background, no scenery, no terrain tile, no text, no UI, no cast ground shadow, no background glow. This will be displayed about 50-64 pixels wide, keep details simple and major surfaces clear.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/cabin.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 72,
+        "height": 64,
+        "footAnchor": {
+          "x": 40.31671270574255,
+          "y": 60
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "bin",
+      "kind": "resource-cache",
+      "prompt": "Create a production-ready isolated isometric game sprite: one low cluster of three military supply crates: two dark green wooden crates with metal edges and small warm gold locks, one short brown box. Small open box lid on one crate; simple recognizable silhouette, no ground base. Style reference1: sculpted pixel art, rich broad shaded pixel clusters, chunky readable volumes, restrained texture, top-left warm light and cool shadow. Reference2 controls stone, timber, crates and lighting material family. Same elevated orthographic isometric camera with two sides visible, 2:1 ground axes. ONE object centered and completely visible, generous transparent margins. True transparent background, no scenery, no terrain tile, no text, no UI, no cast ground shadow, no background glow. This will be displayed about 50-64 pixels wide, keep details simple and major surfaces clear.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/world/hq.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/bin.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 52,
+        "height": 44,
+        "footAnchor": {
+          "x": 18.506617442184453,
+          "y": 40
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "pine",
+      "kind": "environment-prop",
+      "prompt": "Create ONE isolated production environment sprite: one forest pine tree with dark pine-green layered boughs, small olive sunlit needle clusters, visible rough brown trunk. Rounded natural branch silhouette with broad stepped pixel clusters, NOT a stack of perfect cones, NOT cube leaves. Mature but compact tree, no ground base. Match the sculpted pixel reference forest exactly: broad hand-painted pixel clusters, dimensional chunky volumes, natural irregular edges, subtle warm top-left lighting and cool shadows. Elevated orthographic 2:1 isometric camera. Entire object visible, centered with generous margins, genuine transparent background, no background/floor/terrain tile, no text/UI/grid, no cast ground shadow or glow. Designed for an RTS at 35-75px wide, quiet shapes, not finely detailed or realistic.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/pine.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 78,
+        "height": 116,
+        "footAnchor": {
+          "x": 39.40031595289759,
+          "y": 112
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "bush",
+      "kind": "environment-prop",
+      "prompt": "Create ONE isolated production environment sprite: one low dense rounded leafy forest shrub, varied moss-green clusters, a few lighter yellow-green leaves lit at top-left. Broad compact silhouette, restrained detail, no flowers, no ground base. Match the sculpted pixel reference forest exactly: broad hand-painted pixel clusters, dimensional chunky volumes, natural irregular edges, subtle warm top-left lighting and cool shadows. Elevated orthographic 2:1 isometric camera. Entire object visible, centered with generous margins, genuine transparent background, no background/floor/terrain tile, no text/UI/grid, no cast ground shadow or glow. Designed for an RTS at 35-75px wide, quiet shapes, not finely detailed or realistic.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/bush.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 44,
+        "height": 36,
+        "footAnchor": {
+          "x": 23.550045382346266,
+          "y": 32
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "rock",
+      "kind": "environment-prop",
+      "prompt": "Create ONE isolated production environment sprite: one small low cluster of three rough faceted grey stones with subdued olive moss on top, larger boulder at center and two smaller stones at sides. Cool shadows, warm grey top faces, no crystal or sparkles, no ground base. Match the sculpted pixel reference forest exactly: broad hand-painted pixel clusters, dimensional chunky volumes, natural irregular edges, subtle warm top-left lighting and cool shadows. Elevated orthographic 2:1 isometric camera. Entire object visible, centered with generous margins, genuine transparent background, no background/floor/terrain tile, no text/UI/grid, no cast ground shadow or glow. Designed for an RTS at 35-75px wide, quiet shapes, not finely detailed or realistic.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/rock.png",
+      "generatedSize": {
+        "width": 1536,
+        "height": 1024
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "width": 42,
+        "height": 29,
+        "footAnchor": {
+          "x": 30.273541284322963,
+          "y": 25
+        }
+      },
+      "packaging": "Crop at alpha above 160; clear alpha below 96; measured bottom-contact anchor"
+    },
+    {
+      "id": "suv",
+      "kind": "vehicle-turnaround",
+      "prompt": "Create a production 8-direction turnaround of ONE WHITE COMPACT SUV for an isometric RTS, in the sculpted pixel style of reference1. Four doors, white ivory body, blue-grey glass, dark bumpers and sturdy black tyres, small warm headlamps, NO turret, NO gun, NO camouflage, no passengers visible. Broad dimensional pixel clusters, warm top-left light/cool shadow, toy-like readable proportions but not cuboid. Reference2 controls the exact eight facing arrangement only: top row S front (nose DOWN), SE nose lower-right, E nose right, NE nose upper-right; bottom row N rear (nose UP), NW nose upper-left, W nose left, SW nose lower-left. Same elevated orthographic camera, same vehicle dimensions and white color in all eight. TRUE TRANSPARENT background, 4x2 isolated complete vehicles with VERY WIDE transparent gutters, no scenery, floor tile, ground shadow, labels, arrows, text, grid, extra vehicles. Entire wheels and body visible. Heads of people not present. Asset will display 65-85px wide, no tiny detail.",
+      "references": [
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/world/suv.png",
+      "generatedSize": {
+        "width": 1774,
+        "height": 887
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 45,
+        "renderScale": 0.8,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation and body-height normalization into eight static directional cells; NE/SW repaired by mirroring correct opposite diagonals; no articulated character rig"
+    },
+    {
+      "id": "soldier-north",
+      "kind": "targeted-pose-correction",
+      "prompt": "Create ONE corrected N-facing rear-view pose of the exact soldier in reference1, same sculpted pixel shading, proportions, clothes, colors and equipment. Reference2 controls REAR firing orientation and camera. Character's back is squarely toward viewer, head faces straight away UP, backpack centered, legs separated. rifle is raised forward AWAY FROM VIEWER, foreshortened toward top of image; barrel must NOT point left or right. Hands and gun largely obscured by shoulders, a short barrel peeks above the forward shoulder near upper-center only. Elevated orthographic isometric camera. One fully visible complete character centered with generous margins, genuine transparent alpha, no scenery, floor shadow, labels, text, grid, duplicates or extra views. Preserve reference1 identity.",
+      "references": [
+        "assets/sculpted-pixel/source/soldier-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-north.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/soldier-north.png",
+      "generatedSize": {
+        "width": 1236,
+        "height": 1272
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "scout-north",
+      "kind": "targeted-pose-correction",
+      "prompt": "Create ONE corrected N-facing rear-view pose of the exact scout in reference1, same sculpted pixel shading, proportions, clothes, colors and equipment. Reference2 controls REAR firing orientation and camera. Character's back is squarely toward viewer, head faces straight away UP, backpack centered, legs separated. pistol is raised forward AWAY FROM VIEWER, foreshortened toward top of image; barrel must NOT point left or right. Hands and gun largely obscured by shoulders, a short barrel peeks above the forward shoulder near upper-center only. Elevated orthographic isometric camera. One fully visible complete character centered with generous margins, genuine transparent alpha, no scenery, floor shadow, labels, text, grid, duplicates or extra views. Preserve reference1 identity.",
+      "references": [
+        "assets/sculpted-pixel/source/scout-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-north.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/scout-north.png",
+      "generatedSize": {
+        "width": 1236,
+        "height": 1272
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.6933333333333334,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "walker-cap",
+      "kind": "regular-zombie-variant",
+      "prompt": "Generate a restrained grey regular-zombie VARIANT of the character in reference1, wearing a battered LIGHT GREY baseball cap with a short brim. Keep both arms, same dark grey torn shirt and light grey pants. Match exactly the sculpted pixel shading, grey skin, lighter grey lower clothing, proportions, elevated orthographic camera and warm top-left lighting of reference1. Reference2 specifies ONLY eight headings and 4x2 layout: top row S front, SE front-right, E right profile, NE back-right; bottom row N rear, NW back-left, W left profile, SW front-left. Same recognizable humanoid in all eight facings, same trait throughout. For a missing arm, the same anatomical left arm must be missing through rotations. Neutral separated-feet shambling stance, hunched torso, clean limb separations. Full figures with very wide transparent gutters and outer margins. TRUE ALPHA, no background, scenery, shadow, labels, grid, weapons, blood, neon or colored clothes. This will render about43px high in game, broad pixel clusters and strong silhouette.",
+      "references": [
+        "assets/sculpted-pixel/source/walker-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/walker-cap-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "walker-dress",
+      "kind": "regular-zombie-variant",
+      "prompt": "Generate a restrained grey regular-zombie VARIANT of the character in reference1, wearing a LIGHT GREY knee-length torn dress instead of pants, short ragged sleeves, grey legs and bare dark-grey feet, both arms. No colorful clothing, keep gaunt zombie appearance. Match exactly the sculpted pixel shading, grey skin, lighter grey lower clothing, proportions, elevated orthographic camera and warm top-left lighting of reference1. Reference2 specifies ONLY eight headings and 4x2 layout: top row S front, SE front-right, E right profile, NE back-right; bottom row N rear, NW back-left, W left profile, SW front-left. Same recognizable humanoid in all eight facings, same trait throughout. For a missing arm, the same anatomical left arm must be missing through rotations. Neutral separated-feet shambling stance, hunched torso, clean limb separations. Full figures with very wide transparent gutters and outer margins. TRUE ALPHA, no background, scenery, shadow, labels, grid, weapons, blood, neon or colored clothes. This will render about43px high in game, broad pixel clusters and strong silhouette.",
+      "references": [
+        "assets/sculpted-pixel/source/walker-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/walker-dress-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    },
+    {
+      "id": "walker-onearm",
+      "kind": "regular-zombie-variant",
+      "prompt": "Generate a restrained grey regular-zombie VARIANT of the character in reference1, missing its LEFT arm below the shoulder, with a clean ragged torn sleeve stump and NO gore. Keep its other long arm, dark grey ragged shirt and lighter grey pants. Match exactly the sculpted pixel shading, grey skin, lighter grey lower clothing, proportions, elevated orthographic camera and warm top-left lighting of reference1. Reference2 specifies ONLY eight headings and 4x2 layout: top row S front, SE front-right, E right profile, NE back-right; bottom row N rear, NW back-left, W left profile, SW front-left. Same recognizable humanoid in all eight facings, same trait throughout. For a missing arm, the same anatomical left arm must be missing through rotations. Neutral separated-feet shambling stance, hunched torso, clean limb separations. Full figures with very wide transparent gutters and outer margins. TRUE ALPHA, no background, scenery, shadow, labels, grid, weapons, blood, neon or colored clothes. This will render about43px high in game, broad pixel clusters and strong silhouette.",
+      "references": [
+        "assets/sculpted-pixel/source/walker-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "destination": "assets/sculpted-pixel/source/walker-onearm-turnaround.png",
+      "generatedSize": {
+        "width": 1586,
+        "height": 992
+      },
+      "requestedTransparency": true,
+      "pngHasAlphaChannel": true,
+      "runtimeTarget": {
+        "bodyHeight": 57,
+        "renderScale": 0.7466666666666667,
+        "cell": {
+          "width": 96,
+          "height": 96
+        },
+        "footAnchor": {
+          "x": 48,
+          "y": 87
+        }
+      },
+      "packaging": "Alpha silhouette separation; clear alpha below 48 and bright red fringe; body-height normalization and articulated textured rig"
+    }
+  ]
+}

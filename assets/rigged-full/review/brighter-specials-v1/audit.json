@@ -1,0 +1,170 @@
+{
+  "scope": "brighter Spitter and Exploder bodies; Spitter health/range and safer Exploder structural damage",
+  "sprites": {
+    "spitter": {
+      "before": {
+        "image": "spitter-f1c2403730d8.png",
+        "death": "spitter-death-7520c186c013.png"
+      },
+      "after": {
+        "spitter-3d6351f4a773.png": "3d6351f4a773a1793eb8440e226e9bf09d9504f42d33ee93f003ef976842297a",
+        "spitter-death-3cc561511aa9.png": "3cc561511aa90db535c0d6c0eeed6b1a05b34a1a5a6809373608aa76c9f83f4f"
+      },
+      "renderScale": 0.266,
+      "footAnchor": {
+        "x": 54,
+        "y": 109
+      },
+      "deathFootAnchor": {
+        "x": 116,
+        "y": 104
+      }
+    },
+    "exploder": {
+      "before": {
+        "image": "exploder-3ac1dbdf56f5.png",
+        "death": "exploder-death-c41875850a6c.png"
+      },
+      "after": {
+        "exploder-9c8572da128a.png": "9c8572da128acc68ee739ea8a34c608634d362a0f0e27b4ac40cae23f0bab5ad",
+        "exploder-death-7735c88bc92c.png": "7735c88bc92c484f9287ed21214b9bb1c6c72607545a2cfef4fdd6f2ec5bf50b"
+      },
+      "renderScale": 0.28975,
+      "footAnchor": {
+        "x": 63,
+        "y": 110
+      },
+      "deathFootAnchor": {
+        "x": 116,
+        "y": 104
+      }
+    }
+  },
+  "pixelAudit": [
+    {
+      "id": "spitter",
+      "action": "idle",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 153.16371485412802,
+      "newLuma": 170.29304988014
+    },
+    {
+      "id": "spitter",
+      "action": "walk",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 153.16371485412802,
+      "newLuma": 170.29304988014
+    },
+    {
+      "id": "spitter",
+      "action": "attack",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 153.16371485412802,
+      "newLuma": 170.29304988014
+    },
+    {
+      "id": "spitter",
+      "action": "die",
+      "alphaChanged": 60212,
+      "alphaMaxDiff": 119,
+      "oldLuma": 159.73625895629263,
+      "newLuma": 176.68972312287056
+    },
+    {
+      "id": "exploder",
+      "action": "idle",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 150.26696193111223,
+      "newLuma": 160.07910081839887
+    },
+    {
+      "id": "exploder",
+      "action": "walk",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 150.26696193111223,
+      "newLuma": 160.07910081839887
+    },
+    {
+      "id": "exploder",
+      "action": "attack",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 150.26696193111223,
+      "newLuma": 160.07910081839887
+    },
+    {
+      "id": "exploder",
+      "action": "die",
+      "alphaChanged": 0,
+      "alphaMaxDiff": 0,
+      "oldLuma": 156.73971027209137,
+      "newLuma": 166.30842201557613
+    }
+  ],
+  "runtime": {
+    "art": {
+      "spitter": {
+        "image": "http://127.0.0.1:18806/assets/rigged-full/spitter-3d6351f4a773.png",
+        "death": "http://127.0.0.1:18806/assets/rigged-full/spitter-death-3cc561511aa9.png",
+        "ready": true
+      },
+      "exploder": {
+        "image": "http://127.0.0.1:18806/assets/rigged-full/exploder-9c8572da128a.png",
+        "death": "http://127.0.0.1:18806/assets/rigged-full/exploder-death-7735c88bc92c.png",
+        "ready": true
+      }
+    },
+    "gameplay": {
+      "spitter": {
+        "hp": 78,
+        "range": 180,
+        "heldPosition": true,
+        "shots": 1,
+        "wallDamage": 22
+      },
+      "damage": [
+        {
+          "type": "light",
+          "hp": 50,
+          "max": 200,
+          "dead": false
+        },
+        {
+          "type": "wall",
+          "hp": 100,
+          "max": 250,
+          "dead": false
+        },
+        {
+          "type": "tower",
+          "hp": 200,
+          "max": 350,
+          "dead": false
+        },
+        {
+          "type": "depot",
+          "hp": 150,
+          "max": 300,
+          "dead": false
+        },
+        {
+          "type": "hq",
+          "hp": 850,
+          "max": 1000,
+          "dead": false
+        }
+      ]
+    },
+    "errors": []
+  },
+  "validation": {
+    "tests": 342,
+    "passed": 342
+  },
+  "reviewer": "implementation agent"
+}

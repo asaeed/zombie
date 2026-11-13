@@ -1,0 +1,57 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-d83bf57b054a.png",
+  "method": "existing licensed rig rendered to sprite atlas",
+  "scope": "Rigid hip-local waistband with a matching hip-weighted skin band, covered legs and a fitted head-attached bob",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "actions": [
+      "idle",
+      "walk",
+      "attack"
+    ],
+    "facings": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "observations": [
+      "Waist seam and the body band share pelvis weights in all views",
+      "Panel silhouette stays continuous beneath the waistband",
+      "No leg fragments appear over the cloth during the walk",
+      "Dark bob leaves the face open and follows the head"
+    ],
+    "timedArtisticPlayback": "not independently reviewed; browser playback verified separately"
+  },
+  "renderedCoverage": {
+    "poses": 320,
+    "visibleLegPixelsThroughFabric": 0,
+    "projectedOverlapPixels": 407296
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedArmPoses": 320,
+    "unchangedHandPoses": 320,
+    "unchangedShortGait": true
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "pausedDemo": {
+    "noRedraw": true,
+    "packSwitchRepaints": true
+  },
+  "groundPixels": {
+    "maxChannelDelta": 0,
+    "changedChannels": 0,
+    "meanChannelDelta": 0
+  },
+  "activeGame": {
+    "fps": 59.99999999999999,
+    "frames": 96,
+    "before": {
+      "units": 7,
+      "zombies": 10
+    },
+    "after": {
+      "units": 7,
+      "zombies": 10
+    },
+    "simulationTime": 34.46679999999988
+  },
+  "movement": [
+    {
+      "heading": "E",
+      "source": "W",
+      "facing": "E",
+      "x": 1645.4558441227164,
+      "y": 1594.5441558772836,
+      "frame": {
+        "x": 960,
+        "y": 2240,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "SE",
+      "source": "SW",
+      "facing": "SE",
+      "x": 1656,
+      "y": 1620,
+      "frame": {
+        "x": 960,
+        "y": 2400,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "S",
+      "source": "S",
+      "facing": "S",
+      "x": 1645.4558441227164,
+      "y": 1645.4558441227164,
+      "frame": {
+        "x": 960,
+        "y": 1280,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "SW",
+      "source": "SE",
+      "facing": "SW",
+      "x": 1620,
+      "y": 1656,
+      "frame": {
+        "x": 960,
+        "y": 1440,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "W",
+      "source": "E",
+      "facing": "W",
+      "x": 1594.5441558772836,
+      "y": 1645.4558441227164,
+      "frame": {
+        "x": 960,
+        "y": 1600,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "NW",
+      "source": "NE",
+      "facing": "NW",
+      "x": 1584,
+      "y": 1620,
+      "frame": {
+        "x": 960,
+        "y": 1760,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "N",
+      "source": "N",
+      "facing": "N",
+      "x": 1594.5441558772836,
+      "y": 1594.5441558772836,
+      "frame": {
+        "x": 960,
+        "y": 1920,
+        "width": 160,
+        "height": 160
+      }
+    },
+    {
+      "heading": "NE",
+      "source": "NW",
+      "facing": "NE",
+      "x": 1620,
+      "y": 1584,
+      "frame": {
+        "x": 960,
+        "y": 2080,
+        "width": 160,
+        "height": 160
+      }
+    }
+  ],
+  "browserErrors": []
+}

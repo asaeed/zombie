@@ -14,7 +14,7 @@ const UNIT_DEFS = {
   scout:   { name:'Scout',   maxHp:50,  speed:180, atkRange:120, atkDmg:9,  atkRate:2.0, radius:8,  cost:60,  color:'#00ffcc', trainTime:5 },
   medic:   { name:'Medic',   maxHp:70,  speed:100, atkRange:0,   atkDmg:0,  atkRate:0,   radius:9,  cost:90,  color:'#ff77aa', trainTime:9 },
   sniper: { name:'Sniper', maxHp:70, speed:78, atkRange:390, atkDmg:65, atkRate:0.55, radius:9, cost:150, color:'#54c76c', trainTime:12, requires:'mechanics' },
-  heavy: { name:'Heavy', maxHp:420, speed:62, atkRange:50, atkDmg:42, atkRate:0.7, radius:13, cost:140, color:'#373c40', trainTime:12, requires:'mechanics' },
+  heavy: { name:'Heavy', maxHp:420, speed:62, atkRange:50, atkDmg:84, atkRate:0.7, radius:13, cost:140, color:'#373c40', trainTime:12, requires:'mechanics' },
   torchbearer: { name:'Torchbearer', maxHp:85, speed:85, atkRange:90, atkDmg:8, atkRate:1.0, radius:10, cost:120, color:'#e8d12b', trainTime:10, requires:'mechanics' },
 };
 UNIT_DEFS.medic.requires = 'clinic';
@@ -39,7 +39,7 @@ const ZOMBIE_DEFS = {
   walker: { name:'Walker', maxHp:80,  speed:35, atkRange:35, atkDmg:15, atkRate:0.8, radius:9,  reward:5,  color:'#b6c3bf' },
   runner: { name:'Runner', maxHp:40,  speed:110, atkRange:28, atkDmg:10, atkRate:1.5, radius:7,  reward:8,  color:'#b6c3bf' },
   brute:  { name:'Brute',  maxHp:1000, speed:18, atkRange:40, atkDmg:55, atkRate:0.5, radius:15, reward:30, color:'#b6c3bf' },
-  spitter: { name:'Spitter', maxHp:65, speed:30, atkRange:120, atkDmg:22, atkRate:0.55, radius:9, reward:12, color:'#a6d94e' },
+  spitter: { name:'Spitter', maxHp:78, speed:30, atkRange:180, atkDmg:22, atkRate:0.55, radius:9, reward:12, color:'#a6d94e' },
   exploder: { name:'Exploder', maxHp:95, speed:110, atkRange:22, atkDmg:0, atkRate:0, radius:11, reward:15, color:'#ee7a38' },
   screamer: { name:'Screamer', maxHp:110, speed:42, atkRange:32, atkDmg:8, atkRate:0.6, radius:10, reward:18, color:'#d883d2' },
   boss: { name:'Boss Brute', maxHp:3600, speed:20, atkRange:45, atkDmg:140, atkRate:0.45, radius:22, reward:100, color:'#b6c3bf' },
@@ -64,9 +64,13 @@ const SCREAMER_SPEED_FACTOR = 1.35;
 const SCREAMER_TRIGGER_RADIUS = 5 * TILE;
 const SCREAMER_SHRIEK_RADIUS = 9 * TILE;
 const SCREAMER_SHRIEK_INTERVAL = 8;
-const EXPLODER_BLAST_RADIUS = 2.6 * TILE;
-const EXPLODER_SHOT_RADIUS = 4.5 * TILE;
+const EXPLODER_BLAST_RADIUS = 3.9 * TILE;
+const EXPLODER_SHOT_RADIUS = 6.75 * TILE;
 const HEAVY_SWING_RADIUS = 55;
+const HEAVY_AGGRO_RADIUS = 6 * TILE;
+const HEAVY_CHARGE_SPEED_FACTOR = 2;
+const HEAVY_RETREAT_HEALTH_FRACTION = 0.15;
+const DYING_ACTOR_LIFETIME = 2.2;
 const TORCH_LIGHT_RADIUS = 9;
 const STARTING_SUPPLIES = 500;
 
@@ -104,8 +108,9 @@ const VISION = { soldier: 8, builder: 6, scout: 12, medic: 7, sniper: 9, heavy: 
 const FOG_INTERVAL = 0.1;                // seconds between visibility recomputes
 const GUARD_STRAYS = 10;
 const GUARD_WAKE_RADIUS = 3 * TILE;      // proximity wake
+const ZOMBIE_SIGHT_RADIUS = 6 * TILE;
 const GUARD_GUNFIRE_RADIUS = 6 * TILE;   // gunfire wake (from the shooter)
-const REPAIR_TICK_COST = 5;              // supplies per repair tick
+const REPAIR_TICK_COST = 2;              // supplies per repair tick
 const REPAIR_TICK_AMOUNT = 20;
 const REPAIR_TICK_INTERVAL = 1.0;        // seconds; half the old repair speed
 const BUILDER_REPAIR_RADIUS = 5.5 * TILE;
@@ -118,8 +123,9 @@ const DAY_LENGTH = 180;                  // seconds of daylight per cycle
 const NIGHT_LENGTH = 120;                // seconds of night per cycle
 const CYCLE_TRANSITION = 15;             // dusk/dawn ramp seconds
 const NIGHT_VISION_FACTOR = 0.4;         // vision radii shrink to this at full night
-const FLARE_COST = 50;
-const FLARE_COOLDOWN = 60;               // seconds
+const FLARE_COST = 100;
+const FLARE_COOLDOWN = 300;               // seconds
+const FLARE_FLIGHT_SPEED = 900;
 const FLARE_DURATION = 10;               // seconds burning
 const FLARE_LIGHT_RADIUS = 9;            // tiles of light/vision while burning
 const FLARE_FIRE_RADIUS = 4;             // tiles: zombies ignited near a flare

@@ -29,6 +29,7 @@ class Game {
     this.projectiles = [];
     this.particles   = [];
     this.threatEffects = []; // short-lived shriek and blast rings
+    this.dyingActors = [];
     this.alerts      = [];   // {x, y, t, kind} — recent attack/wave locations
     this.toasts      = [];   // {text, kind, t, life} — attention messages
     this._toastLast  = {};
@@ -38,6 +39,7 @@ class Game {
     this.caches      = [];
     this.bundles     = [];   // {x, y, amount, t} — death-drop supply bundles
     this.flares      = [];   // {x, y, t} — thrown flare: light + fire source
+    this.flareShots  = [];
     this.flareCooldown = 0;  // seconds remaining before another throw
 
     this.fogVisible  = new Uint8Array(MAP_W * MAP_H);
@@ -59,6 +61,8 @@ class Game {
 
     this.selected    = [];       // selected units
     this.selectedVehicle = null;
+    this.selectedZombies = [];
+    this.selectionScroll = 0;
     this._selectedBuilding = null;
     this.buildMode   = null;     // string: building type being placed
 
@@ -100,7 +104,6 @@ class Game {
       supplies: this.supplies,
       score: this.score,
       stats: { ...this.stats },
-      activity: this.activity.map(event => ({ ...event })),
       waveNum: this.waveNum,
       waveTimer: this.waveTimer,
       waveActive: this.waveActive,
@@ -134,8 +137,9 @@ class Game {
         id: u.id, type: u.type, x: u.x, y: u.y, hp: u.hp, maxHp: u.maxHp, dead: u.dead,
         deathHandled: !!u._deathHandled,
         selected: u.selected, atkCooldown: u.atkCooldown,
+        heavyRetreating: u.heavyRetreating,
         atkTargetId: targetId(u.atkTarget), moveTarget: point(u.moveTarget),
-        waypoints: u.waypoints.map(point), attackMove: u.attackMove,
+        waypoints: u.waypoints.map(point),
         settledAt: u._settledAt,
         carrying: u.carrying, gatherTargetId: targetId(u.gatherTarget),
         gatherCenter: point(u.gatherCenter),
@@ -163,7 +167,8 @@ class Game {
       })),
       projectiles: this.projectiles.map(p => ({
         id: p.id, x: p.x, y: p.y, targetId: targetId(p.target),
-        damage: p.damage, speed: p.speed, color: p.color, source: p.source, dead: p.dead,
+        damage: p.damage, speed: p.speed, color: p.color, source: p.source,
+        attackerId: targetId(p.attacker), dead: p.dead,
       })),
       caches: this.caches.map(c => ({
         id: c.id, kind: c.kind, tileX: c.tileX, tileY: c.tileY,
@@ -175,6 +180,7 @@ class Game {
         return { id: bd.id, x: bd.x, y: bd.y, amount: bd.amount };
       }),
       flares: this.flares.map(f => ({ x: f.x, y: f.y, t: f.t })),
+      flareShots: this.flareShots.map(shot => ({ ...shot })),
       alerts: this.alerts.map(a => ({ x: a.x, y: a.y, t: a.t, kind: a.kind })),
     };
   }
@@ -210,12 +216,6 @@ class Game {
       const value = data.stats?.[key];
       if (Number.isFinite(value)) game.stats[key] = Math.max(0, Math.floor(value));
     }
-    game.activity = (Array.isArray(data.activity) ? data.activity : []).filter(event =>
-      event && typeof event.text === 'string' && Number.isFinite(event.time)
-    ).slice(-40).map(event => ({
-      text: event.text.slice(0, 180), time: Math.max(0, event.time),
-      kind: ['info', 'warning', 'danger', 'success'].includes(event.kind) ? event.kind : 'info',
-    }));
     game.waveNum = data.waveNum ?? 0;
     game.waveTimer = data.waveTimer ?? FIRST_WAVE_DELAY;
     game.waveActive = !!data.waveActive;
@@ -280,11 +280,11 @@ class Game {
       u._deathHandled = !!s.deathHandled;
       u.selected = false;
       u.atkCooldown = s.atkCooldown ?? 0;
+      u.heavyRetreating = u.type === 'heavy' && !!s.heavyRetreating;
       u.moveTarget = copyPoint(s.moveTarget);
       u.waypoints = (s.waypoints || []).map(copyPoint).filter(Boolean);
       u._settledAt = s.settledAt ?? u._settledAt;
       rememberSettleOrder(u._settledAt);
-      u.attackMove = !!s.attackMove;
       u.carrying = s.carrying ?? 0;
       u._gatherReturning = !!s.gatherReturning;
       u.gatherCenter = copyPoint(s.gatherCenter);
@@ -379,7 +379,8 @@ class Game {
     game.projectiles = (data.projectiles || []).map(s => {
       const target = entityById.get(s.targetId);
       if (!target) return null;
-      const p = new Projectile(s.x, s.y, target, s.damage, s.speed, s.color, s.source);
+      const p = new Projectile(s.x, s.y, target, s.damage, s.speed, s.color, s.source,
+        entityById.get(s.attackerId) || null);
       p.id = s.id;
       p.dead = !!s.dead;
       rememberId(p.id);
@@ -395,6 +396,7 @@ class Game {
     game.selectedVehicle = entityById.get(data.selectedVehicleId) || null;
     game._selectedBuilding = entityById.get(data.selectedBuildingId) || null;
     game.flares = (data.flares || []).map(f => ({ x: f.x, y: f.y, t: f.t }));
+    game.flareShots = (data.flareShots || []).map(shot => ({ ...shot }));
     game.alerts = (data.alerts || []).map(a => ({ x: a.x, y: a.y, t: a.t, kind: a.kind }));
     game.projectiles = game.projectiles.filter(p => !p.dead);
     game.particles = [];
@@ -599,7 +601,6 @@ class Game {
       this._activityLast[key] = this.gameTime;
     }
     this.activity.push({ text, kind, time: this.gameTime });
-    if (this.activity.length > 40) this.activity.shift();
     return true;
   }
 
@@ -801,8 +802,8 @@ class Game {
 
   explodeZombie(x, y, premature) {
     const radius = premature ? EXPLODER_SHOT_RADIUS : EXPLODER_BLAST_RADIUS;
-    const buildingDamage = premature ? 45 : 220;
-    const unitDamage = premature ? 12 : 35;
+    const buildingDamage = premature ? 45 : 150;
+    const unitDamage = premature ? 36 : 105;
     // Anything in the central 15% takes the full hit. Beyond that, damage falls smoothly to zero
     // at the edge, so the widened shot-down blast is dangerous nearby without becoming a flat,
     // screen-wide damage tax.
@@ -826,17 +827,20 @@ class Game {
       const distance = Math.max(0, dist(x, y, v.x, v.y) - v.def.radius);
       if (distance < radius) this.damageEntity(v, damageAt(buildingDamage * 0.6, distance));
     }
+    this.spawnBlastEffect(x, y, radius, premature ? '#f6a14a' : '#ff6437');
+    this.addAlert(x, y, 'building');
+  }
+
+  spawnBlastEffect(x, y, radius, color = '#ff6437') {
     this.threatEffects.push({ x, y, radius, kind: 'blast', t: 0, life: 0.55 });
     for (let i = 0; i < 16; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = randFloat(50, 160);
       this.particles.push(new Particle(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed,
-        premature ? '#f6a14a' : '#ff6437', randFloat(0.25, 0.55)));
+        color, randFloat(0.25, 0.55)));
     }
-    this.addAlert(x, y, 'building');
   }
 
-  // Throw a flare at an explored point: light + fire source
   throwFlare(wx, wy) {
     if (this.flareCooldown > 0) {
       this.addToast(`Flare recharging: ${Math.ceil(this.flareCooldown)}s`, 'warning', 'flare-cooldown', 1);
@@ -850,13 +854,27 @@ class Game {
       this.addToast('Flares can only be thrown onto explored ground', 'warning', 'flare-unexplored', 2);
       return false;
     }
+    const hq = this.buildings.find(b => b.type === 'hq' && !b.dead);
+    if (!hq) return false;
     this.spendSupplies(FLARE_COST);
     this.flareCooldown = FLARE_COOLDOWN;
-    this.flares.push({ x: wx, y: wy, t: 0 });
-    this.wakeDormantNear(wx, wy, FLARE_LIGHT_RADIUS * TILE);  // light wakes sleepers
-    this.igniteZombiesNear(wx, wy, FLARE_FIRE_RADIUS * TILE);
-    this.addToast('Flare thrown', 'info', 'flare-thrown', 1);
+    this.flareShots.push({ sx:hq.x, sy:hq.y, x:wx, y:wy, t:0,
+      duration:clamp(dist(hq.x, hq.y, wx, wy) / FLARE_FLIGHT_SPEED, 0.45, 1.5) });
+    this.addToast('Flare launched', 'info', 'flare-thrown', 1);
     return true;
+  }
+
+  _updateFlareShots(dt) {
+    for (const shot of this.flareShots) {
+      shot.t += dt;
+      if (shot.t < shot.duration) continue;
+      this.flares.push({ x:shot.x, y:shot.y, t:0 });
+      this.wakeDormantNear(shot.x, shot.y, FLARE_LIGHT_RADIUS * TILE);
+      this.igniteZombiesNear(shot.x, shot.y, FLARE_FIRE_RADIUS * TILE);
+      this.spawnBlastEffect(shot.x, shot.y, FLARE_FIRE_RADIUS * TILE);
+      this._recomputeFog();
+    }
+    this.flareShots = this.flareShots.filter(shot => shot.t < shot.duration);
   }
 
   igniteZombiesNear(x, y, radius) {
@@ -902,6 +920,16 @@ class Game {
     return this.units.filter(u => {
       if (u.dead || u.vehicle) return false;
       const s = worldToScreen(u.x, u.y, this.camera);
+      return s.x >= lx && s.x <= rx && s.y >= ly && s.y <= ry;
+    });
+  }
+
+  zombiesInScreenRect(x1, y1, x2, y2) {
+    const lx = Math.min(x1, x2), rx = Math.max(x1, x2);
+    const ly = Math.min(y1, y2), ry = Math.max(y1, y2);
+    return this.zombies.filter(z => {
+      if (z.dead || !this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE))) return false;
+      const s = worldToScreen(z.x, z.y, this.camera);
       return s.x >= lx && s.x <= rx && s.y >= ly && s.y <= ry;
     });
   }
@@ -977,11 +1005,14 @@ class Game {
   _markVision(wx, wy, radiusTiles) {
     const ctx0 = Math.floor(wx / TILE), cty0 = Math.floor(wy / TILE);
     const r = Math.ceil(radiusTiles);
+    const radius2 = (radiusTiles * TILE) ** 2;
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
-        if (dx * dx + dy * dy > radiusTiles * radiusTiles) continue;
         const tx = ctx0 + dx, ty = cty0 + dy;
         if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) continue;
+        const nearestX = clamp(wx, tx * TILE, (tx + 1) * TILE);
+        const nearestY = clamp(wy, ty * TILE, (ty + 1) * TILE);
+        if (dist2(wx, wy, nearestX, nearestY) > radius2) continue;
         this.fogVisible[ty * MAP_W + tx] = 1;
         this.fogExplored[ty * MAP_W + tx] = 1;
       }
@@ -994,7 +1025,7 @@ class Game {
       if (!u.dead && !u.vehicle) this._markVision(u.x, u.y, this.visionRadius(u.type));
     }
     for (const v of this.vehicles) {
-      if (!v.dead) this._markVision(v.x, v.y, this.visionRadius(v.type));
+      if (!v.dead) this._markVision(v.x, v.y, this.visionRadius(v.type, v.passengers));
     }
     for (const b of this.buildings) {
       if (!b.dead) this._markVision(b.x, b.y, this.visionRadius(b.type));
@@ -1021,10 +1052,14 @@ class Game {
   isNight() { return this.darkness() > 0.5; }
 
   // Fog AND the lighting layer both use this — lit and visible are the same set
-  visionRadius(type) {
+  visionRadius(type, passengers = []) {
     const base = VISION[type] ?? 4;
     if (type === 'light' || type === 'flare' || type === 'torchbearer') return base;
-    return lerp(base, base * NIGHT_VISION_FACTOR, this.darkness());
+    let range = (UNIT_DEFS[type] ?? BUILDING_DEFS[type])?.atkRange ?? 0;
+    for (const unit of passengers) {
+      if (!unit.dead && unit.type !== 'heavy') range = Math.max(range, unit.def.atkRange);
+    }
+    return Math.max(lerp(base, base * NIGHT_VISION_FACTOR, this.darkness()), range / TILE);
   }
 
   // ── Waves ─────────────────────────────────────────────────────────────────────
@@ -1096,9 +1131,20 @@ class Game {
   }
 
   // ── Events ───────────────────────────────────────────────────────────────────
-  damageEntity(entity, amount, source) {
+  noticeSpecialZombie(zombie) {
+    if (zombie.dead || zombie._sightingReported || zombie.type === 'walker' || zombie.type === 'runner' ||
+        !this.tileVisible(Math.floor(zombie.x / TILE), Math.floor(zombie.y / TILE))) return;
+    const hq = this.buildings.find(b => b.type === 'hq' && !b.dead);
+    const dx = zombie.x - (hq?.x ?? MAP_W * TILE / 2);
+    const dy = zombie.y - (hq?.y ?? MAP_H * TILE / 2);
+    const direction = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'west' : 'east') : (dy < 0 ? 'north' : 'south');
+    zombie._sightingReported = true;
+    this.addActivity(`${zombie.def.name} spotted to the ${direction}`, 'danger', `sighting-${zombie.type}-${direction}`, 15);
+  }
+
+  damageEntity(entity, amount, source, attacker = null) {
     const hp = entity.hp;
-    entity.takeDamage(amount, source);
+    entity.takeDamage(amount, source, attacker);
     if (entity.hp >= hp) return;
     if (entity.dead) {
       this.onEntityDied(entity);
@@ -1114,6 +1160,10 @@ class Game {
   onEntityDied(entity) {
     if (!entity.dead || entity._deathHandled) return;
     entity._deathHandled = true;
+    if (entity instanceof Zombie || entity instanceof Unit && !entity.vehicle) {
+      this.dyingActors.push({actor:entity, zombie:entity instanceof Zombie, startedAt:this.gameTime,
+        visible:entity instanceof Unit || this.tileVisible(Math.floor(entity.x / TILE), Math.floor(entity.y / TILE))});
+    }
     if (entity instanceof Zombie) {
       this.score += entity.def.reward * 10;
       this.stats.zombiesKilled++;
@@ -1264,7 +1314,7 @@ class Game {
         this.waveSpawnIndex = 0;
         // Wave-clear bonus is cap-exempt: it's the anti-softlock income floor
         this.supplies += 25 + 10 * this.waveNum;
-        this.addToast(`Wave ${this.waveNum} eliminated`, 'success', `wave-clear-${this.waveNum}`, 0);
+        this.addToast(`Wave ${this.waveNum} completed`, 'success', `wave-clear-${this.waveNum}`, 0);
       }
     }
 
@@ -1293,6 +1343,7 @@ class Game {
     // Update zombies
     for (const z of this.zombies) {
       const x = z.x, y = z.y;
+      this.noticeSpecialZombie(z);
       z.update(dt, this);
       if (!z.dead) this._zombieGrid.move(z);
       z.recordMotion(z.x - x, z.y - y, this.gameTime);
@@ -1307,8 +1358,9 @@ class Game {
 
     // Flare aging/expiry
     for (const f of this.flares) f.t += dt;
-    for (const f of this.flares) this.igniteZombiesNear(f.x, f.y, FLARE_FIRE_RADIUS * TILE);
     this.flares = this.flares.filter(f => f.t < FLARE_DURATION);
+    this._updateFlareShots(dt);
+    for (const f of this.flares) this.igniteZombiesNear(f.x, f.y, FLARE_FIRE_RADIUS * TILE);
     this.spreadZombieFire();
 
     // Update projectiles (may kill zombies or buildings)
@@ -1342,6 +1394,7 @@ class Game {
     for (const p of this.particles) p.update(dt);
     for (const effect of this.threatEffects) effect.t += dt;
     this.threatEffects = this.threatEffects.filter(effect => effect.t < effect.life);
+    this.dyingActors = this.dyingActors.filter(effect => this.gameTime - effect.startedAt < DYING_ACTOR_LIFETIME);
 
     // Update attention toasts
     for (const toast of this.toasts) toast.t += dt;
@@ -1370,6 +1423,8 @@ class Game {
 
     // Remove dead from selection
     this.selected = this.selected.filter(u => !u.dead);
+    this.selectedZombies = this.selectedZombies.filter(z => !z.dead &&
+      this.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE)));
 
     // Check if HQ still exists
     if (!this.buildings.find(b => b.type === 'hq' && !b.dead)) {

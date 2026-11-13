@@ -16,7 +16,10 @@ test('Pages export contains the current game and every referenced runtime asset,
     const meta=JSON.parse(await fs.readFile(path.join(output,'assets/rigged-full/manifest.json'),'utf8'));
     const sourceMeta=JSON.parse(await fs.readFile(path.join(root,'assets/rigged-full/manifest.json'),'utf8'));
     delete sourceMeta.production;
-    for(const record of [...Object.values(sourceMeta.characters),...Object.values(sourceMeta.objects),sourceMeta.terrain])delete record.production;
+    for(const record of [...Object.values(sourceMeta.characters),...Object.values(sourceMeta.objects),sourceMeta.terrain]){
+      delete record.production;
+      if(record.death)delete record.death.production;
+    }
     assert.deepEqual(meta,sourceMeta,'export preserves every runtime field and omits only production telemetry');
     assert.deepEqual(JSON.parse(await fs.readFile(path.join(output,'assets/art-packs/registry.json'),'utf8')),
       JSON.parse(await fs.readFile(path.join(root,'assets/art-packs/registry.json'),'utf8')));
@@ -24,6 +27,7 @@ test('Pages export contains the current game and every referenced runtime asset,
       const image=path.resolve(output,'assets/rigged-full',record.image);
       assert.ok((await fs.stat(image)).size>0);
       if(record.nightImage)assert.ok((await fs.stat(path.resolve(output,'assets/rigged-full',record.nightImage))).size>0);
+      if(record.death)assert.ok((await fs.stat(path.resolve(output,'assets/rigged-full',record.death.image))).size>0);
     }
     const release=JSON.parse(await fs.readFile(path.join(output,'release.json'),'utf8'));
     assert.equal(release.release,result.release);assert.match(release.release,/^[0-9a-f]{64}$/);
@@ -32,7 +36,7 @@ test('Pages export contains the current game and every referenced runtime asset,
       'assets/rigged-full/intro.webp','assets/art-packs/registry.json','assets/rigged-full/manifest.json',
       ...['config','utils','pathfinding','entities','game','art','renderer','input','main'].map(name=>'js/'+name+'.js')]);
     for(const record of [...Object.values(meta.characters),...Object.values(meta.objects),meta.terrain])
-      for(const image of [record.image,record.nightImage].filter(Boolean))expected.add(path.posix.normalize('assets/rigged-full/'+image));
+      for(const image of [record.image,record.nightImage,record.death?.image].filter(Boolean))expected.add(path.posix.normalize('assets/rigged-full/'+image));
     const exported=[];
     async function list(dir,relative=''){for(const item of await fs.readdir(dir,{withFileTypes:true})){
       const name=path.posix.join(relative,item.name);if(item.isDirectory())await list(path.join(dir,item.name),name);else exported.push(name);

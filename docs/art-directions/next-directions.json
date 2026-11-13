@@ -1,0 +1,308 @@
+{
+  "version": 1,
+  "created": "2026-10-08",
+  "kind": "concept-boards-not-production-sprites",
+  "tool": "Built-in image_gen.imagegen; model identity not disclosed",
+  "transparent": false,
+  "intendedBodyPixels": 21.28,
+  "directions": [
+    {
+      "letter": "A",
+      "id": "brushwork-tactics",
+      "name": "Brushwork Tactics",
+      "description": "Hand-painted gouache forms with broad highlights and quiet ground.",
+      "method": "Painted directional masters, separate limb layers and action-specific poses.",
+      "prompt": "Use case: stylized-concept.\nCreate a beautiful original whole-game art-direction concept board for a zombie survival isometric strategy game.\nMEDIUM FIRST: clearly TWO-DIMENSIONAL HAND-PAINTED GOUACHE illustration, broad confident opaque brush-painted planes, subtle irregular painted contours, elegant restrained hand-painted shadow transitions. Not pixel art, polygon/low-poly render, voxel miniatures, toy plastic, cartoon ink outlines or papercraft. Characters, buildings, trees and terrain all share this same visibly painted language. Professional polished illustrated game art, not a generic realistic landscape painting.\nLandscape board. Upper 68%: a compact 2:1 isometric playable-looking outpost, a squat fortified HQ with cool pale-grey concrete walls, muted teal painted-steel roof and blue door, a taller steel watchtower with teal canopy, a short wall, olive supply crates, sparse painted pines and a water edge. Terrain is genuinely simple flat grass and cool grey earth with just two subtle broad shades per material: no speckles, tiny grass strokes, scattered flecks, grit, dense texture or busy floor. Clear open space between objects. Soft sunny light from upper-left, readable faces and front walls, crisp clear silhouettes, no dramatic haze or blur.\nThree survivors: blue-uniform rifle soldier, orange builder carrying supplies, white medic with red cross. Four zombies: ordinary grey walker with lighter grey pants, low crouched fast grey runner, grey spitter with a single vivid acid-green throat feature, broad hulking brute with one bright green shoulder identity feature. Ordinary zombies have NO colorful clothing, all grey skin, grey shirt and lighter grey pants. Anatomical heads, not cubes. Zombie shoulders slump and legs remain separate.\nBottom 32% on a clean cool off-white background: separated full-body painted character studies, SAME camera and EXACT same medium as scene: blue soldier idle, left-step walk with distinct bent legs, shooting with aimed weapon and planted legs; orange builder; white/red medic; forward-reaching grey walker; low grey runner; green-feature spitter; wide grey brute. Broad limb and face shapes read at a 21-pixel body height. Hands remain hands, no warped knees or merged limbs. This is an art-direction and pose-study board, not a sprite atlas; all feet visible. Buildings significantly larger than figures. No title, letters, numbers, UI, panel borders, watermark or text. Restrained rich azure/teal/coral accents and quiet pale green floor. Make the painting medium immediately recognizable.",
+      "image": "next-brushwork-tactics.png",
+      "source": {
+        "letter": "A",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-29e8b26a-1040-4ae5-955e-506397a1bdae.png",
+        "id": "brushwork-tactics",
+        "width": 1774,
+        "height": 887,
+        "bytes": 2718287
+      },
+      "previousAttempts": []
+    },
+    {
+      "id": "ink-steel",
+      "name": "Ink & Steel",
+      "description": "Graphic-novel contours and hard cel shadows.",
+      "method": "Outlined cutout parts; explicit attack and gather poses.",
+      "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: Premium European COMIC-BOOK CEL illustration, thick deliberate dark charcoal outer contours, thinner internal outlines only for major panels, three hard color values per form. Sharp angular anatomy, chunky tactical boots, broad noses and hands, dramatic but friendly daylight with clean hard-edged cast shadows. Industrial structures have pale concrete, teal doors, red-orange roofs and steel braces. Desaturated grey zombies with expressive drooping faces. No hatching, grain, brush texture, painted gradients or retro pixels. Rich bright coherent comic game art.",
+      "letter": "B",
+      "image": "next-ink-steel.png",
+      "source": {
+        "id": "ink-steel",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-f4682891-22d1-430d-8aa3-e27c3832030a.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2296180
+      },
+      "previousAttempts": []
+    },
+    {
+      "letter": "C",
+      "id": "prerender-1998",
+      "name": "Prerender 1998",
+      "description": "Classic RTS bitmap realism, hard shadows and compact industrial silhouettes.",
+      "method": "Prerender-style turnarounds and action poses, reduced to a controlled sprite palette.",
+      "prompt": "MEDIUM FIRST: polished late-1990s PRERENDERED BITMAP RTS graphics, with realistic but deliberately simplified compact human proportions, crisp photographic-model light/shadow planes, bounded rounded steel forms and firm shadow shapes. Rich low-resolution raster appearance with visible color quantization but no huge pixel clusters. Think tiny serious industrial soldiers, not toy miniatures, comic outlines, painted gouache, faceted low-poly blocks or modern cinematic game realism. The buildings are serious modular corrugated-steel military facilities: long flat-roof concrete HQ with radio aerials and blue metal shutters, steel gantry lookout tower with searchlight, sand-grey crates and olive pines. Light comes firmly from upper-left. Broad steel/concrete details only, no tiny greebles or grim dark muddy textures. Human blue armor, orange worker jacket and white medical vest are high-saturation role identifiers. Grey zombies have lifelike stylized slumping proportions, angular bony shoulders, heads with noses/chins and light grey trousers. Prerendered 2D assets, lightly quantized studio day lighting; not a live 3D scene screenshot. Colors balanced pale concrete, steel-grey, army green and blue/orange accents. Quiet flat sage-green grass and cool grey dirt, clear readable battlefield.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+      "image": "next-prerender-1998.png",
+      "source": {
+        "letter": "C",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-02993c8f-3eef-4dc4-a830-83ac49cf2025.png",
+        "id": "prerender-1998",
+        "width": 1774,
+        "height": 887,
+        "bytes": 3162313
+      },
+      "previousAttempts": []
+    },
+    {
+      "id": "paper-siege",
+      "name": "Paper Siege",
+      "description": "Layered paper shapes with crisp relief and distinct limbs.",
+      "method": "Layered limb cutouts; small consistent cast shadows.",
+      "prompt": "A distinctive, beautiful FLAT LAYERED PAPER-COLLAGE illustration art-direction board for an isometric zombie RTS. Medium first: visibly overlapping cut cardstock SHAPES, broad flat silhouettes, limited 2-value colors. Heads, hands, jackets and boots are individual flat die-cut paper pieces, bodies are paper dolls rather than solid 3D figures. Tiny cast shadows between layers show shallow paper relief; NOT polygonal 3D render, not bevelled voxel models, not plastic or sculpted miniatures. No realistic light gradients. Modern premium indie papercraft graphic language. Architecture is bold simplified folded-card isometric panels with almost no internal detail, red roof / cool off-white walls / cyan doors. Tree crowns are stacked flat triangular cutouts, rocks flat layered polygons, water overlapping blue card shapes, grass a perfectly untextured flat green sheet and dirt a flat grey paper shape. Upper two thirds: a compact outpost battle scene containing HQ, lookout tower, low wall, crate, paper trees, three survivors and four zombies. Lower third: clean separated FULL BODY character lineup on pale grey paper: blue soldier idle, blue soldier left-step walk, blue soldier shooting with clearly articulated arms, orange builder carrying a crate, white/red medic, grey walker reaching, low crouched grey runner, spitter with bright neon-green throat, oversized broad grey brute. Ordinary zombies grey shirt, grey skin and light grey pants. ALL assets and scene use the SAME visibly flat layered paper construction. Strong separated limbs, graphic simplified faces, no fine grain, grass speckles, text, UI, labels, outlines or borders. Landscape. Attractive cohesive paper art designed to be readable at tiny game scale.",
+      "letter": "D",
+      "image": "next-paper-siege.png",
+      "source": {
+        "id": "paper-siege",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-91aae684-4d8e-4dc2-a94d-aafffbc0607f.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2834039
+      },
+      "previousAttempts": [
+        {
+          "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: Sophisticated LAYERED CUT-PAPER relief game art. Each character, building and tree is assembled from crisp flat colored cardstock shapes, physically stacked slightly, with small directional drop shadows between major parts. Clearly angular paper silhouettes and articulated separate arms, boots and head pieces, no rounded clay modeling. Strong flat blue/orange survivor uniforms and layered grey zombies. Headquarters built from cool off-white folded card panels and red roof planes, tower from dark folded steel-colored strips; terrain perfectly flat colored paper grass and earth. No collage text, torn edges, fine paper fibers, craft clutter or painterly rendering. Confident clean handcrafted graphic relief.",
+          "reason": "Medium drifted toward faceted miniature rendering",
+          "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-2793d5db-4338-43cb-a269-489a219edb76.png"
+        }
+      ]
+    },
+    {
+      "id": "arcade-32",
+      "name": "Arcade 32",
+      "description": "True coarse pixel clusters, built for crowded RTS play.",
+      "method": "Native 24-32px masters with hand-checked pixel-pose frames.",
+      "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: AUTHENTIC NATIVE LOW-RESOLUTION 24-to-32 pixel character art, not high-resolution painted art with a pixel filter. Every character in the lower asset lineup is constructed from obvious coarse square pixel clusters, about 28 pixels tall before integer enlargement. Only 4-6 solid colors per character, large 2-3 pixel hands, boots and faces, no thin outlines or antialiasing. Buildings are roughly 64-96 native pixels wide with bold readable tile geometry. Classic early-1990s isometric arcade RTS sprite craftsmanship, clean sunny colors and strong simple shadow clusters. All artwork enlarged by nearest-neighbor so pixels are clearly visible, including terrain and structures. No smooth curves, painterly texture, 3D render or soft shading. Coherent new chunky pixel language.",
+      "letter": "E",
+      "image": "next-arcade-32.png",
+      "source": {
+        "id": "arcade-32",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-80449dcb-4d28-4a19-a1ae-bf3f7a5050e0.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 1830727
+      },
+      "previousAttempts": []
+    },
+    {
+      "letter": "F",
+      "id": "neon-quarantine",
+      "name": "Neon Quarantine",
+      "description": "Bright biotech-industrial shapes with clean emissive identity accents.",
+      "method": "Hard-shaded directional masters and separately posed limbs; emission stays in the artwork.",
+      "prompt": "MEDIUM FIRST: premium modern GRAPHIC SCI-FI strategy illustration, angular hard-surface shapes, elegant clean hard cel planes with sparse crisp edge lines, satin-white technical armor and compact industrial architecture, small luminous cyan accents. NOT a cute cartoon, rounded toy, pixel render, comic hatching, gouache brush painting or voxel construction. A DAYLIT biotech quarantine outpost: cool off-white modular HQ with a bold cantilevered cyan roof, dark coral blast doors, tall off-white observation tower with cyan glass, charcoal structural braces, geometric pines and plain sage terrain. Visually inventive industrial design, sharp stepped masses, broad bold safety markings but no typography. Tactical human silhouettes with strong royal-blue soldier plates, orange maintenance vest, white-and-red medic; slender hunched grey zombies, low fast runner and one broad asymmetrical brute, neon green anatomical spitter feature. Use vibrant clean role-color patches and few strong shape planes per figure, not micro-detail. Sunlight from upper-left, open breathable composition, clear fronts, no dark cinematic scene. Entire environment and figure lineup share the same sophisticated bright graphic sci-fi language.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+      "image": "next-neon-quarantine.png",
+      "source": {
+        "letter": "F",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-3c92898b-97e3-4f16-94fd-38541bca17a8.png",
+        "id": "neon-quarantine",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2085274
+      },
+      "previousAttempts": []
+    },
+    {
+      "id": "enamel-frontier",
+      "name": "Enamel Frontier",
+      "description": "Painted-metal miniatures with hard facets and bright role colors.",
+      "method": "Faceted turnaround masters; short action-pose sequences.",
+      "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: Beautiful FACETED PAINTED-METAL miniature game assets, a fresh industrial-enamel visual language. Broad low-poly-like bevelled facets with crisp hard lighting, hand-painted solid enamel surfaces, squared shoulders and trapezoid boots, heads rounded only at the edges with clear cheek/nose planes, no cube heads. Not glossy plastic and not voxel cubes. Architecture made of cool white corrugated steel with broad red enamel roof planes, chunky blue windows and orange repair fixtures, sparse angular pine trees and slate rocks. Rich azure survivor blue and orange builder coats, restrained pale grey zombies. Broad value planes, no rusty microtexture, scratches, noise or grim military realism. Compact tabletop-scale coherent dimensional sprites.",
+      "letter": "G",
+      "image": "next-enamel-frontier.png",
+      "source": {
+        "id": "enamel-frontier",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-da78575d-4f4e-49e9-8cfd-ddbfcc19639d.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 1977837
+      },
+      "previousAttempts": []
+    },
+    {
+      "id": "woodcut-alarm",
+      "name": "Woodcut Alarm",
+      "description": "Bold printed silhouettes with broad ink-cut highlights.",
+      "method": "High-contrast shape masters; sparse pose-specific ink marks.",
+      "prompt": "A premium high-contrast BLOCK-PRINT art-direction board for an isometric zombie survival strategy game. THE MEDIUM IS ACTUAL TWO-INK LINOCUT / SCREENPRINT GRAPHICS, NOT painterly shaded illustration, polygon render, 3D miniature, comic outlines or pixel art. Broad solid dark charcoal ink shapes with large bold carved-out white highlights; only one colored spot-ink plane per object. Very chunky angular silhouettes and expressive rough-edged printed contours, extremely simplified forms. No fine hatching, speckle or microtexture, no realistic shadows, no shading gradients. Architecture and people share the SAME strong graphic print language. HQ is a simplified white block silhouette with large charcoal plane shadows and vermilion roof, tower black structural silhouettes with a red canopy. Flat muted cool grey-green ground and cool grey path, flat teal water, solid silhouette trees, minimal scenery. Landscape board, upper two thirds a compact clean 2:1 isometric outpost with HQ, tower, walls, crate, trees, a few survivors and zombies. Lower third on clean white a separated full-body printed asset lineup: blue soldier idle, walking and shooting with different articulated limb poses; orange builder; white/red medic; grey walker reaching; low long-limbed grey runner; grey spitter with one vivid acid-green throat patch; huge grey brute. Grey regular-zombie bodies with lighter grey pants. Tiny-scale silhouette readability, hands and legs clearly separated. No text, logo, borders, UI or decorative marks. Strong stylish fresh printmaking game art, clean and crisp rather than gritty.",
+      "letter": "H",
+      "image": "next-woodcut-alarm.png",
+      "source": {
+        "id": "woodcut-alarm",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-cf5e7e1a-d1d8-48ec-9369-7269bb317030.png",
+        "width": 1774,
+        "height": 887,
+        "bytes": 2415952
+      },
+      "previousAttempts": [
+        {
+          "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: Distinctive MODERN LINOCUT / SCREENPRINT game illustration. Bold dark charcoal silhouette shapes, large carved negative-space highlights and TWO OR THREE solid flat ink colors per form, sharp confident irregular edges. No fine hatching or scratchy pattern. Short blocky angular survivors with readable separate limbs; angular grey zombies with long flat reaching hands; red safety accents and cyan/blue uniform ink. Buildings have large printed off-white wall planes, vermilion roofs and bold structural dark beams. Trees are strong stylized carved silhouettes. Isometric game geometry remains coherent. Terrain entirely quiet flat olive/grey-green and pale cool earth, not tan/brown-dominated. Looks like a premium graphic print reimagined as strategy-game assets, not a comic outline or a painted 3D render.",
+          "reason": "Medium drifted toward faceted miniature rendering",
+          "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-0a3d4896-b27e-4db6-bb83-20fc1b708ef2.png"
+        }
+      ]
+    },
+    {
+      "letter": "I",
+      "id": "gothic-nocturne",
+      "name": "Gothic Nocturne",
+      "description": "Dark ink-wash horror with pale figures and lantern-lit stone defenses.",
+      "method": "Ink-painted cutout masters with stable rim highlights and separate action poses.",
+      "theme": "dark",
+      "prompt": "MEDIUM FIRST: distinctive sophisticated GOTHIC INK-WASH illustration with dense charcoal-black brushed silhouettes, broad translucent cool violet-grey wash shadows, large clean moonlit highlights and restrained pale ochre lantern light. Ominous illustrated horror, serious and elegant, not comic thick outlines, woodcut scratch marks, pixel art, voxel toys or realistic cinematic photography. DARK THEME but clearly readable: the environment is deep muted charcoal/moss-grey; actors and front building walls have pale moonlit value planes so every shape can be inspected. No blacked-out scene, fog obscuration, blurred backgrounds or speckled ground. Reinvent the same base as a battered limestone quarantine station with steep dark steel roof and an attached lantern, tall timber-and-iron guard tower, low pale stone wall, iron-banded crates, spare dark pines and a dim teal water edge. Survivors have broad blue/orange/white uniform color patches subdued by moonlight, but not lost in black. Zombies pallid ash-grey with light grey lower clothing; long slumped walker, very low hunched runner, bright acid-green spitter sac, huge slow brute. Unease comes from posture and asymmetrical anatomy, not blood or gore. Bottom pose-study strip on deep neutral charcoal, not white, with pale rim-lit full-body figures, strongly separated legs and readable hands. Whole scene and lineup in the SAME ink-wash style with broad confident brush marks and limited clean values.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+      "image": "next-gothic-nocturne.png",
+      "source": {
+        "letter": "I",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-f331c450-b4da-40fa-a988-003b5e07a6ae.png",
+        "id": "gothic-nocturne",
+        "width": 1774,
+        "height": 887,
+        "bytes": 2708543
+      },
+      "previousAttempts": []
+    },
+    {
+      "letter": "J",
+      "id": "afterhours-circuit",
+      "name": "Afterhours Circuit",
+      "description": "Dark cel silhouettes, neon edge light and stark emergency-lit architecture.",
+      "method": "Sharp cel layers with consistent baked lighting and controlled bright accents.",
+      "theme": "dark",
+      "prompt": "MEDIUM FIRST: dramatic polished NIGHT-TIME GRAPHIC CEL-SHADED sprite illustration, flat deep ink-black forms plus TWO strong hard-lit planes, extremely crisp luminous cyan and warm red-orange EDGE LIGHTS, no soft bloom. DARK THEME industrial lockdown, not pixel art, plastic toys, painted watercolor, gothic ink brushwork or realistic cinema. Keep all important body and structure front planes clearly visible in neutral light-grey/teal midtones. Charcoal floor with exactly two very close grey shades; no gradients, speckles, rubble noise or glow puddles. HQ is a low angular black-and-grey industrial bunker with a big emergency-red shutter and cyan perimeter light strips, guard tower a sparse dark steel structure with clearly illuminated pale cabin and a red signal beacon. A few dark sculptural trees, grey low walls, readable white/grey crates and flat deep teal water. Blue/cyan soldier, orange builder and white/red medic remain instantly identifiable as dark strong silhouettes with broad colored shoulder/chest planes. Grey zombies are pale chalk shapes against darkness, with grey pants; neon lime spitter and lime-accent brute, low angular fast runner. Clean atmospheric nighttime palette black/white/cyan/coral/lime, no dominant dark-blue wash, no purple glowing fantasy haze, no orbs. Bottom strip on dark charcoal: same crisply articulated figures and lighting, feet and arms visibly separate, stable source-pose highlights. Visually bold premium action-tactics graphic artwork, not a generic cyberpunk photograph.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+      "image": "next-afterhours-circuit.png",
+      "source": {
+        "letter": "J",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-49c0a13d-e840-4208-9780-041f3fa74b66.png",
+        "id": "afterhours-circuit",
+        "width": 1774,
+        "height": 887,
+        "bytes": 2010058
+      },
+      "previousAttempts": []
+    },
+    {
+      "letter": "K",
+      "id": "riso-patrol",
+      "name": "Riso Patrol",
+      "description": "Screenprinted color blocks, offset ink accents and strong readable silhouettes.",
+      "method": "Flat printed limb layers and pose-specific ink highlights; minimal interior texture.",
+      "prompt": "Create a genuine FLAT MULTICOLOR RISOGRAPH PRINT illustration, a fresh visual direction for a zombie strategy game. The print medium is the dominant visual fact. Use solid CYAN, VERMILION, charcoal and pale grey ink shapes on white, small purposeful ink-registration offsets, broad strong stencil-like silhouettes, overprinted geometric shadow areas. No modeled 3D surfaces, no sculpted or miniature figures, no realistic materials, no facets with light gradients, no softly shaded polygon render. No comic black perimeter outlines. Everything consists of flat ink shapes like a sophisticated editorial screenprint. Slight ink texture only inside building roof or jacket masses, NO noise on the ground.\nLandscape board: top two thirds a graphic 2:1 isometric military outpost illustration, a simple white-and-charcoal HQ with one vermilion roof shape and cyan door, a simple charcoal watchtower topped by a cyan cabin, low white wall, olive crates, stylized pine silhouettes, plain grey-green ground and solid teal water edge. Isometry is indicated by simple diagonal plane shapes, NOT deep 3D modeling. Three survivors and four grey zombies in the scene. Blank quiet floor with generous negative space.\nBottom third on white: nine separated full-body printed figure studies with compact broad silhouettes: cyan-blue soldier idle; same soldier walking with separate clearly bent legs; same soldier aiming rifle; vermilion-orange builder carrying a box; white-and-coral medic; pale grey zombie walker reaching; pale grey low runner; pale grey spitter with vivid acid-lime throat; huge charcoal-and-grey brute with one lime feature. Grey ordinary-zombie shirt and light grey trousers. Very simple organic rounded head silhouettes and big clean boot/hand shapes, 3-4 flat printed color masses per figure. Use white paper negative-space cuts for faces and articulation. Character shapes and architecture use the SAME flat ink construction and registration. This must look like a beautifully designed limited-ink print, not a video game 3D-render screenshot. No text, titles, UI, panel borders or symbols. These are concepts, not actual animation frames.",
+      "image": "next-riso-patrol.png",
+      "source": {
+        "letter": "K",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-9dd9d371-f325-47d0-a564-612c00a256d8.png",
+        "id": "riso-patrol",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2641962
+      },
+      "previousAttempts": [
+        {
+          "prompt": "MEDIUM FIRST: fresh RISO / TWO-PASS SCREENPRINT graphic illustration for an isometric game. Large flat printed color blocks, subtly offset cyan-and-coral accent registration on clean off-white paper, broad negative-space face/hand marks and one charcoal shadow shape. Mostly perfectly solid fills; tiny registration offsets only on a few outer edges, NO dot patterns, noisy grain, halftone carpets, fine hatching, 3D shading or gradients. Distinctive designer print aesthetic, not woodcut black-and-white carving, thick comic outlines, faceted 3D render or voxel toy. Architecture is simplified clean offset-printed modular forms, pale stone HQ with a bold coral roof panel and cyan door, charcoal watchtower with coral canopy and cyan window, supply crates as simple olive printed boxes. Ground pure quiet grey-green blocks and pale cool-grey path, no tan-dominated palette or intricate grass. Short strong human silhouettes, blue soldier, orange builder, white/red medic, grey zombies with lighter grey pants; acid lime spot ink singles out specials. Heads rounded/asymmetric organic print shapes rather than cuboids. Pose studies are clearly different actual limb silhouettes, compact large boots and separated hands. Scene, trees, rocks, water and all characters consistently use this crisp screenprint/registration visual language. Bold expressive art with disciplined shape economy.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+          "reason": "Medium drifted toward faceted miniature rendering",
+          "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-e0b37fda-6294-4838-a5b7-766188b9398f.png"
+        }
+      ]
+    },
+    {
+      "letter": "L",
+      "id": "glasswork-siege",
+      "name": "Glasswork Siege",
+      "description": "Stained-glass color planes with dark leading and luminous grey zombies.",
+      "method": "Large glass-shaped limb cutouts; hand-drawn poses with fixed outlines and lighting.",
+      "prompt": "MEDIUM FIRST: original STAINED-GLASS / CLOISONNE illustrated game-art language. Characters and objects formed from a SMALL number of large rich colored glass planes bounded by deliberate dark metal leading, luminous but flat enamel-like highlights. Lead lines follow anatomy and structural shape, not random tessellation. No tiny mosaic tiles, intricate ornament, broken-glass debris, realistic reflections, 3D voxel geometry, pixel-art filter or comic hatching. Premium crafted vitreous game illustration, elegant large color segments and strong silhouettes, suited to small sprites. HQ is a squat ivory-grey faceted glass/concrete form with broad teal roof planes and coral doorway, taller watchtower with a teal glass canopy and charcoal supports, low pale-grey wall, olive supply crates with just 3 broad panels, simple glass-shaped dark-green trees. Ground stays quiet: practically flat grey-green grass, cool pale-grey earth and a few large muted teal water planes, no ground mesh or repeated leading grid. Blue soldier with 4-5 broad blue armor segments, orange builder, white/red medic; pale grey zombies as ash-white glass planes with lighter grey pants, a low-reaching runner, luminous lime spitter organ and broad grey brute with one lime feature. Organic face shapes with clear nose/chin, not square cube heads. Scene and separate full-body character poses all share consistent dark leading thickness, large luminous planes and upper-left daylight. The result must visibly feel like stained-glass design translated into useful game silhouettes, not a detailed ornamental window.\nLandscape art-direction concept board for an isometric zombie survival RTS. Upper 68%: a clear compact 2:1-isometric outpost, with fortified HQ, taller guard tower, short wall, supply crates, a few trees/rocks and water edge, inhabited by three survivors and four zombies. Terrain quiet and virtually flat, just two close shades per material; no speckled grass, busy texture or clutter. Bottom 32% on neutral plain ground: full-body separated pose studies, same camera and EXACT same art medium as the scene: blue rifle soldier idle, left-step walk with truly different bent-leg pose, shooting with planted feet and aimed arms; orange builder; white/red medic; grey reaching walker, low crouched fast runner, acid-green-feature spitter, broad hulking brute. Normal zombies have grey skin, grey tops and lighter grey pants, no colorful clothes. Specials have a single vivid neon identity feature. Anatomical heads, no cube heads. Clear separated hands and legs, all feet visible. Broad forms must read at 21-pixel body height. Buildings much larger than figures. No text, logo, UI, captions, borders, dramatic blur or depth of field. These are cohesive visual concepts and articulated pose studies, not verified sprite atlases.",
+      "image": "next-glasswork-siege.png",
+      "source": {
+        "letter": "L",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-dbb50deb-05c0-4c6d-8ac2-45a9a8be2d11.png",
+        "id": "glasswork-siege",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2357019
+      },
+      "previousAttempts": []
+    }
+  ],
+  "revision": 2,
+  "updated": "2026-10-08",
+  "retiredDirections": [
+    {
+      "id": "signal-flat",
+      "name": "Signal Flat",
+      "description": "Bold two-tone cutouts; the clearest small-scale silhouettes.",
+      "method": "Segmented cutout masters with separate limbs; minimal shading.",
+      "prompt": "Original polished flat graphic ART-DIRECTION BOARD for a zombie strategy game. THE MEDIUM IS PURE FLAT TWO-TONE CEL-CUTOUT ILLUSTRATION. Absolutely NOT a 3D render, polygonal miniature, sculpted art, voxel, pixel art, painterly image, bevelled shape or realistic shaded model. Draw broad solid colored shapes with just ONE geometric shadow shape, sharp edges, no gradients, grain, ambient occlusion or detailed panels. Think stylish independent 2D cutout tactics game: short angular paper-doll people with rectangular boots, large simple heads, clear separate forearms and short legs, tiny minimalist faces. Buildings are simplified isometric icons with only 3 broad wall/roof planes, not richly detailed models.\nLandscape board, top two thirds a coherent isometric 2:1 outpost scene with an off-white headquarters, coral roof, blue doorway, dark grey lookout tower with coral canopy, low wall and olive supply crate, small angular trees and rocks. Very flat olive-green grass, flat pale cool-grey dirt path and muted cyan water strip, no small scattered markings. Blue soldier, orange builder and white/red medic defending against grey walkers, a low crouched grey runner, a grey spitter with a neon green throat, and an oversized grey brute. Light grey zombie pants. Minimal internal detail, strong silhouettes at tiny scale. Bottom third on plain pale grey: FULL BODY separated character studies, blue soldier idle then walking then firing in articulated changed poses; orange builder; white/red medic; grey reaching walker; crouched runner; neon green spitter; broad brute. Scene and lineup share EXACT SAME flat graphic design language. No typography, captions, text, frames, UI, logos or perspective blur. Colorful clean daylight but flat icon-like art, not generic clip art. Limit all forms to two solid values.",
+      "letter": "A",
+      "image": "next-signal-flat.png",
+      "source": {
+        "id": "signal-flat",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-6e720668-4124-4900-a118-0a7718c05ba8.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 1573411
+      },
+      "previousAttempts": [
+        {
+          "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: A striking flat vector-like CEL-CUTOUT game art style rendered as a bitmap. Crisp edges, angular chunky heads with clear faces, flat solid color blocks and one hard shadow plane, no painterly texture and no pixel-art texture. Characters have visibly separated broad forearms, boots and torsos. Architecture is simplified geometric industrial forms with coral roof panels, cool concrete sides and clear blue doors. Trees are compact angular leaf masses. Stylish graphic-design precision, strong silhouettes, not generic clip art.",
+          "reason": "Medium drifted toward faceted miniature rendering",
+          "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-89530476-bdbc-45fc-b8dc-204035617bc9.png"
+        }
+      ],
+      "retiredRevision": 2,
+      "reason": "User requested a different option in this slot; original image preserved."
+    },
+    {
+      "id": "toybox-tactical",
+      "name": "Toybox Tactical",
+      "description": "Matte toy figures and simplified plastic fortifications.",
+      "method": "Rendered turnaround masters; tightly bounded articulated poses.",
+      "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: High-quality miniature TOY-PLASTIC strategy diorama art, presented as prerendered 2D game assets. Matte molded plastic, broad shallow bevels, flat planar light-and-shadow, small oval heads with sculpted nose/chin NOT cube heads, sturdy separated arms and boots. Toy military outpost buildings with ivory plastic walls, red roof plates and cyan windows, yellow safety blocks. Stylized conical plastic trees. Not voxel blocks, not Minecraft, not clay blobs, not realistic models. Attractive hand-designed toy shapes, sunny soft light and simple solid material colors. Clear tidy dimensional assets, not painterly.",
+      "letter": "C",
+      "image": "next-toybox-tactical.png",
+      "source": {
+        "id": "toybox-tactical",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-19bba678-d63b-4713-ac1f-1b63d02a58c4.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 1917941
+      },
+      "previousAttempts": [],
+      "retiredRevision": 2,
+      "reason": "User requested a different option in this slot; original image preserved."
+    },
+    {
+      "id": "rubberhose-outbreak",
+      "name": "Rubberhose Outbreak",
+      "description": "Expressive cartoon silhouettes with flexible articulated limbs.",
+      "method": "Jointed cartoon cutouts plus drawn hand/foot action poses.",
+      "prompt": "Create a polished original ART-DIRECTION CONCEPT BOARD for Dead Zone, a 2D canvas isometric zombie survival RTS. This is a fresh art direction, not a reskin. Landscape composition. Upper two thirds: a compact coherent playable-looking battlefield viewed from a fixed 2:1 isometric camera, with a squat fortified headquarters, tall lookout tower, low wall, supply crate, a few trees, and simple flat grass/dirt with a small water edge. No UI, text, logos, borders, title or letters. Terrain is quiet with just two close shades per material, no speckles, grass noise or busy patterns. Six small readable figures inhabit the scene. Bottom third on a clean pale neutral ground: separated full-body asset studies of a blue soldier in idle, walking contact, and shooting poses (articulated different leg and arm poses, not a translated duplicate), an orange builder, white/red medic, ordinary grey zombie in a forward-reaching attack pose, low fast grey runner, neon-green-feature spitter, broad hulking brute. Every study matches the battlefield style, camera, colors and lighting. Ordinary zombies have grey skin, grey tops and lighter grey pants; no colorful regular-zombie clothes. Specials have one strong neon identifying feature. Survivors blue/cyan/orange/white accents. Units must remain recognizable with a 21-pixel body at gameplay scale: large solid silhouettes, separated limbs, restrained shading, no tiny decorations. Buildings substantially larger than actors; friendly practical daylight, clear readable faces and broad forms; no cinematic haze, blur, depth of field, gore or gradients in terrain. Coherent medium-specific architecture, characters and environment, not different styles mixed together. These are illustrative concepts and pose studies, not a technical sprite atlas.\nART DIRECTION: Polished HAND-INKED CARTOON strategy game art inspired by classic animation but in a modern bright limited palette. Short stout survivors with large oval heads, simple determined faces, chunky gloves and boots, clearly separated flexible bendy arms and legs; drooping grey zombies with lanky curved spines, lolling heads and reaching arms, very low crouched runner. Consistent thick clean black outlines and two hard fill values. Buildings have pleasantly exaggerated tilted red roof shapes, steel towers and cyan windows, trees have graphic scalloped dark-green crowns. Not cute smiling zombies, not photorealistic, not pixels, not voxel, no spooky dark lighting. Energetic confident designed cartoon forms, excellent broad silhouette readability.",
+      "letter": "F",
+      "image": "next-rubberhose-outbreak.png",
+      "source": {
+        "id": "rubberhose-outbreak",
+        "path": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-9cfa2167-db34-420d-89ae-4d5d31144fe4.png",
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2156748
+      },
+      "previousAttempts": [],
+      "retiredRevision": 2,
+      "reason": "User requested a different option in this slot; original image preserved."
+    }
+  ]
+}

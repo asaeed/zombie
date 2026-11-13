@@ -1,0 +1,16 @@
+{
+  "image": "pine.png",
+  "group": "decoration",
+  "width": 78,
+  "height": 116,
+  "footAnchor": {
+    "x": 39.40031595289759,
+    "y": 112
+  },
+  "sourceRect": {
+    "x": 458,
+    "y": 16,
+    "width": 628,
+    "height": 969
+  }
+}

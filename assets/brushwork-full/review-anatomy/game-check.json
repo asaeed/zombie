@@ -1,0 +1,18 @@
+{
+  "unitPriority": true,
+  "buildingFallback": true,
+  "towerArrival": {
+    "x": 820,
+    "y": 860,
+    "freedColumn": 800,
+    "legal": true,
+    "distance": 0,
+    "target": {
+      "x": 808.0833333333333,
+      "y": 859.5833333333333
+    },
+    "waypoints": []
+  },
+  "meters": true,
+  "errors": []
+}

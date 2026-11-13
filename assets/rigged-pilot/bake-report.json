@@ -1,0 +1,62 @@
+{
+  "models": {
+    "soldier": {
+      "frames": 512,
+      "maxHandError": 1.0885694102901881e-7
+    },
+    "walker": {
+      "frames": 384,
+      "maxHandError": 0.01402991568425552
+    }
+  },
+  "frames": 896,
+  "sourceClips": [
+    "A_TPose",
+    "Crouch_Fwd_Loop",
+    "Crouch_Idle_Loop",
+    "Dance_Loop",
+    "Death01",
+    "Driving_Loop",
+    "Fixing_Kneeling",
+    "Hit_Chest",
+    "Hit_Head",
+    "Idle_Loop",
+    "Idle_Talking_Loop",
+    "Idle_Torch_Loop",
+    "Interact",
+    "Jog_Fwd_Loop",
+    "Jump_Land",
+    "Jump_Loop",
+    "Jump_Start",
+    "PickUp_Table",
+    "Pistol_Aim_Down",
+    "Pistol_Aim_Neutral",
+    "Pistol_Aim_Up",
+    "Pistol_Idle_Loop",
+    "Pistol_Reload",
+    "Pistol_Shoot",
+    "Punch_Cross",
+    "Punch_Jab",
+    "Push_Loop",
+    "Roll",
+    "Sitting_Enter",
+    "Sitting_Exit",
+    "Sitting_Idle_Loop",
+    "Sitting_Talking_Loop",
+    "Spell_Simple_Enter",
+    "Spell_Simple_Exit",
+    "Spell_Simple_Idle_Loop",
+    "Spell_Simple_Shoot",
+    "Sprint_Loop",
+    "Swim_Fwd_Loop",
+    "Swim_Idle_Loop",
+    "Sword_Attack",
+    "Sword_Idle",
+    "Walk_Formal_Loop",
+    "Walk_Loop"
+  ],
+  "limitations": [
+    "Material/blockout costume is not a reproduction of the approved painted appearance.",
+    "Two-character review-only pilot; not installed as a game skin."
+  ]
+}

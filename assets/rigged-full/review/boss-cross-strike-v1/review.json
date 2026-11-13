@@ -1,0 +1,55 @@
+{
+  "asset": "boss-c9459ba8e5c3.png",
+  "status": "local revision for user review",
+  "method": "authored Punch_Cross rig animation with natural wrist rotations and blended recovery",
+  "reviewer": "single-agent asset self-review; no independent art review",
+  "visualCoverage": [
+    "eight directions at native and enlarged sizes",
+    "complete attack cycles for south, east and north"
+  ],
+  "timedNativePreview": "not reviewed; active browser app changed during review attempt",
+  "reviewedHolds": {
+    "groups": [
+      [
+        "attack/S/0",
+        "attack/S/31"
+      ],
+      [
+        "attack/SE/0",
+        "attack/SE/31"
+      ],
+      [
+        "attack/E/0",
+        "attack/E/31"
+      ],
+      [
+        "attack/NE/0",
+        "attack/NE/31"
+      ],
+      [
+        "attack/N/0",
+        "attack/N/31"
+      ],
+      [
+        "attack/NW/0",
+        "attack/NW/31"
+      ],
+      [
+        "attack/W/0",
+        "attack/W/31"
+      ],
+      [
+        "attack/SW/0",
+        "attack/SW/31"
+      ]
+    ],
+    "reason": "intentional matching attack start and recovery pose"
+  },
+  "technical": {
+    "frames": 448,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "unchangedIdleAndWalkFrames": 192
+  },
+  "publication": "local only"
+}

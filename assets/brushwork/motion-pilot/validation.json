@@ -1,0 +1,366 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-drawn-verify-JU9IYc",
+  "scope": "SE walk-only alignment experiment; not gameplay replacement",
+  "limitations": [
+    "Different paint detail and brightness between individually drawn frames.",
+    "Drawn poses preferred by user; aligned playback and remaining directions/actions await review."
+  ],
+  "pilot": {
+    "soldier": {
+      "unique": 8,
+      "ranges": [
+        {
+          "count": 19345,
+          "edge": 0,
+          "left": 58,
+          "top": 63,
+          "right": 206,
+          "bottom": 302
+        },
+        {
+          "count": 17941,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 206,
+          "bottom": 303
+        },
+        {
+          "count": 17000,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 206,
+          "bottom": 302
+        },
+        {
+          "count": 19249,
+          "edge": 0,
+          "left": 63,
+          "top": 63,
+          "right": 213,
+          "bottom": 305
+        },
+        {
+          "count": 18007,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 201,
+          "bottom": 302
+        },
+        {
+          "count": 17524,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 201,
+          "bottom": 303
+        },
+        {
+          "count": 17302,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 202,
+          "bottom": 305
+        },
+        {
+          "count": 18521,
+          "edge": 0,
+          "left": 64,
+          "top": 63,
+          "right": 215,
+          "bottom": 299
+        }
+      ],
+      "body": 21.28,
+      "alignment": {
+        "before": {
+          "maxStep": 1.242124747716142,
+          "wrapStep": 0.5338440263264584,
+          "spanX": 1.064,
+          "spanY": 0.8866666666666667
+        },
+        "after": {
+          "maxStep": 0.044333333333333336,
+          "wrapStep": 0.044333333333333336,
+          "spanX": 0.044333333333333336,
+          "spanY": 0
+        },
+        "roots": [
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 37
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 38
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 37
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 38
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 38
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 39
+          },
+          {
+            "x": 142,
+            "y": 63,
+            "headWidth": 39
+          },
+          {
+            "x": 142.5,
+            "y": 63,
+            "headWidth": 40
+          }
+        ]
+      }
+    },
+    "walker": {
+      "unique": 8,
+      "ranges": [
+        {
+          "count": 17827,
+          "edge": 0,
+          "left": 60,
+          "top": 62,
+          "right": 201,
+          "bottom": 301
+        },
+        {
+          "count": 17304,
+          "edge": 0,
+          "left": 58,
+          "top": 62,
+          "right": 208,
+          "bottom": 302
+        },
+        {
+          "count": 16660,
+          "edge": 0,
+          "left": 65,
+          "top": 62,
+          "right": 209,
+          "bottom": 301
+        },
+        {
+          "count": 17921,
+          "edge": 0,
+          "left": 61,
+          "top": 62,
+          "right": 202,
+          "bottom": 303
+        },
+        {
+          "count": 18365,
+          "edge": 0,
+          "left": 65,
+          "top": 62,
+          "right": 211,
+          "bottom": 301
+        },
+        {
+          "count": 18488,
+          "edge": 0,
+          "left": 62,
+          "top": 62,
+          "right": 211,
+          "bottom": 303
+        },
+        {
+          "count": 18638,
+          "edge": 0,
+          "left": 62,
+          "top": 62,
+          "right": 213,
+          "bottom": 307
+        },
+        {
+          "count": 21212,
+          "edge": 0,
+          "left": 53,
+          "top": 62,
+          "right": 227,
+          "bottom": 308
+        }
+      ],
+      "body": 21.28,
+      "alignment": {
+        "before": {
+          "maxStep": 1.064,
+          "wrapStep": 1.064,
+          "spanX": 1.197,
+          "spanY": 0.17733333333333334
+        },
+        "after": {
+          "maxStep": 0,
+          "wrapStep": 0,
+          "spanX": 0,
+          "spanY": 0
+        },
+        "roots": [
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 34
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 36
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 34
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 36
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 36
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 38
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 38
+          },
+          {
+            "x": 165.5,
+            "y": 62,
+            "headWidth": 40
+          }
+        ]
+      }
+    },
+    "contrast": [
+      {
+        "kind": "original",
+        "meanAdjacentRGB": 8.224647778293853,
+        "softPixels": 746,
+        "occupiedPixels": 2485
+      },
+      {
+        "kind": "sharp",
+        "meanAdjacentRGB": 10.753342147789041,
+        "softPixels": 355,
+        "occupiedPixels": 2483
+      }
+    ],
+    "scout": {
+      "maxStep": 0.13,
+      "wrapStep": 0,
+      "spanX": 0.26,
+      "spanY": 0
+    }
+  },
+  "scoutPlaybackFrames": 12,
+  "reviewControls": true,
+  "retina": {
+    "dpr": 2,
+    "physical": [
+      2360,
+      1640
+    ],
+    "css": [
+      1180,
+      820
+    ],
+    "transform": [
+      2,
+      2
+    ],
+    "body": 21.28,
+    "gathering": {
+      "peak": 20,
+      "delivered": 20
+    },
+    "menuLogicalCoordinates": true,
+    "resize": true
+  },
+  "browserErrors": [],
+  "tests": {
+    "command": "node --test tests/*.test.mjs",
+    "passed": 87,
+    "failed": 0
+  },
+  "unchanged": {
+    "fileCount": 44,
+    "files": [
+      "assets/brushwork/manifest.json",
+      "assets/brushwork/soldier.png",
+      "assets/brushwork/walker.png",
+      "assets/brushwork/scout.png",
+      "assets/brushwork/builder.png",
+      "assets/brushwork/medic.png",
+      "assets/brushwork/sniper.png",
+      "assets/brushwork/heavy.png",
+      "assets/brushwork/torchbearer.png",
+      "assets/brushwork/runner.png",
+      "assets/brushwork/brute.png",
+      "assets/brushwork/spitter.png",
+      "assets/brushwork/exploder.png",
+      "assets/brushwork/screamer.png",
+      "assets/brushwork/boss.png",
+      "assets/brushwork/walker-cap.png",
+      "assets/brushwork/walker-dress.png",
+      "assets/brushwork/walker-onearm.png",
+      "assets/brushwork/suv.png",
+      "assets/brushwork/hq.png",
+      "assets/brushwork/wall.png",
+      "assets/brushwork/tower.png",
+      "assets/brushwork/barracks.png",
+      "assets/brushwork/depot.png",
+      "assets/brushwork/light.png",
+      "assets/brushwork/clinic.png",
+      "assets/brushwork/mechanics.png",
+      "assets/brushwork/car.png",
+      "assets/brushwork/cabin.png",
+      "assets/brushwork/bin.png",
+      "assets/brushwork/pine.png",
+      "assets/brushwork/bush.png",
+      "assets/brushwork/rock.png",
+      "assets/brushwork/terrain.png",
+      "js/config.js",
+      "js/diorama-art.js",
+      "js/entities.js",
+      "js/game.js",
+      "js/input.js",
+      "js/main.js",
+      "js/pathfinding.js",
+      "js/renderer.js",
+      "js/utils.js",
+      "js/zombie-art.js"
+    ],
+    "scope": "All gameplay JS and the complete Brushwork runtime pack, including scout."
+  },
+  "rebuild": {
+    "byteIdentical": true,
+    "command": "node tools/brushwork/bake-drawn.mjs --output=/private/tmp/zombie-alignment/output-check"
+  }
+}

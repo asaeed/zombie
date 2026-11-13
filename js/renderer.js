@@ -61,6 +61,9 @@ class Renderer {
   }
 
   render(game, input) {
+    this._wallTiles = new Set(game.buildings.filter(b => !b.dead && b.type === 'wall').map(b => `${b.tileX},${b.tileY}`));
+    this._wallPreview = game.buildMode === 'wall' && input.mouseTile &&
+      game.canPlaceBuilding('wall', input.mouseTile.tx, input.mouseTile.ty) ? input.mouseTile : null;
     const ctx = this.ctx;
     ctx.fillStyle = '#12180d';               // far wasteland beyond the skirt band
     ctx.fillRect(0, 0, this.W, this.H);
@@ -74,6 +77,7 @@ class Renderer {
     this._drawBundles(ctx, game);
     this._drawFlares(ctx, game);
     this._drawLighting(ctx, game);
+    this._drawFlareShots(ctx, game);
     if (game.buildMode && input.mouseTile) this._drawBuildGhost(ctx, game, input.mouseTile);
     if (input.selectBox) this._drawSelectionBox(ctx, input.selectBox);
 
@@ -328,6 +332,11 @@ class Renderer {
       drawables.push({ key: (b.tileX + ts) * TILE + (b.tileY + ts) * TILE,
                        draw: () => this._drawBuilding(ctx, game, b) });
     }
+    for (const effect of game.dyingActors ?? []) {
+      const actor = effect.actor;
+      if (!effect.visible && !game.tileVisible(Math.floor(actor.x / TILE), Math.floor(actor.y / TILE))) continue;
+      drawables.push({key:this._unitDrawKey(game, actor), draw:() => this._drawDyingActor(ctx, game, effect)});
+    }
     for (const u of game.units) {
       if (u.dead || u.vehicle) continue;
       if (!this._actorOnScreen(game, u)) continue;
@@ -493,7 +502,7 @@ class Renderer {
       { x: W.x, y: W.y - h },
     ];
     const drawKey = (b.tileX + ts) * TILE + (b.tileY + ts) * TILE;
-    const artwork = sculptedObject(b.type);
+    const artwork = b.type === 'wall' ? null : sculptedObject(b.type);
     const rect = artwork ? sculptedObjectRect(artwork, S, z) : null;
     const occlusionAlpha = this._unitOcclusionAlpha(game, shell, drawKey, artwork, rect);
     const cx = (N.x + S.x) / 2;
@@ -510,7 +519,9 @@ class Renderer {
       ctx.save();
       ctx.globalAlpha *= occlusionAlpha;
     }
-    if (artwork) {
+    if (b.type === 'wall') {
+      this._drawWall(ctx, game, b.tileX, b.tileY, this._wallPreview);
+    } else if (artwork) {
       ctx.imageSmoothingEnabled = artwork.imageSmoothing;
       ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
       ctx.drawImage(artwork.nightImage ? worldArtworkImage(artwork, game.darkness()) : artwork.image, rect.x, rect.y, rect.width, rect.height);
@@ -617,6 +628,22 @@ class Renderer {
     }
   }
 
+  _drawDyingActor(ctx, game, effect) {
+    const actor = effect.actor;
+    const styles = ['walker', 'walker-onearm', 'walker-cap', 'walker-dress'];
+    const id = effect.zombie && actor.type === 'walker'
+      ? styles[(actor._artVariant ?? zombieAppearance(actor.type, actor.id)) % styles.length] : actor.type;
+    const record = sculptedActor(id)?.death;
+    if (!record) return;
+    const age = Math.max(0, game.gameTime - effect.startedAt), clip = record.metadata.clips.die;
+    const frames = clip.directions[actor.facing] ?? clip.directions.SE;
+    const frame = frames[Math.min(frames.length - 1, Math.floor(age * clip.fps))];
+    const foot = worldToScreen(actor.x, actor.y, game.camera), z = game.camera.zoom;
+    ctx.save(); ctx.globalAlpha *= clamp((DYING_ACTOR_LIFETIME - age) / .6, 0, 1);
+    this._drawActorSprite(ctx, record, frame, foot, z);
+    ctx.restore();
+  }
+
   _drawUnit(ctx, game, u) {
     const cam = game.camera, z = cam.zoom;
     const s = worldToScreen(u.x, u.y, cam);
@@ -634,7 +661,7 @@ class Renderer {
 
     const stationary = u.waypoints.length === 0;
     const working = stationary && (u.gatherTarget || u.bundleTarget) ? 'gather'
-      : stationary && u.repairTarget ? 'repair'
+      : stationary && u.repairTarget && u.canRepairBuilding(u.repairTarget, game) ? 'repair'
       : stationary && u.type === 'medic' && u.supportHome && !u._supportReturning && u.healCooldown > 0 ? 'heal' : null;
     this._drawActorSprite(ctx, artwork, sculptedActorFrame(artwork, u, game.gameTime, working), s, z);
 
@@ -673,6 +700,12 @@ class Renderer {
     if (u.type === 'builder' && u.repairTarget) {
       ctx.fillStyle = '#ffdd44'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('⚙', s.x, cargoY - 6 * z);
+    }
+
+    if (u.type === 'medic' && game.units.some(ally => ally !== u && !ally.dead && !ally.vehicle &&
+        ally.hp < ally.maxHp && dist2(u.x, u.y, ally.x, ally.y) < MEDIC_HEAL_RADIUS ** 2)) {
+      ctx.fillStyle = '#ff77aa'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('✚', s.x, cargoY - 6 * z);
     }
 
     if (u.gatherCenter) {
@@ -756,6 +789,10 @@ class Renderer {
     if (!artwork) return;
     const visualRadius = zb.def.radius * (artwork ? .5 : 1);
     const r = visualRadius * z;
+    if (game.selectedZombies.includes(zb)) {
+      this._groundEllipse(ctx, s, visualRadius + 3, z);
+      ctx.strokeStyle = '#ff6655'; ctx.lineWidth = 2; ctx.stroke();
+    }
     this._groundEllipse(ctx, s, visualRadius, z);
     ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
     const alpha = ctx.globalAlpha;
@@ -892,7 +929,38 @@ class Renderer {
     }
   }
 
-  // ── Flares (thrown signal flares — ground stick + flickering flame) ────────
+  _drawFlareShots(ctx, game) {
+    const cam = game.camera, z = cam.zoom;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.globalCompositeOperation = 'lighter';
+    for (const shot of game.flareShots) {
+      const progress = clamp(shot.t / shot.duration, 0, 1);
+      const pointAt = t => {
+        const s = worldToScreen(lerp(shot.sx, shot.x, t), lerp(shot.sy, shot.y, t), cam);
+        s.y -= (45 * (1 - t) + Math.sin(t * Math.PI) * 80) * z;
+        return s;
+      };
+      const tailProgress = Math.max(0, progress - 0.22);
+      const tail = pointAt(tailProgress), head = pointAt(progress);
+      const glow = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+      glow.addColorStop(0, 'rgba(255,85,20,0)');
+      glow.addColorStop(1, '#ffbc50');
+      ctx.beginPath(); ctx.moveTo(tail.x, tail.y);
+      for (let i = 1; i <= 8; i++) {
+        const s = pointAt(lerp(tailProgress, progress, i / 8));
+        ctx.lineTo(s.x, s.y);
+      }
+      ctx.strokeStyle = glow; ctx.lineWidth = 7 * z; ctx.stroke();
+      ctx.strokeStyle = '#fff0b9'; ctx.lineWidth = 2 * z; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,133,40,0.35)';
+      ctx.beginPath(); ctx.arc(head.x, head.y, 9 * z, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff6d4';
+      ctx.beginPath(); ctx.arc(head.x, head.y, 3.5 * z, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   _drawFlares(ctx, game) {
     const cam = game.camera, z = cam.zoom;
     for (const f of game.flares) {
@@ -933,7 +1001,7 @@ class Renderer {
       if (!u.dead && !u.vehicle) punch(u.x, u.y, game.visionRadius(u.type));
     }
     for (const v of game.vehicles) {
-      if (!v.dead) punch(v.x, v.y, game.visionRadius(v.type));
+      if (!v.dead) punch(v.x, v.y, game.visionRadius(v.type, v.passengers));
     }
     for (const b of game.buildings) {
       if (!b.dead) punch(b.x, b.y, game.visionRadius(b.type));
@@ -1082,6 +1150,64 @@ class Renderer {
   }
 
   // ── Build Ghost ───────────────────────────────────────────────────────────
+  _drawWall(ctx, game, tileX, tileY, preview = null) {
+    const cam = game.camera, z = cam.zoom, h = ISO_HEIGHTS.wall * z;
+    const shape = wallShape(this._wallTiles ?? game.buildings, tileX, tileY, preview);
+    const artwork = sculptedObject('wall');
+    const image = artwork ? worldArtworkImage(artwork, game.darkness()) : null;
+    if (artwork) {
+      ctx.imageSmoothingEnabled = artwork.imageSmoothing;
+      ctx.imageSmoothingQuality = artwork.imageSmoothingQuality;
+    }
+    const project = p => worldToScreen(p.x, p.y, cam);
+    const polygon = (points, color) => {
+      ctx.fillStyle = color; ctx.beginPath();
+      points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+      ctx.closePath(); ctx.fill();
+    };
+    // Panel, cap and post samples use the original wall's 259 by 250 source coordinates.
+    const texture = (points, source) => {
+      if (!image) return;
+      const width = image.naturalWidth || image.width, height = image.naturalHeight || image.height;
+      const [o,u,v] = source.map(([x,y]) => ({x:x*width/259,y:y*height/250}));
+      const ux=u.x-o.x, uy=u.y-o.y, vx=v.x-o.x, vy=v.y-o.y, det=ux*vy-uy*vx;
+      const tx=points[1].x-points[0].x, ty=points[1].y-points[0].y;
+      const bx=points[3].x-points[0].x, by=points[3].y-points[0].y;
+      const a=(tx*vy-bx*uy)/det, b=(ty*vy-by*uy)/det;
+      const c=(bx*ux-tx*vx)/det, d=(by*ux-ty*vx)/det;
+      ctx.save(); ctx.beginPath();
+      points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+      ctx.closePath(); ctx.clip();
+      ctx.transform(a,b,c,d,points[0].x-a*o.x-c*o.y,points[0].y-b*o.x-d*o.y);
+      ctx.drawImage(image,0,0); ctx.restore();
+    };
+    const brightness = 1 - game.darkness() * .5;
+    const stone = factor => shadeColor('#b1aba0', brightness * factor);
+    for (const edge of shape.edges.filter(e => e.face === 1 || e.face === 2)) {
+      const a=project(edge.a), b=project(edge.b);
+      const points=[{x:a.x,y:a.y-h},{x:b.x,y:b.y-h},b,a];
+      polygon(points,stone(edge.face === 1 ? .65 : .82));
+      texture(points,[[78,86],[162,126],[78,158]]);
+      if (image && edge.face === 1) polygon(points,'rgba(26,31,35,.14)');
+    }
+    for (const roof of shape.roofs) {
+      const points=roof.map(p => {const s=project(p);return {x:s.x,y:s.y-h};});
+      polygon(points,stone(1));
+      texture(points,[[78,65],[159,104],[68,73]]);
+    }
+    if (image) for (const post of shape.posts) {
+      const foot=project(post), sx=.095*z, sy=.16*z;
+      ctx.save();
+      ctx.translate(foot.x-55*sx,foot.y-147*sy); ctx.scale(sx,sy);
+      ctx.beginPath();
+      for (const [i,[x,y]] of [[61,18],[94,34],[94,57],[74,64],[74,143],[53,153],[19,138],[19,39]].entries()) {
+        if (i) ctx.lineTo(x,y); else ctx.moveTo(x,y);
+      }
+      ctx.closePath(); ctx.clip();
+      ctx.drawImage(image,0,0,259,250); ctx.restore();
+    }
+  }
+
   // Keep the ground footprint visible below the artwork preview.
   _drawBuildGhost(ctx, game, tile) {
     const cam = game.camera;
@@ -1097,6 +1223,12 @@ class Renderer {
     ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = valid ? '#ffffff' : '#ff0000'; ctx.lineWidth = 2; ctx.stroke();
+    if (game.buildMode === 'wall') {
+      ctx.save(); ctx.globalAlpha = valid ? .65 : .28;
+      this._drawWall(ctx, game, tile.tx, tile.ty);
+      ctx.restore();
+      return;
+    }
     const artwork = sculptedObject(game.buildMode);
     if (artwork) {
       const rect = sculptedObjectRect(artwork, S, cam.zoom);
@@ -1266,13 +1398,6 @@ class Renderer {
     ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`, this.W - 104, 22);
     }
 
-    if (input.attackMoveArm) {
-      ctx.fillStyle = '#ff8866';
-      ctx.font = 'bold 13px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('ATTACK-MOVE', this.W / 2, this.W < 1100 ? 130 : 92);
-    }
-
     if (input.flareArm) {
       ctx.fillStyle = '#ff8866';
       ctx.font = 'bold 13px monospace';
@@ -1284,7 +1409,7 @@ class Renderer {
     this._drawBottomPanel(ctx, game);
 
     // Selection info (left side above bottom)
-    if (game.selected.length > 0 || game._selectedBuilding || game.selectedVehicle) {
+    if (game.selected.length > 0 || game._selectedBuilding || game.selectedVehicle || game.selectedZombies.length) {
       this._drawSelectionPanel(ctx, game);
     }
   }
@@ -1465,54 +1590,32 @@ class Renderer {
       return;
     }
 
-    // ── Units selected ────────────────────────────────────────────────────
-    if (sel.length === 0) return;
-
-    const PX = 10, PH = 86, PY = this.H - bottomPanelHeight(this.W) - PH - 8, PW = 260;
-    ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    roundRect(ctx, PX, PY, PW, PH, 6); ctx.fill();
+    const rc = characterSelectionPanelRect(game, this.W, this.H);
+    if (!rc.characters.length) return;
+    game.selectionScroll = clamp(game.selectionScroll, 0, rc.maxScroll);
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 6); ctx.fill();
     ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
-    roundRect(ctx, PX, PY, PW, PH, 6); ctx.stroke();
-
+    roundRect(ctx, rc.x, rc.y, rc.w, rc.h, 6); ctx.stroke();
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-
-    if (sel.length === 1) {
-      const u = sel[0];
-      ctx.fillStyle = u.def.color; ctx.font = 'bold 13px monospace';
-      ctx.fillText(u.def.name, PX + 10, PY + 10);
-      ctx.fillStyle = '#aaa'; ctx.font = '11px monospace';
-      ctx.fillText(`HP: ${Math.ceil(u.hp)} / ${u.maxHp}`, PX + 10, PY + 28);
-      this._drawHealthBar(ctx, PX + 10, PY + 44, PW - 20, 7, u.hp / u.maxHp);
-      if (u.gatherCenter) {
-        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Auto-gathering cache · S: stop', PX + 10, PY + 60);
-      } else if (u.bundleGatherCenter) {
-        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Recovering dropped supplies · S: stop', PX + 10, PY + 60);
-      } else if (u.type === 'builder') {
-        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Auto-repairs nearby buildings · R: nearest', PX + 10, PY + 60);
-      } else if (u.type === 'medic') {
-        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('Auto-heals wounded allies nearby', PX + 10, PY + 60);
-      } else {
-        ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-        ctx.fillText('A + click: attack-move · S: stop', PX + 10, PY + 60);
-      }
-    } else {
-      ctx.fillStyle = '#eee'; ctx.font = 'bold 13px monospace';
-      ctx.fillText(`${sel.length} units selected`, PX + 10, PY + 10);
-      const counts = {};
-      for (const u of sel) counts[u.type] = (counts[u.type] || 0) + 1;
-      let row = 28;
-      for (const [type, n] of Object.entries(counts)) {
-        ctx.fillStyle = UNIT_DEFS[type].color; ctx.font = '11px monospace';
-        ctx.fillText(`${UNIT_DEFS[type].name}: ${n}`, PX + 10, PY + row);
-        row += 16;
-      }
-      ctx.fillStyle = '#ffaa00'; ctx.font = '10px monospace';
-      ctx.fillText('A + click: attack-move · S: stop · Shift+1-9: group', PX + 10, PY + PH - 16);
+    ctx.fillStyle = '#eee'; ctx.font = 'bold 12px monospace';
+    ctx.fillText(`${rc.characters.length} selected`, rc.x + 10, rc.y + 8);
+    const start = game.selectionScroll;
+    for (let i = start; i < Math.min(rc.characters.length, start + rc.rows); i++) {
+      const actor = rc.characters[i], zombie = actor instanceof Zombie;
+      const y = rc.y + 28 + (i - start) * 28;
+      ctx.textAlign = 'left'; ctx.font = '11px monospace';
+      ctx.fillStyle = zombie ? '#ff8877' : actor.type === 'heavy' ? '#aab5bb' : actor.def.color;
+      ctx.fillText(actor.def.name + (zombie && actor.dormant ? ' · Dormant' : ''), rc.x + 10, y);
+      ctx.textAlign = 'right'; ctx.fillStyle = '#bbb'; ctx.font = '10px monospace';
+      ctx.fillText(`${Math.ceil(actor.hp)}/${actor.maxHp}`, rc.x + rc.w - 10, y);
+      this._drawHealthBar(ctx, rc.x + 10, y + 15, rc.w - 20, 5,
+        actor.hp / actor.maxHp, zombie ? '#ff4422' : '#44ff88');
     }
+    ctx.textAlign = 'left'; ctx.fillStyle = '#aaa'; ctx.font = '10px monospace';
+    const hint = rc.maxScroll ? `${start + 1}–${Math.min(start + rc.rows, rc.characters.length)} of ${rc.characters.length} · Scroll for more`
+      : sel.length ? 'Right-click: order · S: stop' : 'Zombies · Inspection only';
+    ctx.fillText(hint, rc.x + 10, rc.y + rc.h - 16);
   }
 
   // ── Edge-scroll affordance ────────────────────────────────────────────────
@@ -1566,8 +1669,8 @@ class Renderer {
   // directions and the camera viewport is an EXACT rectangle — true aspect
   // ratio and true relative size. The map itself reads as a diamond.
   _drawMinimap(ctx, game) {
-    const selected = !!(game.selected.length || game._selectedBuilding || game.selectedVehicle);
-    const { x: MX, y: MY } = minimapRect(this.W, this.H, selected);
+    const selected = !!(game.selected.length || game._selectedBuilding || game.selectedVehicle || game.selectedZombies.length);
+    const { x: MX, y: MY } = minimapRect(this.W, this.H, selected, unitSelectionPanelHeight(selectedCharacters(game), this.W, this.H));
     const b = mapScreenBounds(1);
     const s = MINIMAP_W / (b.maxX - b.minX); // == MINIMAP_H / b.maxY (2:1 aspect)
     const cam1 = { x: 0, y: 0, zoom: 1 };

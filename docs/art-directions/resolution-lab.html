@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Sprite density lab</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101717; color: #e8eae5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: #efcd78; }
+    button { font: inherit; }
+    .shell { width: min(1280px, calc(100% - 40px)); margin-inline: auto; }
+    header { background: #172220; border-bottom: 1px solid #35423f; }
+    .topbar { min-height: 68px; display: flex; align-items: center; gap: 28px; }
+    .brand { font-size: 17px; font-weight: 850; white-space: nowrap; }
+    .brand b { color: #db735f; }
+    nav { display: flex; flex-wrap: wrap; gap: 18px; margin-left: auto; }
+    nav a { color: #becbc4; text-decoration: none; font-size: 13px; }
+    nav a:hover, nav a:focus-visible { color: #fff; text-decoration: underline; }
+    .intro { padding: 40px 0 30px; }
+    .eyebrow { color: #d1b565; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(29px, 4vw, 46px); line-height: 1.12; }
+    .intro p { margin: 0; max-width: 74ch; color: #b7c6bd; line-height: 1.5; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #394943; }
+    h2 { margin: 0; font-size: 21px; }
+    .minor { margin: 5px 0 0; color: #aebfb8; font-size: 13px; line-height: 1.45; }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    .control { min-height: 35px; padding: 6px 12px; border: 1px solid #52645a; border-radius: 4px; background: #26352f; color: #e8eae5; cursor: pointer; }
+    .control:hover { background: #33483d; }
+    .control:focus-visible, .direction:focus-visible, .action:focus-visible { outline: 2px solid #f4ca72; outline-offset: 2px; }
+    .control[aria-pressed="true"], .direction[aria-pressed="true"], .action[aria-pressed="true"] { color: #16231c; border-color: #efc86c; background: #efc86c; }
+    .options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .option { min-width: 0; border: 1px solid #42534a; border-radius: 8px; background: #1b2825; overflow: hidden; }
+    .option.recommended { border-color: #e9c568; }
+    .option-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 14px 16px 11px; }
+    .option h3 { margin: 0; font-size: 16px; }
+    .badge { font-size: 10px; color: #f1d27f; font-weight: 800; letter-spacing: .08em; }
+    .option-meta { margin: -5px 16px 13px; color: #b9c6be; font-size: 12px; }
+    .scene { display: block; width: 100%; height: auto; aspect-ratio: 360 / 250; image-rendering: pixelated; background: #21332a; }
+    .lineup { display: block; width: 100%; height: auto; aspect-ratio: 360 / 91; image-rendering: pixelated; background: #22302b; border-top: 1px solid #3a4a41; }
+    .option-foot { min-height: 66px; padding: 11px 16px 15px; border-top: 1px solid #3a4a41; color: #b9c6be; font-size: 12px; line-height: 1.45; }
+    .note { color: #aebfb8; font-size: 12px; line-height: 1.5; margin: 11px 0 0; }
+    section { padding-bottom: 56px; }
+    .direction-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 28px; }
+    .direction-preview { display: flex; flex-direction: column; align-items: center; padding: 18px; background: #1b2825; border: 1px solid #42534a; border-radius: 8px; }
+    .direction-preview canvas { image-rendering: pixelated; }
+    #direction-large { display: block; width: 180px; height: 200px; }
+    .small-wrap { display: flex; gap: 12px; align-items: center; margin-top: 10px; color: #afbeb5; font-size: 12px; }
+    #direction-small { width: 64px; height: 64px; }
+    .direction-controls { display: flex; flex-direction: column; gap: 21px; justify-content: center; }
+    .control-label { margin: 0 0 8px; color: #aebfb8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .directions, .actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .direction, .action { min-width: 43px; min-height: 38px; border: 1px solid #52645a; border-radius: 4px; background: #25352f; color: #e8eae5; cursor: pointer; }
+    .action { padding: 7px 13px; }
+    .direction:hover, .action:hover { background: #33483d; }
+    .direction-note { margin: 0; color: #b9c6be; font-size: 13px; line-height: 1.55; max-width: 66ch; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 650px; font-size: 13px; }
+    th { color: #f1d27f; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; text-align: left; }
+    th, td { border-bottom: 1px solid #35443d; padding: 12px 14px; vertical-align: top; }
+    td { color: #c8d5cb; line-height: 1.5; }
+    th:first-child, td:first-child { padding-left: 0; color: #e8eae5; font-weight: 700; }
+    footer { border-top: 1px solid #35423f; padding: 20px 0 32px; color: #a8b7ac; font-size: 12px; }
+    .superseded { margin-top: 20px; padding: 12px 14px; border-left: 3px solid #efc86c; background: #29362f; color: #e8eae5; font-size: 13px; line-height: 1.5; }
+    @media (max-width: 970px) { .options { grid-template-columns: 1fr; max-width: 600px; } }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 28px, 1280px); }
+      .topbar { align-items: start; flex-direction: column; gap: 10px; padding-block: 14px; }
+      nav { margin: 0; gap: 14px; }
+      .intro { padding-top: 30px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .direction-layout { grid-template-columns: 1fr; gap: 16px; }
+      .direction-preview { align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><div class="brand">DEAD <b>ZONE</b></div><nav aria-label="Site"><a href="review.html#directions">Art review</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <div class="superseded">This downsampling study has been superseded. <a href="native-sprite-options.html">Review five original native-grid sprite options</a>.</div>
+    <div class="intro">
+      <div class="eyebrow">Selected direction: pre-rendered low-poly 3D</div>
+      <h1>Sprite density lab</h1>
+      <p>Three raster sizes from the same simplified low-poly source. Every unit is displayed at the same 28 x 40 game-pixel footprint; only the source density changes. Compare them in a crowded scene, not just enlarged portraits.</p>
+    </div>
+    <section aria-labelledby="density-title">
+      <div class="section-head">
+        <div><h2 id="density-title">Three resolution options</h2><p class="minor">Representative role colors, equipment, HQ, and light tower at zoom 1.</p></div>
+        <div class="controls" aria-label="Scene controls">
+          <button id="dusk" class="control" type="button" aria-pressed="true">Dusk</button>
+          <button id="night" class="control" type="button" aria-pressed="false">Night</button>
+          <button id="pause" class="control" type="button" aria-pressed="false">Pause</button>
+        </div>
+      </div>
+      <div class="options">
+        <article class="option">
+          <div class="option-head"><h3>A. Coarse</h3></div>
+          <p class="option-meta">14 x 20 source px / unit</p>
+          <canvas id="scene-0" class="scene" width="360" height="250" aria-label="Coarse sprite resolution in a crowded isometric scene"></canvas>
+          <canvas id="lineup-0" class="lineup" width="360" height="91" aria-label="Coarse sniper, medic, builder, torchbearer, and walker at game size"></canvas>
+          <div class="option-foot">Bold blocks survive the crowd, but the sniper rifle and medic cross start to collapse.</div>
+        </article>
+        <article class="option recommended">
+          <div class="option-head"><h3>B. Balanced</h3><span class="badge">RECOMMENDED</span></div>
+          <p class="option-meta">28 x 40 source px / unit</p>
+          <canvas id="scene-1" class="scene" width="360" height="250" aria-label="Balanced sprite resolution in a crowded isometric scene"></canvas>
+          <canvas id="lineup-1" class="lineup" width="360" height="91" aria-label="Balanced sniper, medic, builder, torchbearer, and walker at game size"></canvas>
+          <div class="option-foot">Enough pixels for a clean role silhouette and a few distinctive details, without visual chatter.</div>
+        </article>
+        <article class="option">
+          <div class="option-head"><h3>C. Fine</h3></div>
+          <p class="option-meta">56 x 80 source px / unit</p>
+          <canvas id="scene-2" class="scene" width="360" height="250" aria-label="Fine sprite resolution in a crowded isometric scene"></canvas>
+          <canvas id="lineup-2" class="lineup" width="360" height="91" aria-label="Fine sniper, medic, builder, torchbearer, and walker at game size"></canvas>
+          <div class="option-foot">Smoother close-ups, but extra facets add little information at normal game zoom.</div>
+        </article>
+      </div>
+      <p class="note">These are density tests from generated stills, not final game assets. Production sprites will use a consistent foot anchor and no display bases.</p>
+    </section>
+    <section aria-labelledby="facing-title">
+      <div class="section-head"><div><h2 id="facing-title">Eight-direction turnaround</h2><p class="minor">A sniper model viewed from eight headings, using the balanced density.</p></div><a href="low-poly-sniper-turnaround.png" target="_blank" rel="noopener">Open source study</a></div>
+      <div class="direction-layout">
+        <div class="direction-preview">
+          <canvas id="direction-large" width="180" height="200" aria-label="Enlarged directional sniper preview"></canvas>
+          <div class="small-wrap"><canvas id="direction-small" width="64" height="64" aria-label="Directional sniper at game size"></canvas><span>At game size</span></div>
+        </div>
+        <div class="direction-controls">
+          <div><p class="control-label">Facing</p><div class="directions" id="directions"></div></div>
+          <div><p class="control-label">Motion cue</p><div class="actions" id="actions"></div></div>
+          <p class="direction-note">The eight views are separate model renders, not rotations of one flat image. Walk bob, recoil flash, and gather pulse here are timing sketches; production walk, shoot, gather, heal, and repair will need distinct rendered poses.</p>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="pipeline-title">
+      <div class="section-head"><div><h2 id="pipeline-title">Animation plan</h2><p class="minor">Render the model offline; keep the game's existing Canvas 2D simulation and draw order.</p></div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>State</th><th>Frames / direction</th><th>Facing and visual signal</th></tr></thead>
+        <tbody>
+          <tr><td>Idle</td><td>2</td><td>Hold the last heading; tiny breathing motion.</td></tr>
+          <tr><td>Walk</td><td>6</td><td>Quantize travel heading to eight directions; feet alternate around a fixed ground anchor.</td></tr>
+          <tr><td>Attack</td><td>4</td><td>Face the target, not the travel vector; use recoil, muzzle flash, torch swing, or heavy arc by role.</td></tr>
+          <tr><td>Gather / support</td><td>4</td><td>Face the cache or patient/building; hands and tools move while the foot anchor stays fixed.</td></tr>
+          <tr><td>Hit / downed</td><td>2 / 5</td><td>Readable feedback without losing the unit's role color.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">This is a target frame budget, not generated footage. The turnaround study is only one sniper facing set; a rigged source model is needed to make consistent animation sheets for every unit.</p>
+    </section>
+  </main>
+  <footer><div class="shell">Source studies: <a href="low-poly-units-source.png" target="_blank" rel="noopener">role lineup</a> and <a href="low-poly-sniper-turnaround.png" target="_blank" rel="noopener">sniper turnaround</a>. <a href="README.md">Production notes</a>.</div></footer>
+  <script>
+    'use strict';
+    const roleImage = new Image();
+    roleImage.src = 'low-poly-units-source.png';
+    const facingImage = new Image();
+    facingImage.src = 'low-poly-sniper-turnaround.png';
+    const buildingImage = new Image();
+    buildingImage.src = 'pre-rendered-3d-concept.png';
+    const roles = [
+      { name: 'Sniper', crop: [0, 0, 485, 724] },
+      { name: 'Medic', crop: [470, 0, 360, 724] },
+      { name: 'Builder', crop: [830, 0, 420, 724] },
+      { name: 'Torch', crop: [1240, 0, 475, 724] },
+      { name: 'Walker', crop: [1700, 0, 472, 724] },
+    ];
+    const densities = [
+      { unit: [14, 20], hq: [60, 41], tower: [25, 41], smooth: false },
+      { unit: [28, 40], hq: [120, 82], tower: [50, 82], smooth: false },
+      { unit: [56, 80], hq: [240, 164], tower: [100, 164], smooth: true },
+    ];
+    const directions = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW'];
+    const actions = ['Idle', 'Walk', 'Shoot', 'Gather'];
+    let selectedDirection = 1;
+    let selectedAction = 'Walk';
+    let night = false;
+    let paused = false;
+    let frozenTime = 0;
+    let startTime = performance.now();
+    let spriteSets;
+    let facingSprites;
+
+    function raster(image, crop, sourceSize, displaySize, smooth) {
+      const small = document.createElement('canvas');
+      small.width = sourceSize[0];
+      small.height = sourceSize[1];
+      const sctx = small.getContext('2d');
+      const fit = Math.min(small.width / crop[2], small.height / crop[3]);
+      const width = crop[2] * fit;
+      const height = crop[3] * fit;
+      sctx.imageSmoothingEnabled = true;
+      sctx.drawImage(image, ...crop, (small.width - width) / 2, small.height - height, width, height);
+      const output = document.createElement('canvas');
+      output.width = displaySize[0];
+      output.height = displaySize[1];
+      const ctx = output.getContext('2d');
+      ctx.imageSmoothingEnabled = smooth;
+      ctx.drawImage(small, 0, 0, output.width, output.height);
+      return output;
+    }
+
+    function makeSpriteSets() {
+      return densities.map(density => ({
+        roles: roles.map(role => raster(roleImage, role.crop, density.unit, [28, 40], density.smooth)),
+        hq: raster(buildingImage, [280, 0, 840, 530], density.hq, [120, 82], density.smooth),
+        tower: raster(buildingImage, [1110, 0, 360, 530], density.tower, [50, 82], density.smooth),
+      }));
+    }
+
+    function diamond(ctx, x, y, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x, y - 16);
+      ctx.lineTo(x + 32, y);
+      ctx.lineTo(x, y + 16);
+      ctx.lineTo(x - 32, y);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
+
+    function ground(ctx) {
+      ctx.fillStyle = night ? '#182a2a' : '#2e4938';
+      ctx.fillRect(0, 0, 360, 250);
+      for (let x = -3; x < 11; x++) for (let y = -3; y < 11; y++) {
+        const sx = 180 + (x - y) * 32;
+        const sy = (x + y) * 16;
+        if (sx < -32 || sx > 392 || sy < -16 || sy > 266) continue;
+        const dirt = (x * 7 + y * 11 + 100) % 13 < 3;
+        const alternate = (x + y) % 2 === 0;
+        const fill = night ? (dirt ? '#303930' : alternate ? '#25382f' : '#293d32') : (dirt ? '#645643' : alternate ? '#426344' : '#385940');
+        diamond(ctx, sx, sy, fill, night ? '#24312d' : '#36513d');
+      }
+    }
+
+    const population = [
+      { type: 'hq', x: 3.5, y: 2.3 },
+      { type: 'tower', x: 6.1, y: 1.6 },
+      { type: 0, x: 2.8, y: 4.3, phase: .3 },
+      { type: 1, x: 4.1, y: 4.0, phase: 1.7 },
+      { type: 2, x: 5.1, y: 4.7, phase: 2.2 },
+      { type: 3, x: 6.8, y: 4.2, phase: 3.3 },
+      { type: 0, x: 2.2, y: 5.9, phase: 3.9 },
+      { type: 1, x: 4.3, y: 5.8, phase: 4.4 },
+      { type: 2, x: 5.2, y: 6.8, phase: 5.1 },
+      { type: 3, x: 7.1, y: 5.7, phase: 2.6 },
+      { type: 4, x: 7.8, y: 4.6, phase: 1.1 },
+      { type: 4, x: 7.3, y: 6.5, phase: 2.9 },
+      { type: 4, x: 5.9, y: 7.4, phase: 4.8 },
+      { type: 4, x: 3.2, y: 7.1, phase: 5.8 },
+    ];
+
+    function drawScene(canvas, sprites, time) {
+      const ctx = canvas.getContext('2d');
+      ground(ctx);
+      const drawables = population.map(object => {
+        const sway = typeof object.type === 'number' ? Math.sin(time * .95 + object.phase) * .11 : 0;
+        return { ...object, px: object.x + sway, py: object.y + sway * .4, depth: object.x + object.y };
+      }).sort((a, b) => a.depth - b.depth);
+      for (const object of drawables) {
+        const x = 180 + (object.px - object.py) * 32;
+        const y = (object.px + object.py) * 16;
+        const structure = typeof object.type === 'string';
+        const image = structure ? sprites[object.type] : sprites.roles[object.type];
+        const lift = structure ? 0 : Math.abs(Math.sin(time * 5 + object.phase)) * 1.5;
+        ctx.fillStyle = 'rgba(6,15,12,.38)';
+        ctx.beginPath();
+        ctx.ellipse(x, y + 8, structure ? (object.type === 'hq' ? 46 : 16) : 10, structure ? 13 : 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.drawImage(image, Math.round(x - image.width / 2), Math.round(y + 8 - image.height - lift));
+      }
+      if (night) {
+        ctx.fillStyle = 'rgba(6,15,21,.30)';
+        ctx.fillRect(0, 0, 360, 250);
+        const light = ctx.createRadialGradient(222, 65, 7, 222, 65, 85);
+        light.addColorStop(0, 'rgba(255,212,122,.22)');
+        light.addColorStop(1, 'rgba(255,212,122,0)');
+        ctx.fillStyle = light;
+        ctx.fillRect(0, 0, 360, 250);
+      }
+    }
+
+    function drawLineup(canvas, sprites) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 360, 91);
+      ctx.fillStyle = '#23312c';
+      ctx.fillRect(0, 0, 360, 91);
+      roles.forEach((role, index) => {
+        const x = 39 + index * 70;
+        ctx.fillStyle = '#364a3d';
+        ctx.fillRect(x - 24, 62, 48, 1);
+        ctx.drawImage(sprites.roles[index], x - 14, 17);
+        ctx.font = '11px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ced8cf';
+        ctx.fillText(role.name, x, 79);
+      });
+    }
+
+    const directionButtons = document.getElementById('directions');
+    const actionButtons = document.getElementById('actions');
+    directions.forEach((label, index) => {
+      const button = document.createElement('button');
+      button.className = 'direction';
+      button.type = 'button';
+      button.textContent = label;
+      button.setAttribute('aria-pressed', String(index === selectedDirection));
+      button.addEventListener('click', () => {
+        selectedDirection = index;
+        directionButtons.querySelectorAll('button').forEach((item, i) => item.setAttribute('aria-pressed', String(i === index)));
+      });
+      directionButtons.append(button);
+    });
+    actions.forEach(label => {
+      const button = document.createElement('button');
+      button.className = 'action';
+      button.type = 'button';
+      button.textContent = label;
+      button.setAttribute('aria-pressed', String(label === selectedAction));
+      button.addEventListener('click', () => {
+        selectedAction = label;
+        actionButtons.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      });
+      actionButtons.append(button);
+    });
+    for (const [buttonId, value] of [['dusk', false], ['night', true]]) {
+      document.getElementById(buttonId).addEventListener('click', () => {
+        night = value;
+        document.getElementById('dusk').setAttribute('aria-pressed', String(!night));
+        document.getElementById('night').setAttribute('aria-pressed', String(night));
+      });
+    }
+    document.getElementById('pause').addEventListener('click', event => {
+      paused = !paused;
+      event.currentTarget.textContent = paused ? 'Play' : 'Pause';
+      event.currentTarget.setAttribute('aria-pressed', String(paused));
+      if (!paused) startTime = performance.now() - frozenTime * 1000;
+    });
+
+    function drawDirection(time) {
+      const sprite = facingSprites[selectedDirection];
+      const big = document.getElementById('direction-large').getContext('2d');
+      const small = document.getElementById('direction-small').getContext('2d');
+      big.clearRect(0, 0, 180, 200);
+      small.clearRect(0, 0, 64, 64);
+      big.fillStyle = '#263a31';
+      big.fillRect(0, 0, 180, 200);
+      small.fillStyle = '#263a31';
+      small.fillRect(0, 0, 64, 64);
+      const cycle = time % 1.5;
+      const bob = selectedAction === 'Walk' ? Math.abs(Math.sin(time * 9)) * 2 : selectedAction === 'Gather' ? Math.sin(time * 7) * 1.5 : 0;
+      const recoil = selectedAction === 'Shoot' && cycle < .12 ? 2 : 0;
+      big.imageSmoothingEnabled = false;
+      big.drawImage(sprite, 34 - recoil * 4, 12 + bob * 4, 112, 160);
+      small.drawImage(sprite, 18 - recoil, 9 + bob);
+      if (selectedAction === 'Shoot' && cycle < .12) {
+        big.fillStyle = '#ffd66d';
+        big.fillRect(146, 76, 17, 17);
+        small.fillStyle = '#ffd66d';
+        small.fillRect(48, 30, 4, 4);
+      }
+      if (selectedAction === 'Gather') {
+        big.fillStyle = '#bd9456';
+        big.fillRect(133, 145, 26, 20);
+        small.fillStyle = '#bd9456';
+        small.fillRect(45, 49, 8, 6);
+        if (cycle < .45) {
+          big.fillStyle = small.fillStyle = '#f6d66f';
+          big.fillRect(137, 120 - cycle * 25, 8, 8);
+          small.fillRect(49, 42 - cycle * 7, 3, 3);
+        }
+      }
+      big.fillStyle = '#56695c';
+      big.fillRect(25, 184, 130, 1);
+    }
+
+    function frame(now) {
+      const time = paused ? frozenTime : (now - startTime) / 1000;
+      if (!paused) frozenTime = time;
+      if (spriteSets) {
+        spriteSets.forEach((set, index) => {
+          drawScene(document.getElementById(`scene-${index}`), set, time);
+        });
+        drawDirection(time);
+      }
+      requestAnimationFrame(frame);
+    }
+    Promise.all([roleImage, facingImage, buildingImage].map(image => image.decode())).then(() => {
+      spriteSets = makeSpriteSets();
+      facingSprites = directions.map((_, index) => {
+        const cell = [index % 4 * (1774 / 4), Math.floor(index / 4) * (887 / 2), 1774 / 4, 887 / 2];
+        return raster(facingImage, cell, [28, 40], [28, 40], false);
+      });
+      spriteSets.forEach((set, index) => drawLineup(document.getElementById(`lineup-${index}`), set));
+      requestAnimationFrame(frame);
+    }).catch(error => {
+      document.querySelector('.note').textContent = 'Could not load the source studies: ' + error.message;
+    });
+  </script>
+</body>
+</html>

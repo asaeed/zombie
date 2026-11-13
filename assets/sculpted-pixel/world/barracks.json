@@ -1,0 +1,17 @@
+{
+  "image": "barracks.png",
+  "group": "building",
+  "tiles": 2,
+  "width": 136,
+  "height": 100,
+  "footAnchor": {
+    "x": 55.119490271384905,
+    "y": 96
+  },
+  "sourceRect": {
+    "x": 124,
+    "y": 31,
+    "width": 1298,
+    "height": 930
+  }
+}

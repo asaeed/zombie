@@ -110,3 +110,83 @@ test('attack-position goals keep the existing A* corner and blocked-goal contrac
   });
   assert.equal(approach.at(-1).x,9.5*e.TILE);
 });
+
+function wallLine(e,g,gap) {
+  for(let x=4;x<e.MAP_W-4;x++) if(x!==gap) g.buildings.push(new e.Building('wall',x,25));
+}
+
+test('zombies use a nearby wall gap and keep pursuing the human who woke them',()=>{
+  for(const type of ['walker','runner','brute','spitter','exploder','screamer']) {
+    const e=engine(),g=fixture(e),human=new e.Unit('soldier',30.5*e.TILE,18.5*e.TILE);
+    g.units=[human];wallLine(e,g,33);
+    const z=new e.Zombie(type,30.5*e.TILE,26.5*e.TILE);z.atkTarget=human;g.zombies=[z];g._rebuildFlowField();
+    let searches=0;const find=e.context.findPath;e.context.findPath=(...args)=>{searches++;return find(...args);};
+    runZombie(z,g,65,1/30,()=>z.dead||human.hp<human.maxHp||g.projectiles.length>0);
+    assert.ok(z.dead||human.hp<human.maxHp||g.projectiles.length>0,type+' reaches its original target');
+    assert.equal(z.atkTarget,human,type+' retains the human target');
+    assert.ok(g.buildings.every(b=>b.hp===b.maxHp),type+' leaves the wall intact');
+    assert.ok(searches<=3,type+' caches the wall detour: '+searches);
+  }
+});
+
+test('flowing zombies bypass nearby walls to reach buildings through an opening',()=>{
+  const e=engine(),g=fixture(e),hq=new e.Building('hq',29,18);
+  g.buildings=[hq];wallLine(e,g,33);
+  const z=new e.Zombie('walker',30.5*e.TILE,26.5*e.TILE);g.zombies=[z];g._rebuildFlowField();
+  runZombie(z,g,35,1/30,()=>hq.hp<hq.maxHp);
+  assert.ok(hq.hp<hq.maxHp);assert.ok(g.buildings.filter(b=>b.type==='wall').every(b=>b.hp===b.maxHp));
+});
+
+test('a gap outside zombie sight does not prevent an attack on the blocking wall',()=>{
+  for(const type of ['walker','exploder']) {
+    const e=engine(),g=fixture(e),human=new e.Unit('soldier',30.5*e.TILE,18.5*e.TILE);
+    g.units=[human];wallLine(e,g,42);
+    const z=new e.Zombie(type,30.5*e.TILE,26.5*e.TILE);z.atkTarget=human;g.zombies=[z];g._rebuildFlowField();
+    runZombie(z,g,4,1/30,()=>z.dead||g.buildings.some(b=>b.hp<b.maxHp));
+    assert.ok(g.buildings.some(b=>b.hp<b.maxHp),type+' attacks instead of knowing about the distant gap');
+  }
+});
+
+test('a newly opened or closed gap changes the cached wall decision',()=>{
+  for(const close of [false,true]) {
+    const e=engine(),g=fixture(e),human=new e.Unit('soldier',30.5*e.TILE,18.5*e.TILE);
+    g.units=[human];wallLine(e,g,close?33:null);
+    const z=new e.Zombie('walker',30.5*e.TILE,26.5*e.TILE);z.atkTarget=human;g.zombies=[z];g._rebuildFlowField();
+    z.update(.01,g);
+    for(const b of g.buildings) b.hp=b.maxHp;
+    if(close) g.buildings.push(new e.Building('wall',33,25));
+    else g.buildings.find(b=>b.tileX===33).dead=true;
+    g._rebuildFlowField();
+    runZombie(z,g,45,1/30,()=>human.hp<human.maxHp||g.buildings.some(b=>!b.dead&&b.hp<b.maxHp));
+    if(close) assert.ok(g.buildings.some(b=>b.hp<b.maxHp),'new wall blocks the route and is attacked');
+    else {assert.ok(human.hp<human.maxHp);assert.ok(g.buildings.every(b=>b.dead||b.hp===b.maxHp),'new opening interrupts wall attacks');}
+  }
+});
+
+test('large zombies attack when a visible opening is too narrow for their body',()=>{
+  const e=engine(),g=fixture(e),human=new e.Unit('soldier',30.5*e.TILE,18.5*e.TILE);
+  g.units=[human];wallLine(e,g,33);
+  const z=new e.Zombie('boss',30.5*e.TILE,27*e.TILE+3);z.atkTarget=human;g.zombies=[z];g._rebuildFlowField();
+  runZombie(z,g,8,1/30,()=>g.buildings.some(b=>b.hp<b.maxHp));
+  assert.ok(g.buildings.some(b=>b.hp<b.maxHp));
+});
+
+test('a visible gap is preferred even when a distant gap gives a shorter route to the target',()=>{
+  const e=engine(),g=fixture(e),human=new e.Unit('soldier',44.5*e.TILE,18.5*e.TILE);
+  g.units=[human];wallLine(e,g,26);g.buildings.find(b=>b.tileX===37).dead=true;
+  const z=new e.Zombie('walker',30.5*e.TILE,26.5*e.TILE);z.atkTarget=human;g.zombies=[z];g._rebuildFlowField();
+  let usedNearbyGap=false;
+  runZombie(z,g,65,1/30,()=>{
+    if(Math.abs(z.x-26.5*e.TILE)<e.TILE/2&&z.y<25*e.TILE)usedNearbyGap=true;
+    return human.hp<human.maxHp;
+  });
+  assert.ok(usedNearbyGap);assert.ok(human.hp<human.maxHp);
+  assert.ok(g.buildings.every(b=>b.hp===b.maxHp));
+});
+
+test('a nearby wall beside an open approach is not attacked as an incidental target',()=>{
+  const e=engine(),g=fixture(e),hq=new e.Building('hq',30,18),wall=new e.Building('wall',29,26);
+  g.buildings=[hq,wall];const z=new e.Zombie('walker',30*e.TILE+10,26.5*e.TILE);g.zombies=[z];g._rebuildFlowField();
+  runZombie(z,g,30,1/30,()=>hq.hp<hq.maxHp);
+  assert.ok(hq.hp<hq.maxHp);assert.equal(wall.hp,wall.maxHp);
+});

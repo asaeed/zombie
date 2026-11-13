@@ -1,0 +1,22 @@
+{
+  "protectedPixels": {
+    "soldier": {
+      "checked": 384,
+      "different": 0
+    },
+    "walker": {
+      "checked": 384,
+      "different": 0
+    }
+  },
+  "gatheringHandAndBootPosesUnchanged": 128,
+  "carryWeaponPixelsIdentical": true,
+  "hashes": {
+    "assets/rigged-pilot/manifest.json": "392a236f777b27c81daa80b2df542c64ac47220273a0d0fb08c0a4a0feba68ac",
+    "assets/rigged-pilot/soldier.png": "a2d359ee3e662fa00dc6e37f17a8b821630b957c4166d07fe8e39ffed3fb05e1",
+    "assets/rigged-pilot/review/soldier-back-witness.png": "4f8f3d2a3fd5631d9c552737ede4afab1e828b290cf9ba616b2cc1280eedf93b",
+    "tools/rigged-pilot/bake.mjs": "9530f2765e49ad5b5dd7222090598ec29a401cd7a50648beee466b507d005ac4",
+    "tools/rigged-pilot/weapon-rig.mjs": "385fd22b714ebf827cf7ebb46e5abc918e04d81e3539882b3ab45e4afc466207"
+  },
+  "browserErrors": []
+}

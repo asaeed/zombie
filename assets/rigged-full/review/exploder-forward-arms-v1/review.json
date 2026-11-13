@@ -1,0 +1,18 @@
+{
+  "asset": "exploder-08e856d173e5.png",
+  "status": "local revision for user review",
+  "method": "rigged 3D sprite bake with chest-relative forward arm targets",
+  "reviewer": "single-agent asset self-review; no independent art review",
+  "visualCoverage": [
+    "eight directions at native and enlarged sizes",
+    "complete running cycles for south, east and north on a dark background"
+  ],
+  "timedNativePreview": "not reviewed; active browser app changed during review attempts",
+  "technical": {
+    "auditedFrames": 320,
+    "warnings": 0,
+    "unchangedIdleAndAttackFrames": 192,
+    "unchangedRunningLegPoses": 128
+  },
+  "publication": "local only"
+}

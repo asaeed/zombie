@@ -1,0 +1,10 @@
+{
+  "folder": "walker-hands-pilot-v1",
+  "httpStatus": 200,
+  "errors": [],
+  "animationFrameAdvanced": true,
+  "renderedPixelsChanged": true,
+  "checkedCanvases": 640,
+  "directions": 8,
+  "screenshot": "preview-running.png"
+}

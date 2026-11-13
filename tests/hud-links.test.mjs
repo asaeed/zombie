@@ -11,13 +11,15 @@ for (const file of ['config', 'utils']) {
 }
 const rects = vm.runInContext('buildButtonRects', context);
 
-test('game source is a native, safely opened link outside the canvas', () => {
+test('game source is a native, safely opened link outside the canvas, beside a no-cookies notice', () => {
   assert.match(html, /<\/canvas>\s*<a id="source-code-link" href="https:\/\/github\.com\/asaeed\/zombie" target="_blank" rel="noopener noreferrer" hidden>Source code<\/a>/);
+  assert.match(html, /<span id="cookie-notice" hidden>No cookies used<\/span>/);
 });
 
 test('source link fits the unused HUD corner at mobile and desktop widths', () => {
   const css = readFileSync(new URL('style.css', root), 'utf8');
   assert.match(css, /#source-code-link \{[^}]*right: 12px; bottom: 6px;/);
+  assert.match(css, /#cookie-notice \{[^}]*right: 116px; bottom: 10px;/);
   for (const width of [320, 390, 430, 560, 800, 1200, 1440]) {
     const height = 844;
     const link = {x: width - 12 - 85, y: height - 30, w: 85, h: 24};
@@ -36,7 +38,7 @@ test('keyboard activation of a link cannot restart an overrun game', () => {
   const input = Object.assign(Object.create(InputHandler.prototype), {
     keys: {}, game: {status: 'overrun'}, _runMenuAction: () => restarts++
   });
-  input._onKeyDown({code: 'Enter', target: {closest: selector => selector === 'a'}});
+  input._onKeyDown({code: 'Enter', target: {closest: selector => selector.split(', ').includes('a')}});
   assert.equal(restarts, 0);
   assert.equal(input.keys.Enter, undefined);
 });

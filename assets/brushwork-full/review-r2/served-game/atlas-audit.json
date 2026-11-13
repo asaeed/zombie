@@ -1,0 +1,281 @@
+{
+  "soldier": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "scout": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 19.76
+  },
+  "builder": {
+    "frames": 416,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "medic": {
+    "frames": 352,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "sniper": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "heavy": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 23.94
+  },
+  "torchbearer": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "walker": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "runner": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 15.120000000000001
+  },
+  "brute": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 29.64
+  },
+  "spitter": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "exploder": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 23.18
+  },
+  "screamer": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 22.04
+  },
+  "boss": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 36.48
+  },
+  "walker-cap": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "walker-dress": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "walker-onearm": {
+    "frames": 224,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "bodyPixels": 21.28
+  },
+  "suv": {
+    "frames": 8,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {},
+    "bodyPixels": 18
+  }
+}

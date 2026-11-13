@@ -1,0 +1,422 @@
+{
+  "image": "terrain.png",
+  "frames": [
+    {
+      "type": "grass",
+      "variant": 0,
+      "x": 0,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 64,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 128,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 192,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 4,
+      "x": 256,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 5,
+      "x": 320,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 6,
+      "x": 384,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 7,
+      "x": 448,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 8,
+      "x": 512,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 9,
+      "x": 576,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 10,
+      "x": 640,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 11,
+      "x": 704,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 12,
+      "x": 768,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 13,
+      "x": 832,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 14,
+      "x": 896,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "grass",
+      "variant": 15,
+      "x": 960,
+      "y": 0,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 0,
+      "x": 0,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 1,
+      "x": 64,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 2,
+      "x": 128,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 3,
+      "x": 192,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 4,
+      "x": 256,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 5,
+      "x": 320,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 6,
+      "x": 384,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 7,
+      "x": 448,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 8,
+      "x": 512,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 9,
+      "x": 576,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 10,
+      "x": 640,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 11,
+      "x": 704,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 12,
+      "x": 768,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 13,
+      "x": 832,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 14,
+      "x": 896,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "dirt",
+      "variant": 15,
+      "x": 960,
+      "y": 32,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 0,
+      "x": 0,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 1,
+      "x": 64,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 2,
+      "x": 128,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 3,
+      "x": 192,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 4,
+      "x": 256,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 5,
+      "x": 320,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 6,
+      "x": 384,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 7,
+      "x": 448,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 8,
+      "x": 512,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 9,
+      "x": 576,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 10,
+      "x": 640,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 11,
+      "x": 704,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 12,
+      "x": 768,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 13,
+      "x": 832,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 14,
+      "x": 896,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    },
+    {
+      "type": "water",
+      "variant": 15,
+      "x": 960,
+      "y": 64,
+      "width": 64,
+      "height": 32
+    }
+  ],
+  "baseColors": {
+    "grass": "#667846",
+    "dirt": "#857562",
+    "water": "#2d6b79"
+  },
+  "palette": {
+    "grass": [
+      "#667846",
+      "#697b49"
+    ],
+    "dirt": [
+      "#857562",
+      "#887865"
+    ],
+    "water": [
+      "#2d6b79",
+      "#306e7c"
+    ]
+  },
+  "production": {
+    "method": "low-contrast generated panels; coarse two-tone palette without dithering; isometric projection",
+    "source": {
+      "url": "../../assets/sculpted-pixel/source/world/flat-terrain.png",
+      "width": 2172,
+      "height": 724
+    },
+    "materials": [
+      "grass",
+      "dirt",
+      "water"
+    ],
+    "sampleSize": 32
+  }
+}

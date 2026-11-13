@@ -1,0 +1,48 @@
+{
+  "actor": "spitter",
+  "image": "spitter-f1c2403730d8.png",
+  "method": "existing licensed rig rendered to sprite atlas",
+  "scope": "Accepted cap forward reach, downward palms and loose wrists applied to the existing rig",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "actions": [
+      "idle",
+      "walk",
+      "attack"
+    ],
+    "facings": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "observations": [
+      "Forward, relaxed hand shapes stay consistent across facings",
+      "Original gait and identity markers remain intact"
+    ],
+    "timedArtisticPlayback": "not independently reviewed; automated browser playback verified separately"
+  },
+  "preserved": {
+    "unchangedLegPoses": 320
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "duplicateGroups": 8
+}

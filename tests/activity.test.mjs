@@ -54,7 +54,7 @@ test('zombie melee, acid projectiles, and explosions all report human damage and
       z.update(.01, g);
     } else if (attack === 'acid') {
       new Projectile(600, 600, u, 12, 180, '#a6e54a', 'acid').update(.01, g);
-    } else g.explodeZombie(600, 600, false);
+    } else g.explodeZombie(u.x - 3 * TILE, u.y, false);
     assert.equal(g.activity.at(-1).text, 'Scout is under attack', attack);
     u.hp = 1;
     if (attack === 'acid') {
@@ -97,8 +97,9 @@ test('destroyed structures count once; sales never count as losses, even across 
   const restored = Game.fromSaveData(g.toSaveData());
   restored.update(.01);
   assert.equal(restored.stats.buildingsDestroyed, 1);
-  assert.equal(restored.activity.filter(e => e.text === 'Barracks destroyed').length, 1);
-  assert.equal(restored.activity.filter(e => e.text === 'Mechanics Bay sold').length, 1);
+  assert.equal(g.activity.filter(e => e.text === 'Barracks destroyed').length, 1);
+  assert.equal(g.activity.filter(e => e.text === 'Mechanics Bay sold').length, 1);
+  assert.equal(restored.activity.length, 0, 'historical events are not restored');
 });
 
 test('losing a truck records its loss without counting surviving passengers as human deaths', () => {
@@ -131,20 +132,90 @@ test('construction, training, vehicles, flares and repairs all contribute to spe
   assert.equal(g.stats.suppliesSpent, recorded);
 });
 
-test('activity is bounded, toasts are deduplicated, and stats/feed survive save and load', () => {
+test('activity has no session limit, is never saved or restored, and stats still persist', () => {
   const g = fixture();
-  for (let i = 0; i < 60; i++) { g.gameTime = i; g.addActivity(`Event ${i}`); }
-  assert.equal(g.activity.length, 40);
+  for (let i = 0; i < 5000; i++) { g.gameTime = i; g.addActivity(`Event ${i}`); }
+  assert.equal(g.activity.length, 5000);
+  assert.equal(g.activity[0].text, 'Event 0');
   g.addToast('Wave 4 begins', 'danger', 'wave', 10);
   g.addToast('Wave 4 begins', 'danger', 'wave', 10);
   assert.equal(g.activity.filter(e => e.text === 'Wave 4 begins').length, 1);
   g.stats.zombiesKilled = 123; g.spendSupplies(50);
   const snapshot = g.toSaveData(), restored = Game.fromSaveData(snapshot);
   assert.deepEqual(plain(restored.stats), plain(g.stats));
-  assert.deepEqual(plain(restored.activity), plain(g.activity));
+  assert.equal('activity' in snapshot, false);
+  assert.equal(restored.activity.length, 0);
+  snapshot.activity = [{text:'Old persisted event',time:0,kind:'info'}];
+  assert.equal(Game.fromSaveData(snapshot).activity.length, 0, 'legacy saved feeds are ignored');
   restored.addActivity('Independent'); restored.stats.humansLost++;
-  assert.notEqual(restored.activity.at(-1).text, snapshot.activity.at(-1).text);
+  assert.equal(g.activity.at(-1).text, 'Wave 4 begins');
   assert.equal(snapshot.stats.humansLost, 0);
+});
+
+test('all five special zombie types report their first visible sighting and map-relative direction', () => {
+  for (const [type,dx,dy,direction] of [
+    ['brute',0,-300,'north'],['spitter',300,0,'east'],['exploder',0,300,'south'],
+    ['screamer',-300,0,'west'],['boss',0,-300,'north'],
+  ]) {
+    const g = fixture(), hq = g.buildings[0], z = new Zombie(type,hq.x+dx,hq.y+dy);
+    g.fogVisible.fill(0); g.noticeSpecialZombie(z);
+    assert.equal(g.activity.length,0,'unseen threats must not leak through fog');
+    g.fogVisible.fill(1); g.noticeSpecialZombie(z);
+    assert.equal(g.activity.at(-1).text,`${z.def.name} spotted to the ${direction}`);
+    g.gameTime = 30; g.noticeSpecialZombie(z);
+    assert.equal(g.activity.length,1,'each individual is reported only once');
+  }
+});
+
+test('special sightings suppress crowds per type and direction without hiding other threats', () => {
+  const g = fixture(), hq = g.buildings[0];
+  const make = (type,dx=0,dy=-300) => new Zombie(type,hq.x+dx,hq.y+dy);
+  for (let i=0;i<10;i++)g.noticeSpecialZombie(make('brute'));
+  assert.equal(g.activity.length,1);
+  g.noticeSpecialZombie(make('spitter'));g.noticeSpecialZombie(make('brute',300,0));
+  assert.equal(g.activity.length,3);
+  for(const type of ['walker','runner'])g.noticeSpecialZombie(make(type));
+  const dead=make('boss');dead.dead=true;g.noticeSpecialZombie(dead);
+  assert.equal(g.activity.length,3);
+  g.gameTime=16;g.noticeSpecialZombie(make('brute'));
+  assert.equal(g.activity.length,4,'a later arrival can alert after the group cooldown');
+  const z=make('screamer');g.zombies=[z];g._fogTimer=999;
+  g.update(.01);
+  assert.ok(g.activity.some(e=>e.text==='Screamer spotted to the north'),'live update reports sightings');
+});
+
+test('nonlethal building strikes name the structure and remain throttled', () => {
+  const g=fixture(), b=new Building('tower',20,20);
+  const z=new Zombie('walker',b.x,b.y+b.height/2+10);z.atkTarget=b;
+  z.update(.01,g);
+  assert.equal(g.activity.at(-1).text,'Guard Tower is under attack');
+  g.damageEntity(b,1);assert.equal(g.activity.length,1);
+  g.gameTime=21;g.damageEntity(b,1);assert.equal(g.activity.length,2);
+});
+
+test('real wave scheduling and completion each add one event to the feed', () => {
+  const g=fixture();g._scheduleWave();
+  assert.equal(g.activity.filter(e=>e.text==='Wave 1 begins').length,1);
+  g.zombiesToSpawn=[];g.update(.01);g.update(.01);
+  assert.equal(g.activity.filter(e=>e.text==='Wave 1 completed').length,1);
+  assert.equal(g.waveActive,false);
+});
+
+test('an open DOM modal blocks game input and camera movement, then restores prior pause state', () => {
+  for(const paused of [false,true]) {
+    const g=fixture();g.paused=paused;
+    const input=new InputHandler({style:{},addEventListener(){}},g);
+    input.keys.ArrowRight=true;input._edgeScrollArmed=true;
+    input.setModalOpen(true);
+    assert.equal(g.paused,true);assert.equal(input._edgeScrollArmed,false);
+    const camera=plain(g.camera);
+    input._onKeyDown({code:'KeyB'});input._onKeyDown({code:'ArrowRight'});
+    input.updateCamera(1);
+    assert.deepEqual(plain(g.camera),camera);assert.equal(g.buildMode,null);
+    assert.equal(Object.keys(input.keys).length,0);
+    input._onMouseDown({button:0});input._onMouseUp({button:0});input._onRightClick({});
+    input.setModalOpen(false);assert.equal(g.paused,paused);
+  }
 });
 
 test('older saves start new counters without inventing historical losses or spending', () => {

@@ -63,6 +63,14 @@ function validateArtManifest(manifest) {
       if (!positive(clip.fps) || typeof clip.loop !== 'boolean' ||
           !ART_DIRECTIONS.every(d => Array.isArray(clip.directions?.[d]) && clip.directions[d].length)) throw new Error(`Incomplete clip: ${id}/${action}`);
     }
+    if (meta.death) {
+      const death = meta.death, clip = death.clips?.die;
+      if (!death.image || !anchor(death) || !positive(death.cell?.width) || !positive(death.cell?.height) ||
+          !positive(clip?.fps) || clip.loop !== false ||
+          !ART_DIRECTIONS.every(d => Array.isArray(clip.directions?.[d]) && clip.directions[d].length)) {
+        throw new Error(`Incomplete death animation: ${id}`);
+      }
+    }
   }
   for (const id of objects) if (!manifest.objects?.[id]) throw new Error(`Incomplete object: ${id}`);
   for (const [id, meta] of Object.entries(manifest.objects)) {
@@ -99,7 +107,8 @@ async function loadArtPack(pack, progress = () => {}) {
   if (!response.ok) throw new Error(`Artwork: HTTP ${response.status}`);
   const manifest = await response.json(); validateArtManifest(manifest);
   const world = {characters: new Map(), objects: new Map(), terrain: null, ready: true};
-  const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain];
+  const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain]
+    .flatMap(meta => meta.death ? [meta, meta.death] : [meta]);
   const total = records.reduce((count, meta) => count + 1 + (meta.nightImage ? 1 : 0), 0);
   let loaded = 0; progress({loaded, total});
   const load = async (metadata, mask = false) => {
@@ -124,7 +133,11 @@ async function loadArtPack(pack, progress = () => {}) {
     loaded += paths.length; progress({loaded, total}); return record;
   };
   const jobs = [];
-  for (const [id, metadata] of Object.entries(manifest.characters)) jobs.push(load(metadata).then(record => world.characters.set(id, record)));
+  for (const [id, metadata] of Object.entries(manifest.characters)) jobs.push(load(metadata).then(async record => {
+    if (metadata.death) record.death = await load({...metadata.death, renderScale:metadata.renderScale,
+      bodyHeight:metadata.bodyHeight, directions:metadata.directions});
+    world.characters.set(id, record);
+  }));
   for (const [id, metadata] of Object.entries(manifest.objects)) jobs.push(load(metadata, true).then(record => world.objects.set(id, record)));
   jobs.push(load(manifest.terrain).then(record => {world.terrain = record;}));
   await Promise.all(jobs); return world;
@@ -143,7 +156,8 @@ async function selectArtPack(id, {persist = true, updateURL = true} = {}) {
     try {world = await ART_PACK_CACHE.get(id);} catch (error) {ART_PACK_CACHE.delete(id); throw error;}
     if (revision !== ART_PACK_STATE.revision) return false;
     Object.assign(SCULPTED_WORLD, world, {errors: []});
-    const records = [...world.characters.values(), ...world.objects.values(), world.terrain];
+    const records = [...world.characters.values(), ...world.objects.values(), world.terrain]
+      .flatMap(record => record.death ? [record, record.death] : [record]);
     const total = records.reduce((count, record) => count + 1 + (record.nightImage ? 1 : 0), 0);
     ART_PACK_STATE.progress = {loaded: total, total};
     ART_PACK_STATE.active = id; ART_PACK_STATE.pending = null;

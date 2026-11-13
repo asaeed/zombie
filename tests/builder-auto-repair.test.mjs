@@ -118,3 +118,14 @@ test('automatic repair respects player move and gathering orders', () => {
     assert.equal(target.hp, target.maxHp - 40, order);
   }
 });
+
+
+test('manual repair reaches a damaged tower beyond automatic repair range',()=>{
+  const {game,builder}=fixture();
+  const tower=new Building('tower',43,42);tower.hp=340;game.buildings.push(tower);
+  builder.x=1500.0826114230858;builder.y=1576.1169009575622;
+  assert.ok(game.distanceToBuilding(builder.x,builder.y,tower)>BUILDER_REPAIR_RADIUS);
+  run(game,3);assert.equal(builder.repairTarget,null);assert.equal(tower.hp,340);
+  builder.repairBuilding(tower);run(game,6);
+  assert.equal(tower.hp,tower.maxHp);assert.equal(game.supplies,200-REPAIR_TICK_COST);
+});

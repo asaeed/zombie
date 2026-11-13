@@ -1,0 +1,399 @@
+{
+  "soldier": {
+    "frames": 512,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "walker": {
+    "frames": 384,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "suv": {
+    "frames": 8,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {},
+    "markers": {},
+    "bodyPixels": 18
+  },
+  "scout": {
+    "frames": 448,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 19.76
+  },
+  "builder": {
+    "frames": 576,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "heavy": {
+    "frames": 448,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 23.94
+  },
+  "torchbearer": {
+    "frames": 448,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "runner": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 15.120000000000001
+  },
+  "medic": {
+    "frames": 448,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "sniper": {
+    "frames": 448,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "brute": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 29.64
+  },
+  "spitter": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {
+      "idle/S": 103,
+      "idle/SE": 80,
+      "idle/E": 49,
+      "idle/NE": 58,
+      "idle/N": 73,
+      "idle/NW": 65,
+      "idle/W": 60,
+      "idle/SW": 75,
+      "walk/S": 112,
+      "walk/SE": 82,
+      "walk/E": 55,
+      "walk/NE": 48,
+      "walk/N": 75,
+      "walk/NW": 45,
+      "walk/W": 55,
+      "walk/SW": 84,
+      "attack/S": 76,
+      "attack/SE": 35,
+      "attack/E": 49,
+      "attack/NE": 63,
+      "attack/N": 77,
+      "attack/NW": 69,
+      "attack/W": 64,
+      "attack/SW": 42
+    },
+    "bodyPixels": 21.28
+  },
+  "exploder": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {
+      "idle/S": 160,
+      "idle/SE": 140,
+      "idle/E": 157,
+      "idle/NE": 129,
+      "idle/N": 141,
+      "idle/NW": 131,
+      "idle/W": 130,
+      "idle/SW": 120,
+      "walk/S": 151,
+      "walk/SE": 104,
+      "walk/E": 120,
+      "walk/NE": 143,
+      "walk/N": 142,
+      "walk/NW": 146,
+      "walk/W": 106,
+      "walk/SW": 103,
+      "attack/S": 142,
+      "attack/SE": 111,
+      "attack/E": 131,
+      "attack/NE": 130,
+      "attack/N": 144,
+      "attack/NW": 134,
+      "attack/W": 125,
+      "attack/SW": 87
+    },
+    "bodyPixels": 23.18
+  },
+  "screamer": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {
+      "idle/S": 75,
+      "idle/SE": 91,
+      "idle/E": 97,
+      "idle/NE": 70,
+      "idle/N": 66,
+      "idle/NW": 89,
+      "idle/W": 95,
+      "idle/SW": 78,
+      "walk/S": 69,
+      "walk/SE": 86,
+      "walk/E": 95,
+      "walk/NE": 72,
+      "walk/N": 66,
+      "walk/NW": 71,
+      "walk/W": 95,
+      "walk/SW": 89,
+      "attack/S": 73,
+      "attack/SE": 55,
+      "attack/E": 67,
+      "attack/NE": 63,
+      "attack/N": 63,
+      "attack/NW": 67,
+      "attack/W": 39,
+      "attack/SW": 43
+    },
+    "bodyPixels": 22.04
+  },
+  "boss": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {
+      "idle/S": 173,
+      "idle/SE": 152,
+      "idle/E": 132,
+      "idle/NE": 170,
+      "idle/N": 202,
+      "idle/NW": 177,
+      "idle/W": 132,
+      "idle/SW": 157,
+      "walk/S": 177,
+      "walk/SE": 139,
+      "walk/E": 121,
+      "walk/NE": 157,
+      "walk/N": 184,
+      "walk/NW": 160,
+      "walk/W": 123,
+      "walk/SW": 150,
+      "attack/S": 64,
+      "attack/SE": 74,
+      "attack/E": 107,
+      "attack/NE": 167,
+      "attack/N": 198,
+      "attack/NW": 180,
+      "attack/W": 126,
+      "attack/SW": 116
+    },
+    "bodyPixels": 36.48
+  },
+  "walker-cap": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "walker-dress": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  },
+  "walker-onearm": {
+    "frames": 320,
+    "blank": 0,
+    "edges": 0,
+    "uniqueWalk": {
+      "S": 16,
+      "SE": 16,
+      "E": 16,
+      "NE": 16,
+      "N": 16,
+      "NW": 16,
+      "W": 16,
+      "SW": 16
+    },
+    "markers": {},
+    "bodyPixels": 21.28
+  }
+}

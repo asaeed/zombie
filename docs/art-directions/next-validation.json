@@ -1,0 +1,61 @@
+{
+  "review": {
+    "boards": [
+      {
+        "src": "next-signal-flat.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-ink-steel.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-toybox-tactical.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-paper-siege.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-arcade-32.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-rubberhose-outbreak.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-enamel-frontier.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-woodcut-alarm.png",
+        "width": 1774,
+        "height": 887
+      }
+    ],
+    "responsive": true,
+    "comparison": true,
+    "zoom": true
+  },
+  "game": {
+    "pause": true,
+    "atomicSwitch": true,
+    "statePreserved": true,
+    "saveRestore": true,
+    "preferenceRefresh": true,
+    "nonblankPixels": 129404,
+    "failedLoadPreservesPack": true,
+    "mobileSelectorFits": true
+  },
+  "browserErrors": [],
+  "simulated503Errors": 1
+}

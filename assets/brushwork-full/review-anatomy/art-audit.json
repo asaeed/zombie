@@ -1,0 +1,170 @@
+{
+  "actors": {
+    "soldier": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2350,
+      "playedFrames": 16
+    },
+    "scout": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2360,
+      "playedFrames": 16
+    },
+    "builder": {
+      "checked": 416,
+      "edge": 0,
+      "min": 2195,
+      "playedFrames": 16
+    },
+    "medic": {
+      "checked": 352,
+      "edge": 0,
+      "min": 2390,
+      "playedFrames": 16
+    },
+    "sniper": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2435,
+      "playedFrames": 16
+    },
+    "heavy": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2845,
+      "playedFrames": 16
+    },
+    "torchbearer": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2669,
+      "playedFrames": 16
+    },
+    "walker": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2213,
+      "playedFrames": 16
+    },
+    "runner": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2378,
+      "playedFrames": 16
+    },
+    "brute": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2880,
+      "playedFrames": 16
+    },
+    "spitter": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2203,
+      "playedFrames": 16
+    },
+    "exploder": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2455,
+      "playedFrames": 16
+    },
+    "screamer": {
+      "checked": 224,
+      "edge": 0,
+      "min": 1898,
+      "playedFrames": 16
+    },
+    "boss": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2604,
+      "playedFrames": 16
+    },
+    "walker-cap": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2210,
+      "playedFrames": 16
+    },
+    "walker-dress": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2434,
+      "playedFrames": 16
+    },
+    "walker-onearm": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2210,
+      "playedFrames": 16
+    }
+  },
+  "soldierUnchanged": true,
+  "buildings": {
+    "hq": {
+      "width": 629,
+      "height": 472,
+      "density": 3.145,
+      "displayUnchanged": true
+    },
+    "wall": {
+      "width": 259,
+      "height": 250,
+      "density": 4.4655172413793105,
+      "displayUnchanged": true
+    },
+    "tower": {
+      "width": 261,
+      "height": 470,
+      "density": 2.9,
+      "displayUnchanged": true
+    },
+    "barracks": {
+      "width": 417,
+      "height": 322,
+      "density": 3.0661764705882355,
+      "displayUnchanged": true
+    },
+    "depot": {
+      "width": 516,
+      "height": 383,
+      "density": 3.7941176470588234,
+      "displayUnchanged": true
+    },
+    "light": {
+      "width": 189,
+      "height": 420,
+      "density": 3.5,
+      "displayUnchanged": true
+    },
+    "clinic": {
+      "width": 419,
+      "height": 351,
+      "density": 3.0808823529411766,
+      "displayUnchanged": true
+    },
+    "mechanics": {
+      "width": 421,
+      "height": 368,
+      "density": 3.0955882352941178,
+      "displayUnchanged": true
+    }
+  },
+  "errors": [],
+  "visualReview": {
+    "required": true,
+    "automaticApproval": false,
+    "checks": [
+      "anatomical facing",
+      "shoulder and hip ownership",
+      "knee hinge and foot lanes",
+      "torso-to-leg ratio",
+      "equipment hand and depth order",
+      "all frame transitions and loop seam"
+    ]
+  }
+}

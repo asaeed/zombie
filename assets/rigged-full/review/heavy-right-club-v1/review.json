@@ -1,0 +1,82 @@
+{
+  "asset": "heavy-82ffb30e4278.png",
+  "status": "local revision for user review",
+  "referenceAsset": "heavy-c660de23b66e.png",
+  "method": "authored right-handed club wind-up, downward strike and recovery, with a quiet empty arm",
+  "motion": {
+    "version": "right-club-swing-v1",
+    "weaponHand": "r",
+    "attackDuration": 1.3333333333333333
+  },
+  "reviewer": "single-agent self-review; no independent art review",
+  "visualCoverage": [
+    "all eight directions, key poses at atlas and game display size",
+    "complete south, east and north attack strips",
+    "actual game Canvas renderer at varied zoom and pixel density"
+  ],
+  "timedNativePreview": "not reviewed; native browsers are in use for other tasks",
+  "reviewedDuplicates": {
+    "groups": [
+      [
+        "idle/S/0",
+        "attack/S/0",
+        "attack/S/31"
+      ],
+      [
+        "idle/SE/0",
+        "attack/SE/0",
+        "attack/SE/31"
+      ],
+      [
+        "idle/E/0",
+        "attack/E/0",
+        "attack/E/31"
+      ],
+      [
+        "idle/NE/0",
+        "attack/NE/0",
+        "attack/NE/31"
+      ],
+      [
+        "idle/N/0",
+        "attack/N/0",
+        "attack/N/31"
+      ],
+      [
+        "idle/NW/0",
+        "attack/NW/0",
+        "attack/NW/31"
+      ],
+      [
+        "idle/W/0",
+        "attack/W/0",
+        "attack/W/31"
+      ],
+      [
+        "idle/SW/0",
+        "attack/SW/0",
+        "attack/SW/31"
+      ]
+    ],
+    "reason": "matching initial and final ready pose"
+  },
+  "preservation": {
+    "unchangedNonAttackFrames": 320
+  },
+  "renderer": {
+    "renderedFrames": 632,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "publication": "local only"
+}

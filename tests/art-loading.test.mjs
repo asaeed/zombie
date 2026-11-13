@@ -8,7 +8,8 @@ const source = readFileSync(new URL('js/art.js', root), 'utf8');
 const manifest = JSON.parse(readFileSync(new URL('assets/rigged-full/manifest.json', root)));
 const registry = JSON.parse(readFileSync(new URL('assets/art-packs/registry.json', root)));
 const sizes = new Map();
-const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain];
+const records = [...Object.values(manifest.characters), ...Object.values(manifest.objects), manifest.terrain]
+  .flatMap(meta=>meta.death?[meta,meta.death]:[meta]);
 const assetCount = records.reduce((n, meta) => n + 1 + (meta.nightImage ? 1 : 0), 0);
 for (const meta of records) for (const asset of [meta.image,meta.nightImage].filter(Boolean)) {
   const file = new URL(asset, new URL('assets/rigged-full/', root));
@@ -24,7 +25,7 @@ function runtime(search = '', stored = 'rigged') {
   class FakeImage {
     set src(value) {this.url = value; images.push(value);}
     async decode() {
-      if (controls.gate && this.url.endsWith('/soldier.png')) await controls.gate;
+      if (controls.gate && this.url.endsWith('/'+manifest.characters.soldier.death.image)) await controls.gate;
       if (controls.failure && this.url.endsWith(controls.failure)) throw new Error('Decode failed');
       [this.naturalWidth, this.naturalHeight] = sizes.get(this.url);
     }
@@ -138,4 +139,14 @@ test('night variants are required for every world object but never for character
   await assert.rejects(r.evaluate('startArtPacks()'),/Missing night artwork: hq/);
   assert.equal(records.filter(meta=>meta.nightImage).length,Object.keys(manifest.objects).length+1);
   assert.ok(Object.values(manifest.characters).every(meta=>!meta.nightImage));
+});
+
+
+test('a missing death sheet blocks readiness and can retry without a partial game skin',async()=>{
+  const r=runtime();r.controls.failure='/'+manifest.characters.heavy.death.image;
+  await assert.rejects(r.evaluate('startArtPacks()'),/Decode failed/);
+  assert.equal(r.evaluate('SCULPTED_WORLD.ready'),false);
+  r.controls.failure=null;await r.evaluate('startArtPacks()');
+  assert.ok(r.evaluate('sculptedActor("heavy").death'));
+  assert.equal(r.evaluate('ART_PACK_STATE.progress.loaded'),assetCount);
 });

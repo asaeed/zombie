@@ -11,7 +11,7 @@ export function withWorldFacings(id,metadata){
  return {...metadata,clips,production};
 }
 export const HUMANOID_DISPLAY_SCALE=1.2,VEHICLE_DISPLAY_SCALE=2.5;
-export const BRUTE_DISPLAY_SCALE=HUMANOID_DISPLAY_SCALE*.8;
+export const BRUTE_DISPLAY_SCALE=HUMANOID_DISPLAY_SCALE*1.4;
 export const BOSS_DISPLAY_SCALE=HUMANOID_DISPLAY_SCALE*CAST.brute.size*1.5/CAST.boss.size;
 export function withVehicleGrounding(id,metadata){
  if(id!=='suv'||metadata.production?.groundCalibration==='wheel-plane-v1')return metadata;
@@ -32,8 +32,8 @@ export const ROLES={
  torchbearer:{...CAST.torchbearer,color:0xdfc846,tool:'torch',hat:'cap'},
  runner:{...CAST.runner,color:0x9ea6a0,lean:.08,walkSource:'Crouch_Fwd_Loop',width:.9},
  brute:{...CAST.brute,color:0x969e97,lean:.18,customModel:'stocky-brute-v1',attackSource:'Punch_Jab',attackFollowup:'Punch_Cross',attackFrames:48,attackFps:36},
- spitter:{...CAST.spitter,color:0x9ea6a0,lean:.20,marker:0xadf257},
- exploder:{...CAST.exploder,color:0x9ea6a0,lean:.18,width:1.12,marker:0xffa04c,walkSource:'Jog_Fwd_Loop'},
+ spitter:{...CAST.spitter,color:0xb5de62,lean:.20,marker:0xadf257},
+ exploder:{...CAST.exploder,color:0xf0ab63,lean:.18,width:1.12,marker:0xffa04c,walkSource:'Jog_Fwd_Loop'},
  screamer:{...CAST.screamer,color:0x9ea6a0,lean:.15,marker:0xf568cf},
  boss:{...CAST.boss,color:0x87938d,lean:.18,customModel:'stocky-boss-v1',marker:0x5eece4,attackSource:'Punch_Cross',attackFrames:32,attackFps:24},
  'walker-cap':{...CAST['walker-cap'],color:0x9ea6a0,lean:.15,hat:'grey-cap'},

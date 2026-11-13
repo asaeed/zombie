@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-07",
+  "tool": "built-in image_gen",
+  "model": "not exposed by tool",
+  "transparent_background": true,
+  "method": "Generate consistent directional raster masters, then bake an articulated 2D texture mesh; not frame-by-frame hand-painted animation.",
+  "facings": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+  ],
+  "cell": {
+    "width": 128,
+    "height": 128
+  },
+  "footAnchor": {
+    "x": 64,
+    "y": 116
+  },
+  "gameScale": 0.66,
+  "bodyHeight": 76,
+  "cleanup": "Alpha below 48 and obvious red matte pixels removed; silhouettes extracted by occupied row/column bands, anchored by lower foot mass; normalized to body height before skeletal deformation.",
+  "generations": [
+    {
+      "output": "rejected-sniper-walk.png",
+      "prompt": "Create a production sprite animation sheet for the olive-green sniper in reference image 1. Reference image 1 controls ONLY the character design, clothing, helmet, backpack, scoped rifle, rich Sculpted Pixel shading, and color palette. Reference image 2 is ONLY a pose-and-layout guide: keep its EXACT four-column by two-row layout, camera angle, scale, eight ground anchors, and especially eight different leg poses. Replace every crude guide figure with the beautifully shaded sniper from reference 1. Do not copy the guide's crude geometry or incorrect arm placement: both hands must correctly hold the same scoped rifle throughout. Reading left-to-right across top row then bottom row, show a complete eight-frame in-place marching walk cycle: passing legs, forward-left contact, left down/recoil, left up, passing opposite legs, forward-right contact, right down/recoil, right up. The pelvis, knees, and boots articulate, with clear opposite leg changes and modest weight transfer. All eight face screen-right with the same slight top-down isometric camera. Maintain consistent size, anatomy, equipment, and lighting across frames. Keep the generous empty gutters and margins around all eight characters, full uncut rifles and feet. No translation of an identical pose, no repeated stride pose eight times. Output only eight transparent cutout sprites, true alpha, no background, grid lines, numbers, ground marks, text, shadows under feet, or additional objects. Rich readable sculpted pixel clusters, broad green highlights, warm skin, dark boots, crisp forms with restrained texture. Match reference 1's quality.",
+      "references": [
+        "docs/art-directions/image-model-sniper-walk-probe.png",
+        "assets/sculpted-pixel/source/sniper-walk-guide.png"
+      ],
+      "outcome": "Rejected for repeated leading-leg poses despite the explicit guide."
+    },
+    {
+      "output": "sniper-turnaround.png",
+      "prompt": "Create the olive-green sniper from image 1 as an EIGHT-VIEW TURNAROUND, exactly 4 columns by 2 rows of isolated transparent figures. Image 1 defines the rich shaded Sculpted Pixel design: rounded military helmet, warm skin, olive uniform, shoulder armor, knee pads, dark brown boots, olive backpack, long dark scoped sniper rifle. Image 2 supplies only the camera angles and 4x2 arrangement, not its crude appearance. Reading left-to-right: top row FRONT facing viewer, FRONT-RIGHT 45 degrees, RIGHT PROFILE, BACK-RIGHT 135 degrees; bottom row BACK facing away, BACK-LEFT 225 degrees, LEFT PROFILE, FRONT-LEFT 315 degrees. Show the same character from all eight angles, not eight right-facing copies. Keep the camera a little above, orthographic/isometric like the concept, consistent scale and proportions. Each character has a stationary broad neutral stance, boots clearly separated at roughly shoulder width, legs nearly straight with slightly bent knees, not stepping. Both hands hold the same scoped rifle in a ready-to-fire stance; rifle points in the character's facing direction. Maintain clearly modeled upper legs, knee pads, shins and boots for a 2D skeletal animation rig. The hands, body, and rifle must make anatomical sense from every side. Actual sculpted pixel illustration with broad beautiful light/shadow clusters and minimal noisy texture, consistent warm overhead studio light, like image 1. Exact full eight views, generous transparent margins and gutters, entire figure and rifle inside each cell. True alpha, no background, no floor shadows, no grid, labels, extra objects, or alternate costumes.",
+      "references": [
+        "docs/art-directions/image-model-sniper-walk-probe.png",
+        "assets/sculpted-pixel/source/sniper-turnaround-guide.png"
+      ],
+      "outcome": "Used for idle, walk, shoot; north-facing rifle corrected separately."
+    },
+    {
+      "output": "walker-turnaround.png",
+      "prompt": "Create the REGULAR GREY WALKER ZOMBIE for the same game and exactly the same beautiful Sculpted Pixel rendering style as the sniper in image 1. Image 1 controls lighting, readable chunky sculpted forms, pixel clusters, shading depth, and overall quality; do not make this zombie a soldier. Image 2 shows the regular zombie's identity: pale light-grey skin, irregular human head, hollow charcoal eye sockets, dark mouth, hunched shoulders, torn charcoal-grey short-sleeved shirt, LIGHTER GREY pants, worn dark-grey shoes. No colorful clothing, no green skin, no glowing eyes, no colored neon special features, no gore, no cubic head. Image 3 controls only camera directions and exact four-column by two-row layout, not artistic appearance. Produce an EIGHT-VIEW turnaround of this one same zombie, top row FRONT facing camera, FRONT-RIGHT 45 degrees, RIGHT PROFILE, BACK-RIGHT 135 degrees; bottom row BACK fully away, BACK-LEFT 225 degrees, LEFT PROFILE, FRONT-LEFT 315 degrees. Each figure is standing in a wide neutral idle stance with separated boots and slightly bent knees, legs clearly visible. Arms hang loosely beside the body with crooked elbows and claw-like hands; keep both arms distinct from the torso wherever the angle allows, for an articulated 2D rig. One consistent grey zombie identity across all eight facings, modestly above orthographic/isometric camera, broad light-grey skin highlights, softer cool-grey shadows, same shading quality and level of detail as the sniper. Full intact figure in every cell, generous transparent margins and gutters. Output just the eight sprites on true alpha: no grid, numbers, ground shadows, background, scenery, props, or additional figures.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "docs/art-directions/focused-sculpted-pixel.png",
+        "assets/sculpted-pixel/source/walker-turnaround-guide.png"
+      ],
+      "outcome": "Used for matching grey walker idle, walk, attack."
+    },
+    {
+      "output": "sniper-gather-turnaround.png",
+      "prompt": "Create an alternate EIGHT-VIEW TURNAROUND of the exact same olive sniper in image 1, still beautifully shaded Sculpted Pixel, same helmet, face, uniform, armor, boots, backpack, scoped rifle and palette. These are the hands-free resource-gathering poses: the rifle is safely slung on the BACKPACK or back, NOT held in either hand. He is standing upright in the same neutral wide stance, with both hands free and hanging slightly forward at his sides, shoulders relaxed, elbows slightly bent. Do not make him kneel or crouch yet: a 2D rig will articulate this neutral pose for gathering. Image 2 controls only the eight camera angles, idle leg stance, and exact 4-column 2-row arrangement; use it as a pose guide, not as artistic design. Top row FRONT, FRONT-RIGHT, RIGHT PROFILE, BACK-RIGHT. Bottom row BACK facing fully away, BACK-LEFT, LEFT PROFILE, FRONT-LEFT. Preserve the same character and scale across every angle, clear individual upper arms, forearms, and hands separated from torso where perspective permits, legs and boots separated. Same slight top-down orthographic game camera, same consistent overhead warm lighting, full figure with generous margins and gutters, richly sculpted readable color clusters, no noisy fabric texture. Output only eight cutout sprites, true transparency, no ground shadows, no background, grid, marks, text, boxes, props, additional weapons or extra figures.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/walker-turnaround-guide.png"
+      ],
+      "outcome": "Hands-free source for gathering."
+    },
+    {
+      "output": "sniper-north.png",
+      "prompt": "Create ONE corrected NORTH/BACK-facing sprite of the exact sniper shown in image 1, in the same richly shaded Sculpted Pixel style. Show his full body from DIRECTLY BEHIND with the same slight top-down orthographic camera: back of helmet, backpack centered, legs wide apart in neutral stance, matching green armor/uniform/kneepads and brown boots. Crucial correction: he holds his scoped rifle with BOTH hands IN FRONT OF HIS CHEST pointed DIRECTLY AWAY from the camera, toward the TOP of the image, not sideways left or right. Most of the rifle and his hands are naturally hidden by his back/body; only the foreshortened barrel projecting ahead past one shoulder is visible, pointing upward into the distance. His head faces fully away too; no face visible. Image 2 is a guide for this rear view identity and standing pose, but its rifle must be held, not slung. Preserve the character scale, helmet and body proportions and art quality of image 1. Entire figure with generous transparent margin. One sprite only, no other views, no text, no grid, no ground shadow or backdrop. True alpha.",
+      "references": [
+        "assets/sculpted-pixel/source/sniper-turnaround.png",
+        "assets/sculpted-pixel/source/sniper-gather-turnaround.png"
+      ],
+      "outcome": "Targeted rear-facing rifle correction."
+    }
+  ]
+}

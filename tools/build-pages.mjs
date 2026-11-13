@@ -29,6 +29,7 @@ export async function buildPages(destination,root=projectRoot){
     for(const record of [...Object.values(manifest.characters),...Object.values(manifest.objects),manifest.terrain]){
       files.add(publicAsset(record.image,path.dirname(path.join(root,manifestFile))+path.sep));
       if(record.nightImage)files.add(publicAsset(record.nightImage,path.dirname(path.join(root,manifestFile))+path.sep));
+      if(record.death)files.add(publicAsset(record.death.image,path.dirname(path.join(root,manifestFile))+path.sep));
     }
   }
   const hash=createHash('sha256');let bytes=0;
@@ -41,7 +42,10 @@ export async function buildPages(destination,root=projectRoot){
       if(json.characters&&json.objects&&json.terrain){
         // Source rig measurements are QA evidence, not runtime dependencies.
         delete json.production;
-        for(const record of [...Object.values(json.characters),...Object.values(json.objects),json.terrain])delete record.production;
+        for(const record of [...Object.values(json.characters),...Object.values(json.objects),json.terrain]){
+          delete record.production;
+          if(record.death)delete record.death.production;
+        }
       }
       data=Buffer.from(JSON.stringify(json)+'\n');
     }

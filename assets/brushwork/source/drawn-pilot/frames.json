@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "direction": "SE",
+  "cell": {
+    "width": 256,
+    "height": 320
+  },
+  "footAnchor": {
+    "x": 128,
+    "y": 300
+  },
+  "bodyHeight": 240,
+  "actors": {
+    "soldier": {
+      "renderScale": 0.08866666666666667,
+      "fps": 10,
+      "targetHip": {
+        "x": 128,
+        "y": 198
+      },
+      "sources": [
+        {
+          "image": "soldier-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 0,
+          "scale": 0.5581395348837209,
+          "hip": {
+            "x": 182,
+            "y": 288
+          },
+          "phase": "Contact A"
+        },
+        {
+          "image": "soldier-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 1,
+          "scale": 0.5581395348837209,
+          "hip": {
+            "x": 580,
+            "y": 287
+          },
+          "phase": "Down A"
+        },
+        {
+          "image": "soldier-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 2,
+          "scale": 0.5581395348837209,
+          "hip": {
+            "x": 965,
+            "y": 281
+          },
+          "phase": "Passing A"
+        },
+        {
+          "image": "soldier-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 3,
+          "scale": 0.5581395348837209,
+          "hip": {
+            "x": 1360,
+            "y": 287
+          },
+          "phase": "Lift A"
+        },
+        {
+          "image": "soldier-opposite.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1910828025477707,
+          "hip": {
+            "x": 490,
+            "y": 890
+          },
+          "phase": "Contact B"
+        },
+        {
+          "image": "soldier-downB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1910828025477707,
+          "hip": {
+            "x": 494,
+            "y": 891
+          },
+          "phase": "Down B"
+        },
+        {
+          "image": "soldier-passB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1910828025477707,
+          "hip": {
+            "x": 490,
+            "y": 891
+          },
+          "phase": "Passing B"
+        },
+        {
+          "image": "soldier-liftB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1910828025477707,
+          "hip": {
+            "x": 491,
+            "y": 888
+          },
+          "phase": "Lift B"
+        }
+      ]
+    },
+    "walker": {
+      "renderScale": 0.08866666666666667,
+      "fps": 8,
+      "targetHip": {
+        "x": 128,
+        "y": 188
+      },
+      "sources": [
+        {
+          "image": "walker-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 0,
+          "scale": 0.547945205479452,
+          "hip": {
+            "x": 200,
+            "y": 280
+          },
+          "phase": "Contact A"
+        },
+        {
+          "image": "walker-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 1,
+          "scale": 0.547945205479452,
+          "hip": {
+            "x": 588,
+            "y": 280
+          },
+          "phase": "Down A"
+        },
+        {
+          "image": "walker-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 2,
+          "scale": 0.547945205479452,
+          "hip": {
+            "x": 983,
+            "y": 280
+          },
+          "phase": "Passing A"
+        },
+        {
+          "image": "walker-walk-sheet.png",
+          "columns": 4,
+          "rows": 2,
+          "cell": 3,
+          "scale": 0.547945205479452,
+          "hip": {
+            "x": 1374,
+            "y": 280
+          },
+          "phase": "Lift A"
+        },
+        {
+          "image": "walker-opposite.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1986754966887417,
+          "hip": {
+            "x": 556,
+            "y": 797
+          },
+          "phase": "Contact B"
+        },
+        {
+          "image": "walker-downB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1986754966887417,
+          "hip": {
+            "x": 558,
+            "y": 794
+          },
+          "phase": "Down B"
+        },
+        {
+          "image": "walker-passB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1986754966887417,
+          "hip": {
+            "x": 556,
+            "y": 795
+          },
+          "phase": "Passing B"
+        },
+        {
+          "image": "walker-liftB.png",
+          "columns": 1,
+          "rows": 1,
+          "cell": 0,
+          "scale": 0.1986754966887417,
+          "hip": {
+            "x": 556,
+            "y": 770
+          },
+          "phase": "Lift B"
+        }
+      ]
+    }
+  }
+}

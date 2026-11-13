@@ -1,0 +1,16 @@
+{
+  "image": "car.png",
+  "group": "cache",
+  "width": 69,
+  "height": 48,
+  "footAnchor": {
+    "x": 29.498941384490397,
+    "y": 44
+  },
+  "sourceRect": {
+    "x": 253,
+    "y": 197,
+    "width": 1049,
+    "height": 694
+  }
+}

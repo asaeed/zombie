@@ -1,0 +1,9 @@
+{
+  "maxRightHandChange": 0,
+  "maxRightArmJointChange": 0,
+  "maxLeftPalmTargetChange": 0,
+  "maxWeaponPositionChange": 0,
+  "riflePixelsIdentical": true,
+  "walkMinLateralElbowOffset": 0.037445832780548055,
+  "walkMinForwardElbowOffset": 0.17909110870685593
+}

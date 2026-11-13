@@ -1,0 +1,24 @@
+{
+  "vehicleClick": {
+    "id": 180,
+    "x": 580,
+    "y": 382,
+    "zoom": 1,
+    "radius": 17,
+    "selected": true,
+    "physicalRadiusUnchanged": true
+  },
+  "anchors": {
+    "soldier": {
+      "scale": 0.266,
+      "x": 300,
+      "y": 400
+    },
+    "suv": {
+      "scale": 1,
+      "x": 300,
+      "y": 400
+    }
+  },
+  "browserErrors": []
+}

@@ -1,0 +1,18 @@
+{
+  "checkedFrames": 320,
+  "lowerBodyPixelDifferences": 0,
+  "diffMinY": 160,
+  "diffMaxY": 0,
+  "alphaDifferences": 0,
+  "detachedLegFrames": {
+    "before": [],
+    "updated": []
+  },
+  "image": "walker-dress-41f69c7c7c5a.png",
+  "imageSha256": "41f69c7c7c5a90df684dfda9f10e87042a24ede140e3d682324b58a145fc3c62",
+  "lowerBodyCrop": {
+    "fromY": 100,
+    "footAnchorY": 136
+  },
+  "note": "Comparison excludes changed hands, which project through rows 90 to 97."
+}

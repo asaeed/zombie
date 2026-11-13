@@ -1,0 +1,74 @@
+{
+  "asset": "runner-06e19e87db62.png",
+  "status": "local revision for user review",
+  "method": "rigged crouch with authored forward lunge, planted rear foot, lead step and open claw sweep",
+  "referenceAsset": "runner.png",
+  "motion": {
+    "version": "claw-lunge-v1",
+    "attackSource": "Crouch_Idle_Loop",
+    "attackDuration": 0.6666666666666666
+  },
+  "reviewer": "single-agent self-review; no independent art review",
+  "visualCoverage": [
+    "all eight directions, complete attack cycle at atlas size",
+    "all eight directions, key poses at enlarged and game display sizes",
+    "actual game Canvas renderer at varied zoom and pixel density"
+  ],
+  "timedNativePreview": "not reviewed; user is actively using the native browser",
+  "reviewedDuplicates": {
+    "groups": [
+      [
+        "attack/S/0",
+        "attack/S/15"
+      ],
+      [
+        "attack/SE/0",
+        "attack/SE/15"
+      ],
+      [
+        "attack/E/0",
+        "attack/E/15"
+      ],
+      [
+        "attack/NE/0",
+        "attack/NE/15"
+      ],
+      [
+        "attack/N/0",
+        "attack/N/15"
+      ],
+      [
+        "attack/NW/0",
+        "attack/NW/15"
+      ],
+      [
+        "attack/W/0",
+        "attack/W/15"
+      ],
+      [
+        "attack/SW/0",
+        "attack/SW/15"
+      ]
+    ],
+    "reason": "matching attack preparation and recovery endpoints"
+  },
+  "preservation": {
+    "unchangedIdleAndWalkingFrames": 192
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "publication": "local only"
+}

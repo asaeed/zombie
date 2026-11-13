@@ -1,0 +1,82 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-art-packs-verify-wChqtX",
+  "review": {
+    "boards": [
+      {
+        "src": "next-brushwork-tactics.png",
+        "width": 1774,
+        "height": 887
+      },
+      {
+        "src": "next-ink-steel.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-prerender-1998.png",
+        "width": 1774,
+        "height": 887
+      },
+      {
+        "src": "next-paper-siege.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-arcade-32.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-neon-quarantine.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-enamel-frontier.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-woodcut-alarm.png",
+        "width": 1774,
+        "height": 887
+      },
+      {
+        "src": "next-gothic-nocturne.png",
+        "width": 1774,
+        "height": 887
+      },
+      {
+        "src": "next-afterhours-circuit.png",
+        "width": 1774,
+        "height": 887
+      },
+      {
+        "src": "next-riso-patrol.png",
+        "width": 1536,
+        "height": 1024
+      },
+      {
+        "src": "next-glasswork-siege.png",
+        "width": 1536,
+        "height": 1024
+      }
+    ],
+    "responsive": true,
+    "comparison": true,
+    "zoom": true
+  },
+  "game": {
+    "pause": true,
+    "atomicSwitch": true,
+    "statePreserved": true,
+    "saveRestore": true,
+    "preferenceRefresh": true,
+    "nonblankPixels": 134156,
+    "failedLoadPreservesPack": true,
+    "mobileSelectorFits": true
+  },
+  "browserErrors": [],
+  "simulated503Errors": 1
+}

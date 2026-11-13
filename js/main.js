@@ -9,6 +9,7 @@
   let renderer  = null;
   let input      = null;
   let autoSaveIn = 2;
+  const activity = [];
   const startScreen = document.getElementById('start-screen');
   const startButton = document.getElementById('start-game');
   const retryButton = document.getElementById('retry-assets');
@@ -18,6 +19,52 @@
   const assetPercent = document.getElementById('asset-percent');
   const assetProgress = document.getElementById('asset-progress');
   const sourceLink = document.getElementById('source-code-link');
+  const cookieNotice = document.getElementById('cookie-notice');
+  const activityButton = document.getElementById('activity-expand');
+  const activityDialog = document.getElementById('activity-dialog');
+  const activityList = document.getElementById('activity-list');
+  const activityCount = document.getElementById('activity-count');
+  const activityEmpty = document.getElementById('activity-empty');
+
+  function positionActivityButton() {
+    if (!game) return;
+    const {feed} = activityPanelRects(window.innerWidth, window.innerHeight);
+    activityButton.style.left = `${feed.x + feed.w - 28}px`;
+    activityButton.style.top = `${feed.y}px`;
+  }
+
+  activityButton.addEventListener('click', () => {
+    if (!game || input.menuOpen || activityDialog.open) return;
+    const rows = document.createDocumentFragment();
+    for (let i = activity.length - 1; i >= 0; i--) {
+      const event = activity[i], row = document.createElement('li');
+      row.dataset.kind = event.kind;
+      const time = document.createElement('span'), message = document.createElement('span');
+      time.className = 'activity-time';
+      time.textContent = `${Math.floor(event.time / 60)}:${Math.floor(event.time % 60).toString().padStart(2, '0')}`;
+      message.textContent = event.text;
+      row.append(time, message); rows.append(row);
+    }
+    activityList.replaceChildren(rows);
+    activityCount.textContent = `${activity.length.toLocaleString('en-US')} ${activity.length === 1 ? 'event' : 'events'}`;
+    activityEmpty.hidden = activity.length > 0;
+    activityDialog.showModal();
+    input.setModalOpen(true);
+    activityList.scrollTop = 0;
+  });
+  document.getElementById('activity-close').addEventListener('click', () => activityDialog.close());
+  activityDialog.addEventListener('close', () => {
+    input?.setModalOpen(false);
+    activityList.replaceChildren();
+    canvas.focus();
+  });
+  activityDialog.addEventListener('click', event => {
+    if (event.target !== activityDialog) return;
+    const rect = activityDialog.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+      activityDialog.close();
+    }
+  });
 
   function syncLoading() {
     const {loaded, total} = ART_PACK_STATE.progress;
@@ -47,7 +94,10 @@
   syncLoading(); ART_PACK_READY.then(syncLoading);
 
   // Keep renderer.W/H (used by HUD/minimap layout) in sync with the canvas
-  window.addEventListener('resize', () => renderer?.resize());
+  window.addEventListener('resize', () => {
+    renderer?.resize();
+    positionActivityButton();
+  });
 
   function parseSave(key) {
     try {
@@ -98,6 +148,9 @@
   }
 
   function installGame(nextGame) {
+    if (activityDialog.open) activityDialog.close();
+    input.setModalOpen(false);
+    nextGame.activity = activity;
     game = nextGame;
     input.game = game;
     input.resetTransient();
@@ -158,7 +211,9 @@
       return !!loaded;
     };
     renderer.render(game, input);
-    canvas.hidden = false; sourceLink.hidden = false; startScreen.hidden = true;
+    canvas.hidden = false; sourceLink.hidden = false; cookieNotice.hidden = false;
+    activityButton.hidden = false; startScreen.hidden = true;
+    positionActivityButton();
     canvas.focus();
     requestAnimationFrame(ts => {lastTime = ts; requestAnimationFrame(loop);});
   });

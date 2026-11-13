@@ -1,0 +1,16 @@
+{
+  "image": "bin.png",
+  "group": "cache",
+  "width": 52,
+  "height": 44,
+  "footAnchor": {
+    "x": 18.506617442184453,
+    "y": 40
+  },
+  "sourceRect": {
+    "x": 428,
+    "y": 244,
+    "width": 705,
+    "height": 582
+  }
+}

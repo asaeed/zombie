@@ -1,0 +1,4 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Brushwork Layered Baker</title><script type="module">
+import {build} from './build.mjs';
+try {window.fullBake=await build(new URLSearchParams(location.search).get('only'));window.fullReady=true;}catch(error){window.fullError=error.stack;throw error;}
+</script></html>

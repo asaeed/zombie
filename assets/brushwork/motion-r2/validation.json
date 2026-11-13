@@ -1,0 +1,1073 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-walk-r2-verify-1elciQ",
+  "scope": "four-facing walk-only review; no gameplay replacement",
+  "pixels": {
+    "soldier": {
+      "body": 21.28,
+      "alphaMismatch": 0,
+      "rows": {
+        "SE": {
+          "ranges": [
+            {
+              "count": 18980,
+              "edge": 0,
+              "grey": 105
+            },
+            {
+              "count": 18965,
+              "edge": 0,
+              "grey": 98
+            },
+            {
+              "count": 17986,
+              "edge": 0,
+              "grey": 74
+            },
+            {
+              "count": 18917,
+              "edge": 0,
+              "grey": 99
+            },
+            {
+              "count": 17651,
+              "edge": 0,
+              "grey": 77
+            },
+            {
+              "count": 17354,
+              "edge": 0,
+              "grey": 58
+            },
+            {
+              "count": 17397,
+              "edge": 0,
+              "grey": 76
+            },
+            {
+              "count": 18695,
+              "edge": 0,
+              "grey": 89
+            },
+            {
+              "count": 19259,
+              "edge": 0,
+              "grey": 90
+            },
+            {
+              "count": 18492,
+              "edge": 0,
+              "grey": 67
+            },
+            {
+              "count": 18696,
+              "edge": 0,
+              "grey": 89
+            },
+            {
+              "count": 18805,
+              "edge": 0,
+              "grey": 64
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            37,
+            36,
+            36,
+            36,
+            37,
+            36,
+            37,
+            36,
+            37,
+            38,
+            36,
+            36
+          ],
+          "color": {
+            "beforeRange": 0.010230126243246485,
+            "afterRange": 0.0007217774871703941
+          }
+        },
+        "E": {
+          "ranges": [
+            {
+              "count": 18820,
+              "edge": 0,
+              "grey": 39
+            },
+            {
+              "count": 18700,
+              "edge": 0,
+              "grey": 74
+            },
+            {
+              "count": 18642,
+              "edge": 0,
+              "grey": 32
+            },
+            {
+              "count": 18531,
+              "edge": 0,
+              "grey": 61
+            },
+            {
+              "count": 18499,
+              "edge": 0,
+              "grey": 57
+            },
+            {
+              "count": 18666,
+              "edge": 0,
+              "grey": 41
+            },
+            {
+              "count": 18868,
+              "edge": 0,
+              "grey": 95
+            },
+            {
+              "count": 18635,
+              "edge": 0,
+              "grey": 66
+            },
+            {
+              "count": 18848,
+              "edge": 0,
+              "grey": 54
+            },
+            {
+              "count": 18464,
+              "edge": 0,
+              "grey": 56
+            },
+            {
+              "count": 18905,
+              "edge": 0,
+              "grey": 38
+            },
+            {
+              "count": 18678,
+              "edge": 0,
+              "grey": 50
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.08866666666666667,
+            "spanY": 0
+          },
+          "headWidths": [
+            38,
+            38,
+            37,
+            38,
+            38,
+            36,
+            38,
+            38,
+            38,
+            38,
+            39,
+            38
+          ],
+          "color": {
+            "beforeRange": 0.009816484856193464,
+            "afterRange": 0.0006117865262335598
+          }
+        },
+        "NE": {
+          "ranges": [
+            {
+              "count": 18142,
+              "edge": 0,
+              "grey": 130
+            },
+            {
+              "count": 18405,
+              "edge": 0,
+              "grey": 104
+            },
+            {
+              "count": 18191,
+              "edge": 0,
+              "grey": 89
+            },
+            {
+              "count": 18315,
+              "edge": 0,
+              "grey": 91
+            },
+            {
+              "count": 18255,
+              "edge": 0,
+              "grey": 78
+            },
+            {
+              "count": 18184,
+              "edge": 0,
+              "grey": 120
+            },
+            {
+              "count": 18178,
+              "edge": 0,
+              "grey": 77
+            },
+            {
+              "count": 18264,
+              "edge": 0,
+              "grey": 82
+            },
+            {
+              "count": 18069,
+              "edge": 0,
+              "grey": 85
+            },
+            {
+              "count": 18323,
+              "edge": 0,
+              "grey": 84
+            },
+            {
+              "count": 18416,
+              "edge": 0,
+              "grey": 74
+            },
+            {
+              "count": 18135,
+              "edge": 0,
+              "grey": 79
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            37,
+            36,
+            37,
+            35,
+            37,
+            37,
+            36,
+            36,
+            36,
+            36,
+            37,
+            37
+          ],
+          "color": {
+            "beforeRange": 0.004929294030424636,
+            "afterRange": 0.0008419925987867005
+          }
+        },
+        "N": {
+          "ranges": [
+            {
+              "count": 17297,
+              "edge": 0,
+              "grey": 36
+            },
+            {
+              "count": 17533,
+              "edge": 0,
+              "grey": 41
+            },
+            {
+              "count": 17382,
+              "edge": 0,
+              "grey": 53
+            },
+            {
+              "count": 17527,
+              "edge": 0,
+              "grey": 63
+            },
+            {
+              "count": 17384,
+              "edge": 0,
+              "grey": 56
+            },
+            {
+              "count": 17358,
+              "edge": 0,
+              "grey": 65
+            },
+            {
+              "count": 16664,
+              "edge": 0,
+              "grey": 66
+            },
+            {
+              "count": 17043,
+              "edge": 0,
+              "grey": 64
+            },
+            {
+              "count": 17017,
+              "edge": 0,
+              "grey": 57
+            },
+            {
+              "count": 16998,
+              "edge": 0,
+              "grey": 48
+            },
+            {
+              "count": 16999,
+              "edge": 0,
+              "grey": 52
+            },
+            {
+              "count": 16649,
+              "edge": 0,
+              "grey": 35
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.08866666666666667,
+            "spanY": 0
+          },
+          "headWidths": [
+            35,
+            35,
+            35,
+            35,
+            34,
+            35,
+            35,
+            34,
+            34,
+            33,
+            35,
+            35
+          ],
+          "color": {
+            "beforeRange": 0.00988575394776342,
+            "afterRange": 0.00039465088226081635
+          }
+        }
+      }
+    },
+    "walker": {
+      "body": 21.28,
+      "alphaMismatch": 0,
+      "rows": {
+        "SE": {
+          "ranges": [
+            {
+              "count": 18704,
+              "edge": 0,
+              "grey": 18704
+            },
+            {
+              "count": 18528,
+              "edge": 0,
+              "grey": 18528
+            },
+            {
+              "count": 18724,
+              "edge": 0,
+              "grey": 18724
+            },
+            {
+              "count": 18734,
+              "edge": 0,
+              "grey": 18734
+            },
+            {
+              "count": 18628,
+              "edge": 0,
+              "grey": 18628
+            },
+            {
+              "count": 17764,
+              "edge": 0,
+              "grey": 17764
+            },
+            {
+              "count": 17697,
+              "edge": 0,
+              "grey": 17697
+            },
+            {
+              "count": 18420,
+              "edge": 0,
+              "grey": 18420
+            },
+            {
+              "count": 18159,
+              "edge": 0,
+              "grey": 18159
+            },
+            {
+              "count": 18393,
+              "edge": 0,
+              "grey": 18393
+            },
+            {
+              "count": 18365,
+              "edge": 0,
+              "grey": 18365
+            },
+            {
+              "count": 18447,
+              "edge": 0,
+              "grey": 18447
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0.044333333333333336,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            39,
+            37,
+            38,
+            37,
+            37,
+            37,
+            37,
+            39,
+            37,
+            39,
+            37,
+            39
+          ],
+          "color": {
+            "beforeRange": 0.011606433426466944,
+            "afterRange": 0.0005507934550706417
+          }
+        },
+        "E": {
+          "ranges": [
+            {
+              "count": 16540,
+              "edge": 0,
+              "grey": 16540
+            },
+            {
+              "count": 16243,
+              "edge": 0,
+              "grey": 16243
+            },
+            {
+              "count": 16527,
+              "edge": 0,
+              "grey": 16527
+            },
+            {
+              "count": 16702,
+              "edge": 0,
+              "grey": 16702
+            },
+            {
+              "count": 16390,
+              "edge": 0,
+              "grey": 16390
+            },
+            {
+              "count": 16480,
+              "edge": 0,
+              "grey": 16480
+            },
+            {
+              "count": 16540,
+              "edge": 0,
+              "grey": 16540
+            },
+            {
+              "count": 16463,
+              "edge": 0,
+              "grey": 16463
+            },
+            {
+              "count": 16639,
+              "edge": 0,
+              "grey": 16639
+            },
+            {
+              "count": 16695,
+              "edge": 0,
+              "grey": 16695
+            },
+            {
+              "count": 16697,
+              "edge": 0,
+              "grey": 16697
+            },
+            {
+              "count": 16491,
+              "edge": 0,
+              "grey": 16491
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            38,
+            40,
+            38,
+            39,
+            39,
+            40,
+            40,
+            39,
+            38,
+            40,
+            38,
+            38
+          ],
+          "color": {
+            "beforeRange": 0.010387617939788651,
+            "afterRange": 0.0005391737713411615
+          }
+        },
+        "NE": {
+          "ranges": [
+            {
+              "count": 17450,
+              "edge": 0,
+              "grey": 17450
+            },
+            {
+              "count": 17336,
+              "edge": 0,
+              "grey": 17336
+            },
+            {
+              "count": 17261,
+              "edge": 0,
+              "grey": 17261
+            },
+            {
+              "count": 17773,
+              "edge": 0,
+              "grey": 17773
+            },
+            {
+              "count": 17408,
+              "edge": 0,
+              "grey": 17408
+            },
+            {
+              "count": 17108,
+              "edge": 0,
+              "grey": 17108
+            },
+            {
+              "count": 17096,
+              "edge": 0,
+              "grey": 17096
+            },
+            {
+              "count": 17670,
+              "edge": 0,
+              "grey": 17670
+            },
+            {
+              "count": 17285,
+              "edge": 0,
+              "grey": 17285
+            },
+            {
+              "count": 17670,
+              "edge": 0,
+              "grey": 17670
+            },
+            {
+              "count": 17554,
+              "edge": 0,
+              "grey": 17554
+            },
+            {
+              "count": 17202,
+              "edge": 0,
+              "grey": 17202
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            35,
+            35,
+            34,
+            35,
+            35,
+            35,
+            34,
+            36,
+            35,
+            36,
+            34,
+            35
+          ],
+          "color": {
+            "beforeRange": 0.005916988717344196,
+            "afterRange": 0.0004213037322023383
+          }
+        },
+        "N": {
+          "ranges": [
+            {
+              "count": 17692,
+              "edge": 0,
+              "grey": 17692
+            },
+            {
+              "count": 17510,
+              "edge": 0,
+              "grey": 17510
+            },
+            {
+              "count": 17634,
+              "edge": 0,
+              "grey": 17634
+            },
+            {
+              "count": 17650,
+              "edge": 0,
+              "grey": 17650
+            },
+            {
+              "count": 17364,
+              "edge": 0,
+              "grey": 17364
+            },
+            {
+              "count": 17780,
+              "edge": 0,
+              "grey": 17780
+            },
+            {
+              "count": 17781,
+              "edge": 0,
+              "grey": 17781
+            },
+            {
+              "count": 17921,
+              "edge": 0,
+              "grey": 17921
+            },
+            {
+              "count": 17722,
+              "edge": 0,
+              "grey": 17722
+            },
+            {
+              "count": 18030,
+              "edge": 0,
+              "grey": 18030
+            },
+            {
+              "count": 17621,
+              "edge": 0,
+              "grey": 17621
+            },
+            {
+              "count": 17818,
+              "edge": 0,
+              "grey": 17818
+            }
+          ],
+          "unique": 12,
+          "root": {
+            "maxStep": 0.044333333333333336,
+            "wrapStep": 0,
+            "spanX": 0.044333333333333336,
+            "spanY": 0
+          },
+          "headWidths": [
+            33,
+            34,
+            34,
+            33,
+            33,
+            32,
+            33,
+            33,
+            34,
+            32,
+            34,
+            33
+          ],
+          "color": {
+            "beforeRange": 0.010981986652943532,
+            "afterRange": 0.000241704003839327
+          }
+        }
+      }
+    }
+  },
+  "playbackFrames": 12,
+  "autoTurn": true,
+  "mobile": [
+    {
+      "dpr": 1,
+      "viewport": 390,
+      "width": 390,
+      "headings": 1,
+      "controls": [
+        {
+          "x": 12,
+          "y": 106,
+          "width": 113.4375,
+          "height": 34,
+          "top": 106,
+          "right": 125.4375,
+          "bottom": 140,
+          "left": 12
+        },
+        {
+          "x": 135.4375,
+          "y": 106,
+          "width": 102.359375,
+          "height": 34,
+          "top": 106,
+          "right": 237.796875,
+          "bottom": 140,
+          "left": 135.4375
+        },
+        {
+          "x": 247.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 281.796875,
+          "bottom": 140,
+          "left": 247.796875
+        },
+        {
+          "x": 291.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 325.796875,
+          "bottom": 140,
+          "left": 291.796875
+        },
+        {
+          "x": 335.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 369.796875,
+          "bottom": 140,
+          "left": 335.796875
+        },
+        {
+          "x": 12,
+          "y": 150,
+          "width": 161.5,
+          "height": 20,
+          "top": 150,
+          "right": 173.5,
+          "bottom": 170,
+          "left": 12
+        },
+        {
+          "x": 12,
+          "y": 187,
+          "width": 168.484375,
+          "height": 20,
+          "top": 187,
+          "right": 180.484375,
+          "bottom": 207,
+          "left": 12
+        },
+        {
+          "x": 190.484375,
+          "y": 180,
+          "width": 94.1875,
+          "height": 34,
+          "top": 180,
+          "right": 284.671875,
+          "bottom": 214,
+          "left": 190.484375
+        },
+        {
+          "x": 12,
+          "y": 224,
+          "width": 153.390625,
+          "height": 34,
+          "top": 224,
+          "right": 165.390625,
+          "bottom": 258,
+          "left": 12
+        },
+        {
+          "x": 175.390625,
+          "y": 231.5,
+          "width": 106.40625,
+          "height": 19,
+          "top": 231.5,
+          "right": 281.796875,
+          "bottom": 250.5,
+          "left": 175.390625
+        },
+        {
+          "x": 12,
+          "y": 268,
+          "width": 89.765625,
+          "height": 19,
+          "top": 268,
+          "right": 101.765625,
+          "bottom": 287,
+          "left": 12
+        },
+        {
+          "x": 111.765625,
+          "y": 268,
+          "width": 80.421875,
+          "height": 19,
+          "top": 268,
+          "right": 192.1875,
+          "bottom": 287,
+          "left": 111.765625
+        }
+      ]
+    },
+    {
+      "dpr": 2,
+      "viewport": 390,
+      "width": 390,
+      "headings": 1,
+      "controls": [
+        {
+          "x": 12,
+          "y": 106,
+          "width": 113.4375,
+          "height": 34,
+          "top": 106,
+          "right": 125.4375,
+          "bottom": 140,
+          "left": 12
+        },
+        {
+          "x": 135.4375,
+          "y": 106,
+          "width": 102.359375,
+          "height": 34,
+          "top": 106,
+          "right": 237.796875,
+          "bottom": 140,
+          "left": 135.4375
+        },
+        {
+          "x": 247.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 281.796875,
+          "bottom": 140,
+          "left": 247.796875
+        },
+        {
+          "x": 291.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 325.796875,
+          "bottom": 140,
+          "left": 291.796875
+        },
+        {
+          "x": 335.796875,
+          "y": 106,
+          "width": 34,
+          "height": 34,
+          "top": 106,
+          "right": 369.796875,
+          "bottom": 140,
+          "left": 335.796875
+        },
+        {
+          "x": 12,
+          "y": 150,
+          "width": 161.5,
+          "height": 20,
+          "top": 150,
+          "right": 173.5,
+          "bottom": 170,
+          "left": 12
+        },
+        {
+          "x": 12,
+          "y": 187,
+          "width": 168.484375,
+          "height": 20,
+          "top": 187,
+          "right": 180.484375,
+          "bottom": 207,
+          "left": 12
+        },
+        {
+          "x": 190.484375,
+          "y": 180,
+          "width": 94.1875,
+          "height": 34,
+          "top": 180,
+          "right": 284.671875,
+          "bottom": 214,
+          "left": 190.484375
+        },
+        {
+          "x": 12,
+          "y": 224,
+          "width": 153.390625,
+          "height": 34,
+          "top": 224,
+          "right": 165.390625,
+          "bottom": 258,
+          "left": 12
+        },
+        {
+          "x": 175.390625,
+          "y": 231.5,
+          "width": 106.40625,
+          "height": 19,
+          "top": 231.5,
+          "right": 281.796875,
+          "bottom": 250.5,
+          "left": 175.390625
+        },
+        {
+          "x": 12,
+          "y": 268,
+          "width": 89.765625,
+          "height": 19,
+          "top": 268,
+          "right": 101.765625,
+          "bottom": 287,
+          "left": 12
+        },
+        {
+          "x": 111.765625,
+          "y": 268,
+          "width": 80.421875,
+          "height": 19,
+          "top": 268,
+          "right": 192.1875,
+          "bottom": 287,
+          "left": 111.765625
+        }
+      ]
+    }
+  ],
+  "browserErrors": [],
+  "controls": {
+    "stepping": true,
+    "paletteToggle": true,
+    "anchors": true,
+    "dayNight": true,
+    "mobileFit": true,
+    "dpr": [
+      1,
+      2
+    ]
+  },
+  "tests": {
+    "command": "node --test tests/*.test.mjs",
+    "passed": 92,
+    "failed": 0
+  },
+  "baseline": {
+    "unchangedFiles": 47,
+    "hashes": {
+      "assets/brushwork/manifest.json": "b5fd350b1d11bb45b611130d71482d53c1a70602299ae28ecee9b36ec85a95ed",
+      "assets/brushwork/soldier.png": "dce33289aac5fee917b06b3dc96adffa17d36684e5ea2c93a5543a1d2e8df9ba",
+      "assets/brushwork/walker.png": "e18aab3556ec6d01b2d2eb944e4e28aa5409f3ac98bf731ac6559f117e2f9196",
+      "assets/brushwork/scout.png": "0e7cbd62e0218485bfb863ab3292b3347104ace0288c24bfa848c6f641c7120e",
+      "assets/brushwork/builder.png": "e807ac51004cacdfa03075f024835461ffc6bd1ed97727c9dc7ce764881b4b1b",
+      "assets/brushwork/medic.png": "2e7bb310f038a2839338ea5941dca2e69b591d81da25a034468736e1680dd7c1",
+      "assets/brushwork/sniper.png": "24d63d6fa0b855f05d9012c5ed1cd6c727bfc94754b10afb2ac68a816af8637e",
+      "assets/brushwork/heavy.png": "35826d3730c6145f43e578c4a1d672812e24ff4cd870b553278c17f07f88a361",
+      "assets/brushwork/torchbearer.png": "27b0e032957fdd2c854b452f21d307f46a4769b5ce6b194da4db2e6860c8a403",
+      "assets/brushwork/runner.png": "f0b7db09ddc39b154db6b1a83daaf7763e9d1eeb3a2e19f5824a1d4e1eb0fc82",
+      "assets/brushwork/brute.png": "1901c4747aac78e1de510eebe63710bebef0df8e14e08c38481e529965fa3296",
+      "assets/brushwork/spitter.png": "bc9c283894e0aeaca886c582a42a07975e4e2049d9a722aaf34c65c6e31a6b9f",
+      "assets/brushwork/exploder.png": "97e8821fb4f7834d2564bdb2258494a61c092b69245270a6473a4d9a6fcd72a7",
+      "assets/brushwork/screamer.png": "9a8782c499b13ef9ea49d8799bcba345feb89fc6538eee63699e7662a6a8930a",
+      "assets/brushwork/boss.png": "4e468543dc92467aa6e56bfaf15036cbd599feccb5e65c20950d1e73957f570f",
+      "assets/brushwork/walker-cap.png": "30a5b66e29193fab76449c59a628a46aae02e81e00f553ec7b1af0d43849355d",
+      "assets/brushwork/walker-dress.png": "cdf36dbc862ad356501528a913168559689402f84cfb11a2f065927d07e0cb06",
+      "assets/brushwork/walker-onearm.png": "f048948f1cabe7dff113edaa75d00e2fd6764869cff61ba724611cd147bbb9cc",
+      "assets/brushwork/suv.png": "d270b491b1ffae568996538bc2bb62cf1ace9462a6e9ecab13c9c19b1ee27693",
+      "assets/brushwork/hq.png": "3fb5349272ad02e5d87ab1b7b20f48f3c320ef475fbf6aff28b8457985c78f2f",
+      "assets/brushwork/wall.png": "3cc984f2b15ff06ab45bd906213a4598e996e4c162ff46b2304e85459344ee7f",
+      "assets/brushwork/tower.png": "a251473378e13e35308b667063dd4300591071185e3eb942f8cd788c2c28abe3",
+      "assets/brushwork/barracks.png": "cc80ff84402bdfd8b2a2e665cffde0d4cb59e6a4b865b9dd38cf2517703def9f",
+      "assets/brushwork/depot.png": "42a57184e7eab7fc22d993b21778a3fac2cbf40f7b503caa0aa786ae54d8c2d5",
+      "assets/brushwork/light.png": "4cbb08c7cd3fd746ae3e97538d6255c4149d2129146935f4a9800c6b7a855da7",
+      "assets/brushwork/clinic.png": "4e7f36101339691ce226e825b84a3bb39f1d9cf1fedf53a02f533f72d621d73c",
+      "assets/brushwork/mechanics.png": "54a004de947b5ca00fb3aa95367b2ad70e72bce1a66c549184f10d088412a297",
+      "assets/brushwork/car.png": "f7ebb5af775150014f27fb79747d9a4a3ad399f43965e7b41dcc59f2ec30bc72",
+      "assets/brushwork/cabin.png": "98746a7d0ba9571b293438d401d433ef197fad6be28774648e2bd9b35a2bec9a",
+      "assets/brushwork/bin.png": "e04dc92f3dbde245f1846aa8161233fa17826a328ad868d65c6bd1daeca6836e",
+      "assets/brushwork/pine.png": "1b3fef9c2d49df3b4e7e406dea96598e2ed58f5e68dc33113b8d5d118941d666",
+      "assets/brushwork/bush.png": "79549b5f14263325c0807e6212ddacd039e8fd09d8ce3fa45f9a8c6a365454ec",
+      "assets/brushwork/rock.png": "1d3c61f2d0e766c35d81ed3f63b57ed4509ff65897fbb19eafaa9c5770ecfc60",
+      "assets/brushwork/terrain.png": "83b2462add51d4e5ed986c3eb8f3294f24684a1a27f2d94ab336e4d9a4431d9a",
+      "js/config.js": "9ffdec7dd143164719b94e81a9f79b41a7a7b641830859b4fb5655dabc2c7d43",
+      "js/diorama-art.js": "e6cae6298266cf0fb70ff82e34c95b526c5a343b9fda061182f9c30369d6cdc9",
+      "js/entities.js": "1b3ce1b6c399d9429cca0ab12e83b985fa0b495ecc67bde5916072d59ff3cf74",
+      "js/game.js": "4ebe54165ae636bb2fb00ab5d54946b74bbc0a674831dd1dd06bcbb58a6edbb2",
+      "js/input.js": "fa1bbf152fb38fd4372882ba57c54cbfc1ffac8d9461d50d8345f5b779f2d134",
+      "js/main.js": "4dc653374d8f2ead9ed8b54666eeee50c8e72e3b55ad7038920dd866bcec5a8d",
+      "js/pathfinding.js": "b67fb35d035d535a9dac150f3f082fb5eb0c210d10e5816fc49b59db86ea19c7",
+      "js/renderer.js": "31ef21fc457e33e997dc6e37172c77901931b9220acba6cbd50837ce63fbce77",
+      "js/utils.js": "71d4bcf99fb414edf463b2f05285bd4f5b5fea40bd15a50f1829af5b6ac0c54f",
+      "js/zombie-art.js": "b11eab3f5f42fd4788cf3e6b830471560004a93fbd4a2dc238da3cb07fed1b61",
+      "assets/brushwork/motion-pilot/soldier.png": "5dfe267ad231f10974d7fcde485f8dfe2bf39ecfdb31ba48178b845fe30c0fed",
+      "assets/brushwork/motion-pilot/walker.png": "ffc37eef7d734de804277564dfba3db112f631d133bfc4d4269c899b5690fe0d",
+      "assets/brushwork/motion-pilot/manifest.json": "1ea022f1c6d02d59b51a7b1eb13ccf1829c493a88a9654572ea1c0ab392215ac"
+    }
+  },
+  "rebuild": {
+    "byteIdentical": true,
+    "hashes": {
+      "soldier.png": "e1b03f9db97d2a50dac2acc6629d7b43398d22d3576a1e3e50c44797b7dc34c3",
+      "soldier-ungraded.png": "f6188e1a06816dad95ba3ff18dae259c34ee0111f124162783923bbe3efb4796",
+      "walker.png": "987f286159af0d070fc8e930297c89edc0a6e391e1708f4cd97004555e25288a",
+      "walker-ungraded.png": "bc16f5ff3f1aef6fc8ad03aed5028865aee7cc18ee65155a69acadf23a90666d",
+      "manifest.json": "468aa60d3e1b27dd5b57091a4b79895675bd26895eeee8185add76e92fd00bb6"
+    }
+  },
+  "limits": [
+    "Four facings and walk only; not a registered gameplay pack",
+    "Uneven pose increments and rear-quarter rifle continuity still require visual review"
+  ]
+}

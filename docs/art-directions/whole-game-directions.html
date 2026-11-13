@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Whole-game art directions</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #111716; color: #ecf0e9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button { font: inherit; }
+    a { color: #edc777; }
+    .shell { width: min(1390px, calc(100% - 36px)); margin-inline: auto; }
+    header { border-bottom: 1px solid #39473e; background: #1b2520; }
+    .topbar { min-height: 58px; display: flex; align-items: center; gap: 22px; }
+    .brand { color: #f3eee1; text-decoration: none; font-weight: 850; white-space: nowrap; }
+    .brand b { color: #db806b; }
+    nav { margin-left: auto; display: flex; gap: 20px; flex-wrap: wrap; }
+    nav a { color: #c2cec4; font-size: 13px; text-decoration: none; }
+    nav a:hover, nav a:focus-visible { color: white; text-decoration: underline; }
+    .intro { padding: 27px 0 19px; }
+    .eyebrow { color: #edc777; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+    h1 { margin: 6px 0 8px; font-size: clamp(28px, 3vw, 39px); line-height: 1.12; }
+    .intro p { margin: 0; max-width: 95ch; color: #bdcbc0; font-size: 14px; line-height: 1.5; }
+    .tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; border-block: 1px solid #3a4940; padding: 11px 0; }
+    .tabs button { min-height: 54px; border: 1px solid #4b6051; border-radius: 4px; background: #25352d; color: #edf1ea; cursor: pointer; text-align: left; padding: 7px 10px; }
+    .tabs button span { display: block; color: #b5c8b8; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .tabs button strong { display: block; font-size: 12px; line-height: 1.25; }
+    .tabs button[aria-selected="true"] { background: #edc777; border-color: #edc777; color: #16231d; }
+    .tabs button[aria-selected="true"] span { color: #395040; }
+    .tabs button:focus-visible, a:focus-visible { outline: 2px solid #fff2c1; outline-offset: 2px; }
+    .review { padding: 17px 0 24px; }
+    .review-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+    .review-head h2 { margin: 0; font-size: 19px; }
+    .review-head a { margin-left: auto; font-size: 12px; }
+    figure { margin: 0; }
+    figure img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: contain; height: auto; border: 1px solid #415046; background: #263029; }
+    figcaption { margin-top: 7px; color: #acbcae; font-size: 12px; line-height: 1.4; }
+    .notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; border-top: 1px solid #3a4940; margin-top: 18px; }
+    .note { padding: 13px 0; }
+    .note h3 { margin: 0 0 5px; color: #edc777; font-size: 12px; }
+    .note p { margin: 0; color: #bfcec0; font-size: 13px; line-height: 1.5; }
+    .key { border-top: 1px solid #3a4940; padding: 17px 0 26px; color: #aebcaf; font-size: 13px; line-height: 1.55; }
+    .key strong { color: #e7eadd; }
+    footer { border-top: 1px solid #35443a; padding: 17px 0 24px; color: #a5b5a8; font-size: 12px; }
+    @media (max-width: 780px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .notes { grid-template-columns: 1fr; } .note { border-top: 1px solid #344139; } }
+    @media (max-width: 500px) { .shell { width: calc(100% - 24px); } .topbar { align-items: start; flex-direction: column; gap: 7px; padding: 11px 0; } nav { margin-left: 0; } .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tabs button { min-height: 50px; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><a class="brand" href="../../index.html">DEAD <b>ZONE</b></a><nav><a href="zombie-lineup.html">Current sprites</a><a href="README.md">Art notes</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <section class="intro"><div class="eyebrow">Whole-game visual study</div><h1>One world, six ways to draw it</h1><p>Every board uses the same HQ, light tower, green sniper, grey walker, low runner, lime-marked spitter, and cyan-marked brute. The upper scene tests how they read together; the lower rows test idle, movement, and attack poses in the same style. The newer <a href="pixel-diorama-directions.html">focused pixel and diorama comparison</a> refines the two favorites.</p></section>
+    <div class="tabs" role="tablist" aria-label="Whole-game art directions">
+      <button type="button" role="tab" id="tab-d" aria-controls="direction" aria-selected="true" data-option="d"><span>Selected baseline</span><strong>D. Brighter pixel</strong></button>
+      <button type="button" role="tab" id="tab-a" aria-controls="direction" aria-selected="false" data-option="a" tabindex="-1"><span>Earlier A</span><strong>Faceted miniatures</strong></button>
+      <button type="button" role="tab" id="tab-b" aria-controls="direction" aria-selected="false" data-option="b" tabindex="-1"><span>Earlier B</span><strong>Classic RTS</strong></button>
+      <button type="button" role="tab" id="tab-c" aria-controls="direction" aria-selected="false" data-option="c" tabindex="-1"><span>Earlier C</span><strong>Graphic horror</strong></button>
+      <button type="button" role="tab" id="tab-e" aria-controls="direction" aria-selected="false" data-option="e" tabindex="-1"><span>New direction</span><strong>Bright cel</strong></button>
+      <button type="button" role="tab" id="tab-f" aria-controls="direction" aria-selected="false" data-option="f" tabindex="-1"><span>New direction</span><strong>Voxel diorama</strong></button>
+    </div>
+    <section class="review" id="direction" role="tabpanel" aria-labelledby="tab-d">
+      <div class="review-head"><h2 id="name">D. Brighter pixel</h2><a id="full" href="whole-game-d.png" target="_blank" rel="noopener">Open full-resolution board</a></div>
+      <figure><img id="board" src="whole-game-d.png" width="1536" height="1024" alt="Brighter pixel RTS scene with an HQ, light tower, sniper, four zombie types, and five rows of motion key poses"><figcaption>Top: complete encounter. Bottom: sniper, walker, runner, spitter, brute; left to right: idle, move, attack. These are key-pose concepts, not seamless sprite sheets.</figcaption></figure>
+      <div class="notes">
+        <div class="note"><h3>World language</h3><p id="look">Bright, intentional pixel clusters and hard-edged forms. Purple HQ and warm practical lights stay vivid against the dark green field.</p></div>
+        <div class="note"><h3>Movement read</h3><p id="motion">Small quick runner, uneven walker, planted brute. The same blocky limb language carries through the human and enemy poses.</p></div>
+        <div class="note"><h3>Production path</h3><p id="production">Closest to the selected D target. Reduce these concepts to a locked 24 x 32 logical unit grid, then build real directional frames.</p></div>
+      </div>
+    </section>
+    <div class="key"><strong>Production check:</strong> None of these images are game-ready animation atlases. Once a direction is chosen, a rigged or carefully authored source needs fixed camera, scale, foot anchor, directional poses, frame timing, and testing at normal zoom and night lighting. The existing game art remains unchanged.</div>
+  </main>
+  <footer><div class="shell">Whole-game study replaces the earlier <a href="zombie-directions.html">zombie-only comparison</a> as the current direction review.</div></footer>
+  <script>
+    'use strict';
+    const options = {
+      d: { name: 'D. Brighter pixel', look: 'Bright, intentional pixel clusters and hard-edged forms. Purple HQ and warm practical lights stay vivid against the dark green field.', motion: 'Small quick runner, uneven walker, planted brute. The same blocky limb language carries through the human and enemy poses.', production: 'Closest to the selected D target. Reduce these concepts to a locked 24 x 32 logical unit grid, then build real directional frames.' },
+      a: { name: 'A. Faceted miniatures', look: 'Organic, angular low-poly planes give the HQ and characters the same sculpted weight and grounded lighting.', motion: 'Broad volume changes show a runner springing and a brute winding up. Small-unit detail must be simplified for play.', production: 'Rig a small set of body classes and structures, render from one orthographic camera, then clean up reduced frames.' },
+      b: { name: 'B. Classic RTS', look: 'Gritty late-1990s pixel realism: dense clusters, limited military colors, weathered materials, and sharp practical lights.', motion: 'Staccato walker stride, low runner sprint, and heavy brute steps remain distinct even with a granular surface treatment.', production: 'Render or paint at larger size, then hand-control final pixel clusters and consistent frame anchors.' },
+      c: { name: 'C. Graphic horror', look: 'Charcoal and bone-grey angular silhouettes run through buildings, terrain, soldiers, and the infected alike.', motion: 'Bent negative spaces emphasize reaching, lunging, and the brute\'s wide swing. Strongest contrast, but dark-night readability needs testing.', production: 'Block the motion with a rig, then simplify silhouettes and value planes to the game\'s small sprite size.' },
+      e: { name: 'E. Bright cel', look: 'Clean contours and broad flat shadow shapes keep both fortifications and character roles readable on a crowded map.', motion: 'Exaggerated limb changes make the run, spit, and swing easy to distinguish without relying on texture.', production: 'Use vector or layered illustrations with a shared line weight and palette; author directional poses before packing atlases.' },
+      f: { name: 'F. Voxel diorama', look: 'Cubic anatomy and modular construction make every creature and building part of one hand-painted miniature set.', motion: 'Simple block limbs make gait changes clear, though facial features and tiny markers can disappear at normal zoom.', production: 'Model and rig voxel assets offline, render transparent orthographic frames, and check their scale in the existing Canvas renderer.' },
+    };
+    const buttons = [...document.querySelectorAll('[data-option]')];
+    function select(key, focus = false) {
+      const option = options[key];
+      if (!option) return;
+      const file = `whole-game-${key}.png`;
+      document.getElementById('name').textContent = option.name;
+      document.getElementById('board').src = file;
+      document.getElementById('board').alt = `${option.name} full-game board: HQ, light tower, sniper, walker, runner, spitter, brute, and five rows of motion key poses`;
+      document.getElementById('full').href = file;
+      document.getElementById('look').textContent = option.look;
+      document.getElementById('motion').textContent = option.motion;
+      document.getElementById('production').textContent = option.production;
+      document.getElementById('direction').setAttribute('aria-labelledby', `tab-${key}`);
+      buttons.forEach(button => {
+        const selected = button.dataset.option === key;
+        button.setAttribute('aria-selected', String(selected));
+        button.tabIndex = selected ? 0 : -1;
+        if (selected && focus) button.focus();
+      });
+      history.replaceState(null, '', `#${key}`);
+    }
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => select(button.dataset.option));
+      button.addEventListener('keydown', event => {
+        if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+        event.preventDefault();
+        const step = event.key === 'ArrowRight' ? 1 : -1;
+        select(buttons[(index + step + buttons.length) % buttons.length].dataset.option, true);
+      });
+    });
+    select(location.hash.slice(1) in options ? location.hash.slice(1) : 'd');
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-8b2e372394be.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Front skirt depth reduced by 25 percent, preserving rear coverage, garment height, arm pose and short gait",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeCycleSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after phase grids plus complete directional cycles",
+    "timedNativePlayback": "not reviewed; browser playback is checked separately",
+    "observations": [
+      "Front silhouette is narrower in side and three-quarter views",
+      "Back coverage, waistband height and hem height are preserved",
+      "Short steps and accepted arms and hands are unchanged"
+    ]
+  },
+  "preserved": {
+    "unchangedArmPoses": 320,
+    "unchangedLegPoses": 320,
+    "unchangedShortGait": true,
+    "unchangedHandPoses": 320
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Idle and attack share the same ready pose at frame zero",
+  "deferredHandCorrections": [
+    "spitter",
+    "exploder",
+    "screamer",
+    "walker-onearm"
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "status": "playing",
+  "actors": 18,
+  "exploderSpeed": 110,
+  "actorsReady": [
+    {
+      "id": "suv",
+      "image": "suv.png",
+      "decoded": true
+    },
+    {
+      "id": "soldier",
+      "image": "soldier.png",
+      "decoded": true
+    },
+    {
+      "id": "walker",
+      "image": "walker-b6e8159df628.png",
+      "decoded": true
+    },
+    {
+      "id": "scout",
+      "image": "scout.png",
+      "decoded": true
+    },
+    {
+      "id": "builder",
+      "image": "builder.png",
+      "decoded": true
+    },
+    {
+      "id": "heavy",
+      "image": "heavy-68e214b1d38f.png",
+      "decoded": true
+    },
+    {
+      "id": "torchbearer",
+      "image": "torchbearer.png",
+      "decoded": true
+    },
+    {
+      "id": "runner",
+      "image": "runner-06e19e87db62.png",
+      "decoded": true
+    },
+    {
+      "id": "medic",
+      "image": "medic.png",
+      "decoded": true
+    },
+    {
+      "id": "sniper",
+      "image": "sniper.png",
+      "decoded": true
+    },
+    {
+      "id": "brute",
+      "image": "brute-d6ff2557a9ae.png",
+      "decoded": true
+    },
+    {
+      "id": "spitter",
+      "image": "spitter-f1c2403730d8.png",
+      "decoded": true
+    },
+    {
+      "id": "exploder",
+      "image": "exploder-3ac1dbdf56f5.png",
+      "decoded": true
+    },
+    {
+      "id": "screamer",
+      "image": "screamer-6bb351b91c06.png",
+      "decoded": true
+    },
+    {
+      "id": "boss",
+      "image": "boss-f2733fb20fef.png",
+      "decoded": true
+    },
+    {
+      "id": "walker-cap",
+      "image": "walker-cap-f0dfafe61a3f.png",
+      "decoded": true
+    },
+    {
+      "id": "walker-dress",
+      "image": "walker-dress-eb68e1c2351a.png",
+      "decoded": true
+    },
+    {
+      "id": "walker-onearm",
+      "image": "walker-onearm-0ee48b6c9af7.png",
+      "decoded": true
+    }
+  ],
+  "canvasColors": 4956,
+  "release": {
+    "version": 1,
+    "release": "26e5cd7ec2d9cc162bcc19a3d4c5420ea1adaa6f5f50bc4b85eaea000bc46b06",
+    "files": 77,
+    "bytes": 51726590
+  },
+  "renderedFrames": 4224,
+  "images": {
+    "walker": {
+      "image": "walker-b6e8159df628.png",
+      "sha256": "b6e8159df6284b7b7240e742d353be0e00209f85d14628c777164dca0d20609f"
+    },
+    "walker-cap": {
+      "image": "walker-cap-f0dfafe61a3f.png",
+      "sha256": "f0dfafe61a3f3627df2e2813e905d872abc0915b34101aac9dca72e207732a76"
+    },
+    "walker-dress": {
+      "image": "walker-dress-eb68e1c2351a.png",
+      "sha256": "eb68e1c2351ad6e3a9cf942b442b5d54be064d03d6192cd767eadb9ab5710c2b"
+    },
+    "walker-onearm": {
+      "image": "walker-onearm-0ee48b6c9af7.png",
+      "sha256": "0ee48b6c9af7ae0ee5a0f283207d9581f9cc5a7956b4895efeba24d0de1fa4fe"
+    },
+    "runner": {
+      "image": "runner-06e19e87db62.png",
+      "sha256": "06e19e87db623f76b577bc58f7513cc3b5d4748bb6bd2f290b4ddd69f2103b2e"
+    },
+    "brute": {
+      "image": "brute-d6ff2557a9ae.png",
+      "sha256": "d6ff2557a9ae216216877627ad4a82afe26ac2e038fc437cba854ce0abf2233f"
+    },
+    "spitter": {
+      "image": "spitter-f1c2403730d8.png",
+      "sha256": "f1c2403730d8e408910b9f01371c1b8a8459825bbc69f40f2e5d0e0c669914cb"
+    },
+    "exploder": {
+      "image": "exploder-3ac1dbdf56f5.png",
+      "sha256": "3ac1dbdf56f512b12beaad03e5c55960debd5b47ceed83b31d65c5881f7577ea"
+    },
+    "screamer": {
+      "image": "screamer-6bb351b91c06.png",
+      "sha256": "6bb351b91c06369f30436afe650b419555e06f20d6a15a499f4e28d3eba588bf"
+    },
+    "boss": {
+      "image": "boss-f2733fb20fef.png",
+      "sha256": "f2733fb20fef76b88a9a44f428c4d5bffef4dcda7a8bb3f39dfbbabe55a40eca"
+    },
+    "heavy": {
+      "image": "heavy-68e214b1d38f.png",
+      "sha256": "68e214b1d38fc44119137150144d6fc212cbff0cf625e205e1579d885201bbbd"
+    }
+  },
+  "errors": [],
+  "anonymousBrowser": true,
+  "url": "https://asaeed.github.io/zombie/",
+  "deployment": {
+    "repository": "asaeed/zombie",
+    "sourceCommit": "1017fd67f662d0cc3f13cc220e5c228d2cfc5c76",
+    "branch": "gh-pages",
+    "commit": "f746aef7df160b6ef3d7ed630e6e9e5a55046f11",
+    "workflowRun": "https://github.com/asaeed/zombie/actions/runs/39533061913",
+    "conclusion": "success",
+    "testsPassed": 162
+  }
+}

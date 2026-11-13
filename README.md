@@ -37,12 +37,12 @@ Walking, running, and directional sprite previews.
 - Left click / drag: select units · selected unit + cache click: auto-gather
 - Right click: move / attack / gather / dump cargo / repair
 - Build: `W`all, `T`ower, `B`arracks, `D`epot, `L`ight tower, clinic (`K`), mechanics bay (`M`) · one placement per selection · Esc: cancel · Del: sell
-- `A` + click: attack-move · `S`: stop · `R`: builder repair · `H`: select idle units
+- `S`: stop · `R`: builder repair · `H`: select idle units
 - `1–9`: control groups (`Shift+digit` assigns, double-tap centers)
 - Barracks: click for training (`Z`/`X`/`C`/`V`/`Q`/`E`/`Y`) · right-click sets rally point
 - Mechanics bay: select and press `U` or use its production button to build an armored truck
 - Armored truck: select and right-click ground to drive; right-click it with units selected to board (four seats); `E` or Unload to disembark
-- `F` + click: throw a signal flare (50 supplies, 60s cooldown) — lights terrain, wakes sleepers, and ignites nearby zombies without distracting them; burning zombies move 20% faster
+- `F` + click: launch a signal flare from HQ (100 supplies, 5-minute cooldown) — streaks to the target, bursts on landing, then lights terrain, wakes sleepers, and ignites nearby zombies without distracting them; burning zombies move 20% faster
 - Camera: wheel zoom · middle-drag / arrows / minimap click: pan
 - Click a screen edge to arm auto-scroll; moving off the edge stops it
 - `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert

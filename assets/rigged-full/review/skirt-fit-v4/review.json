@@ -1,0 +1,52 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-6ed6d6e2da7a.png",
+  "method": "existing licensed rig rendered to sprite atlas",
+  "scope": "Fitted waist following the animated skin surface; gravity-aligned hem over continuous lower legs",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "actions": [
+      "idle",
+      "walk",
+      "attack"
+    ],
+    "facings": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "observations": [
+      "Waist seam follows the torso in front and rear views",
+      "Covered hips no longer protrude through the fabric",
+      "Each leg stays connected beneath the hem throughout the walk"
+    ],
+    "timedArtisticPlayback": "not independently reviewed; automated browser playback verified separately"
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedArmPoses": 320,
+    "unchangedHandPoses": 320,
+    "unchangedShortGait": true
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "duplicateGroups": 7
+}

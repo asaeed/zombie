@@ -1,0 +1,73 @@
+{
+  "atlases": {
+    "walker": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "walkUnique": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "transparentPixels": 4212522,
+      "width": 1536,
+      "height": 3072
+    },
+    "sniper": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "walkUnique": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "transparentPixels": 5509886,
+      "width": 1536,
+      "height": 4096
+    }
+  },
+  "actions": {
+    "moving": true,
+    "gathered": 6,
+    "shooting": true,
+    "attacking": true,
+    "rows": {
+      "walk": 1,
+      "gather": 3,
+      "shoot": 2,
+      "attack": 2
+    }
+  },
+  "drawCalls": {
+    "sniper": 48,
+    "walker": 48
+  },
+  "presentation": {
+    "scale": 0.56,
+    "anchored": true,
+    "correctSize": true
+  },
+  "errors": [],
+  "reviewWidths": [
+    1440,
+    390
+  ],
+  "isolatedBrowserStorage": true,
+  "limitations": [
+    "Attack/gather return poses and idle breath include intentional repeats.",
+    "These are textured 2D rig animations, not individually painted frames.",
+    "The existing game HUD overlaps at mobile width; the new review controls do not.",
+    "User approval of animation remains pending."
+  ]
+}

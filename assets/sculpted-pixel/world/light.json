@@ -1,0 +1,17 @@
+{
+  "image": "light.png",
+  "group": "building",
+  "tiles": 1,
+  "width": 69,
+  "height": 120,
+  "footAnchor": {
+    "x": 34.36833793378102,
+    "y": 116
+  },
+  "sourceRect": {
+    "x": 537,
+    "y": 57,
+    "width": 485,
+    "height": 899
+  }
+}

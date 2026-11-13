@@ -25,7 +25,7 @@ export async function build(id){
  if(role.skirt)renderer.localClippingEnabled=true;
  const exploderPose=id==='exploder'?createExploderForwardPose(bones):null,walkerHands=walkerHandsFixed?createWalkerHandFrames(bones):null;
  const idle=mixer.clipAction(retarget(library.scene,rest,library.animations.find(c=>c.name==='Idle_Loop')));idle.reset().play();mixer.update(0);
- const idlePose=(customShape||id==='boss'||id==='walker-dress')?Object.fromEntries(Object.entries(bones).map(([n,b])=>[n,{position:b.position.clone(),quaternion:b.quaternion.clone()}])):null;
+ const idlePose=(customShape||id==='boss'||id==='walker-dress'||id==='torchbearer')?Object.fromEntries(Object.entries(bones).map(([n,b])=>[n,{position:b.position.clone(),quaternion:b.quaternion.clone()}])):null;
  const bruteReady=isBrute?createBruteReadyPose():null;
  const followup=isBrute?mixer.clipAction(retarget(library.scene,rest,library.animations.find(c=>c.name===role.attackFollowup))):null;
  let bossFists=null;
@@ -53,7 +53,11 @@ export async function build(id){
      sampled.reset().setEffectiveWeight(1).play();
      sampled.time=Math.min(sampledClip.duration-.0001,((id==='runner'||id==='heavy')&&def.name==='attack'?0:(authoredAttack?.phase??t))*sampledClip.duration);
     }
-    mixer.update(0);object.updateWorldMatrix(true,true);
+    mixer.update(0);
+    if(id==='torchbearer'&&def.name==='idle') {
+     for(const [name,bone] of Object.entries(bones))if(/^(clavicle|upperarm|lowerarm|hand|index|middle|pinky|ring|thumb).*_l$/.test(name))bone.quaternion.copy(idlePose[name].quaternion);
+    }
+    object.updateWorldMatrix(true,true);
     const skirtWalk=id==='walker-dress'&&def.name==='walk'?shortenSkirtSteps(bones,idlePose):null;
     const authoredArms=authoredAttack?Object.fromEntries(Object.entries(bones).filter(([n])=>isArmBone(n)).map(([n,b])=>[n,b.quaternion.clone()])):null;
     if(authoredAttack)for(const[n,b]of Object.entries(bones))if(!isArmBone(n)){const rotation=b.quaternion.clone(),position=b.position.clone();b.quaternion.copy(idlePose[n].quaternion).slerp(rotation,authoredAttack.blend);b.position.copy(idlePose[n].position).lerp(position,authoredAttack.blend);}
@@ -115,7 +119,7 @@ export async function build(id){
      const quaternion=attack?.quaternion??Q().setFromRotationMatrix(delta).multiply(Q().setFromUnitVectors(V(0,1,0),V(0,.12-.55*p,1).normalize()));
      const handQuaternion=quaternion.clone().multiply(Q().setFromAxisAngle(V(0,0,1),-Math.PI/2));
      const wrist=attack?.wrist??position.clone().sub(V(0,.06,0).applyQuaternion(handQuaternion));
-     errors.r=armIK(bones,'r',wrist,attack?.pole??V(-1,0,.25).transformDirection(delta));
+     errors.r=armIK(bones,'r',wrist,attack?.pole??V(0,-1,.15).transformDirection(delta));
      const hand=bones.hand_r;hand.quaternion.copy(hand.parent.getWorldQuaternion(Q()).invert().multiply(handQuaternion));
      for(const finger of ['index','middle','pinky','ring'])for(let n=1;n<=3;n++){const b=bones[finger+'_0'+n+'_r'];b.quaternion.copy(rest[b.name].quaternion).multiply(Q().setFromAxisAngle(V(0,0,1),-(n===1?.9:n===2?1.1:.75)));}hand.updateWorldMatrix(false,true);
      club={position,quaternion,...(attack?{swing:attack.swing}:{})};

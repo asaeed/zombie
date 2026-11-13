@@ -20,10 +20,12 @@ function fixture(type = 'barracks') {
   const orders = [];
   const game = {
     status: 'playing', camera: {x: 0, y: 0, zoom: 1},
-    selected: [], units: [unit], _selectedBuilding: building, selectedVehicle: null,
+    selected: [], selectedZombies: [], selectionScroll:0,
+    units: [unit], zombies: [], _selectedBuilding: building, selectedVehicle: null,
     buildMode: null, trainUnit: (b, type) => orders.push({building: b, type}),
     buildVehicle: b => orders.push({building: b, type: 'suv'}),
     unitsInScreenRect: () => [],
+    zombiesInScreenRect: () => [],
   };
   centerCameraOn(game.camera, building.x, building.y, 1200, 900);
   const input = new InputHandler({style: {}, addEventListener() {}}, game);

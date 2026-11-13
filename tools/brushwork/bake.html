@@ -1,0 +1,6 @@
+<!doctype html><meta charset="utf-8"><title>Brushwork asset bake</title>
+<script type="module">
+import {build} from './world.mjs';
+try {window.brushBake=await build(new URLSearchParams(location.search).has('pilot'));window.brushReady=true;}
+catch(error){window.brushError=error.stack;throw error;}
+</script>

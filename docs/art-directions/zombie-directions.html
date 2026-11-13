@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Zombie art directions</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101717; color: #e8eae5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button { font: inherit; }
+    a { color: #efca72; }
+    .shell { width: min(1290px, calc(100% - 36px)); margin-inline: auto; }
+    header { background: #172220; border-bottom: 1px solid #35423f; }
+    .topbar { min-height: 64px; display: flex; align-items: center; gap: 22px; }
+    .brand { white-space: nowrap; font-size: 17px; font-weight: 850; }
+    .brand b { color: #db735f; }
+    nav { display: flex; gap: 18px; margin-left: auto; flex-wrap: wrap; }
+    nav a { color: #c1cec5; font-size: 13px; text-decoration: none; }
+    nav a:hover, nav a:focus-visible { color: white; text-decoration: underline; }
+    .intro { padding: 32px 0 20px; }
+    .eyebrow { color: #efca72; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 7px 0 9px; font-size: clamp(30px, 4vw, 45px); line-height: 1.1; }
+    .intro p { margin: 0; max-width: 86ch; color: #bbc9bf; line-height: 1.5; }
+    .tabs { border-top: 1px solid #3a4942; border-bottom: 1px solid #3a4942; padding: 15px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tabs button { min-height: 38px; padding: 7px 13px; color: #e4ebe4; background: #25352d; border: 1px solid #4e6054; border-radius: 4px; cursor: pointer; }
+    .tabs button[aria-pressed="true"] { background: #efca72; border-color: #efca72; color: #19251d; }
+    .tabs button:focus-visible { outline: 2px solid #fff2c3; outline-offset: 2px; }
+    .review { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, .7fr); gap: 28px; padding: 22px 0 32px; }
+    figure { margin: 0; min-width: 0; }
+    figure img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; background: #242d24; border: 1px solid #3a4942; border-radius: 4px; }
+    figcaption { padding-top: 8px; color: #aab9ac; font-size: 12px; }
+    .details { min-width: 0; }
+    .details h2 { margin: 0 0 9px; font-size: 22px; line-height: 1.2; }
+    .details > p { margin: 0 0 18px; color: #bccac0; font-size: 14px; line-height: 1.55; }
+    .motion { border-top: 1px solid #3a4942; padding: 12px 0; }
+    .motion strong { display: block; color: #efca72; font-size: 12px; margin-bottom: 3px; }
+    .motion span { display: block; color: #bfcac0; font-size: 13px; line-height: 1.45; }
+    .small-note { color: #9cac9e; font-size: 12px; line-height: 1.5; padding-top: 11px; border-top: 1px solid #3a4942; }
+    .baseline { border-top: 1px solid #3a4942; padding: 19px 0 29px; }
+    .baseline h2 { font-size: 17px; margin: 0 0 6px; }
+    .baseline p { margin: 0; color: #aebdb1; font-size: 13px; line-height: 1.5; }
+    footer { border-top: 1px solid #35423f; color: #a8b7ac; padding: 20px 0 32px; font-size: 12px; }
+    @media (max-width: 850px) { .review { grid-template-columns: 1fr; gap: 17px; } }
+    @media (max-width: 640px) { .shell { width: calc(100% - 28px); } .topbar { flex-direction: column; align-items: start; gap: 9px; padding: 13px 0; } nav { margin-left: 0; } .intro { padding-top: 27px; } .tabs button { flex: 1 1 auto; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><div class="brand">DEAD <b>ZONE</b></div><nav><a href="zombie-lineup.html">Current game sprites</a><a href="native-sprite-options.html#option-d">D unit direction</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <div class="intro"><div class="eyebrow">Earlier zombie-only study</div><h1>Three directions for the infected</h1><p>This study has been expanded into the <a href="whole-game-directions.html">whole-game comparison</a>, which shows matching structures, player units, zombies, and motion poses together. Every direction keeps ordinary zombies grey with lighter grey pants, using missing arms, baseball caps, and dresses for variation. Specials retain one recognizable design and a restrained neon marker.</p></div>
+    <div class="tabs" aria-label="Art directions">
+      <button type="button" data-option="0" aria-pressed="true">A. Faceted miniatures</button>
+      <button type="button" data-option="1" aria-pressed="false">B. Classic RTS</button>
+      <button type="button" data-option="2" aria-pressed="false">C. Graphic horror</button>
+    </div>
+    <div class="review">
+      <figure><a id="full" href="zombie-faceted-concept.png" target="_blank" rel="noopener"><img id="concept" src="zombie-faceted-concept.png" alt="Five faceted low-poly zombie concepts: ordinary walker, one-armed capped walker, walker in dress, runner, and brute"></a><figcaption>AI-generated pose concepts, not frame sheets. Final ordinary-zombie art will keep light grey pants even where a concept render varies.</figcaption></figure>
+      <div class="details">
+        <h2 id="name">A. Faceted miniatures</h2>
+        <p id="description">Organic low-poly figures rendered down to D's pixel budget. Broad anatomy and cloth planes survive at game size; we avoid the boxy heads of the current art.</p>
+        <div class="motion"><strong>Walkers</strong><span id="walker-motion">Uneven eight-pose gait. One foot drags while the torso and trailing arm lag behind the stride.</span></div>
+        <div class="motion"><strong>Runners</strong><span id="runner-motion">A low eight-pose hand-foot sprint with alternating ground contact and a short airborne recovery.</span></div>
+        <div class="motion"><strong>Brutes</strong><span id="brute-motion">Long anticipation, planted impact, then a delayed shoulder and arm follow-through.</span></div>
+        <div class="motion"><strong>Production</strong><span id="production">Rig one low-poly source per body class, render eight headings from a locked camera, reduce and hand-clean every frame.</span></div>
+        <p class="small-note">These boards explore appearance and pose language only. Consistent movement requires a rigged source and verified frame atlases; independently generated images are not seamless animation.</p>
+      </div>
+    </div>
+    <div class="baseline"><h2>Current baseline</h2><p>The <a href="zombie-lineup.html">live zombie cast</a> now uses the requested neutral colors and traits. Its existing atlas plays in the game while we choose which of these new styles to produce.</p></div>
+  </main>
+  <footer><div class="shell"><a href="README.md">Art-direction notes</a></div></footer>
+  <script>
+    'use strict';
+    const options = [
+      {
+        name: 'A. Faceted miniatures', image: 'zombie-faceted-concept.png',
+        alt: 'Five faceted low-poly zombie concepts: ordinary walker, one-armed capped walker, walker in dress, runner, and brute',
+        description: "Organic low-poly figures rendered down to D's pixel budget. Broad anatomy and cloth planes survive at game size; we avoid the boxy heads of the current art.",
+        walker: 'Uneven eight-pose gait. One foot drags while the torso and trailing arm lag behind the stride.',
+        runner: 'A low eight-pose hand-foot sprint with alternating ground contact and a short airborne recovery.',
+        brute: 'Long anticipation, planted impact, then a delayed shoulder and arm follow-through.',
+        production: 'Rig one low-poly source per body class, render eight headings from a locked camera, reduce and hand-clean every frame.',
+      },
+      {
+        name: 'B. Classic RTS', image: 'zombie-rts-concept.png',
+        alt: 'Five classic RTS pixel-realism zombie concepts: ordinary walker, one-armed capped walker, walker in dress, runner, and brute',
+        description: 'Granular, organic sprite clusters in the spirit of late-1990s RTS units. More tactile decay and clothing folds, with less obvious geometry.',
+        walker: 'Six-pose staccato shamble with an off-beat step and a brief head dip on foot contact.',
+        runner: 'Eight poses emphasize long diagonal reach, alternating hand plants, and a quick recoil of the spine.',
+        brute: 'Six broad poses with a slower cadence, heavy footfall, and torso overshoot after each planted step.',
+        production: 'Render or paint a larger source, then hand-author the final 24 x 32 pixel clusters for each direction and pose.',
+      },
+      {
+        name: 'C. Graphic horror', image: 'zombie-silhouette-concept.png',
+        alt: 'Five graphic high-contrast horror zombie concepts: ordinary walker, one-armed capped walker, walker in dress, runner, and brute',
+        description: 'Sharp charcoal and bone-grey silhouettes put crooked posture and negative space ahead of surface detail. The most expressive option at distance.',
+        walker: 'Held, off-balance poses interrupted by sudden arm and neck snaps; deliberately irregular rhythm.',
+        runner: 'Eight spring-loaded poses: compressed crouch, long hand plant, body vault, fast recovery.',
+        brute: 'Slow shoulder heave, extended planted stance, then a large silhouette-breaking swing.',
+        production: 'Block poses with a rig, then hand-clean hard value shapes and gaps between limbs at the 24 x 32 target.',
+      },
+    ];
+    const buttons = [...document.querySelectorAll('[data-option]')];
+    function select(index) {
+      const option = options[index];
+      document.getElementById('name').textContent = option.name;
+      document.getElementById('concept').src = option.image;
+      document.getElementById('concept').alt = option.alt;
+      document.getElementById('full').href = option.image;
+      document.getElementById('description').textContent = option.description;
+      document.getElementById('walker-motion').textContent = option.walker;
+      document.getElementById('runner-motion').textContent = option.runner;
+      document.getElementById('brute-motion').textContent = option.brute;
+      document.getElementById('production').textContent = option.production;
+      buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+    }
+    buttons.forEach((button, index) => button.addEventListener('click', () => select(index)));
+  </script>
+</body>
+</html>

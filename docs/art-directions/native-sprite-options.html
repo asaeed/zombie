@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Native sprite options</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101717; color: #e8eae5; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; }
+    button { font: inherit; }
+    a { color: #eecb7a; }
+    .shell { width: min(1280px, calc(100% - 40px)); margin-inline: auto; }
+    header { background: #172220; border-bottom: 1px solid #35423f; }
+    .topbar { min-height: 66px; display: flex; align-items: center; gap: 24px; }
+    .brand { font-size: 17px; font-weight: 850; white-space: nowrap; }
+    .brand b { color: #db735f; }
+    nav { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
+    nav a { color: #bfcac3; text-decoration: none; font-size: 13px; }
+    nav a:hover, nav a:focus-visible { color: #fff; text-decoration: underline; }
+    .intro { padding: 38px 0 28px; }
+    .eyebrow { color: #efca72; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(30px, 4.5vw, 48px); line-height: 1.1; }
+    .intro p { margin: 0; max-width: 80ch; color: #b8c6bc; line-height: 1.5; }
+    .toolbar { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 18px; padding: 16px 0 20px; border-top: 1px solid #3a4942; border-bottom: 1px solid #3a4942; }
+    .control-group { display: flex; flex-direction: column; gap: 8px; }
+    .control-label { color: #aebcb3; font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .segments { display: flex; gap: 5px; flex-wrap: wrap; }
+    .segments button { min-height: 34px; padding: 6px 10px; border: 1px solid #4e6054; border-radius: 4px; background: #25352d; color: #e3e9e1; cursor: pointer; }
+    .segments button:hover { background: #334a3b; }
+    .segments button[aria-pressed="true"] { background: #efca72; border-color: #efca72; color: #19251d; }
+    .segments button:focus-visible { outline: 2px solid #fff2c3; outline-offset: 2px; }
+    .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; padding: 25px 0 15px; }
+    h2 { margin: 0; font-size: 21px; }
+    .section-head p { margin: 0; color: #aebcb3; font-size: 12px; }
+    .option { scroll-margin-top: 14px; display: grid; grid-template-columns: minmax(250px, .88fr) minmax(0, 1.35fr); gap: 22px; padding: 27px 0 31px; border-top: 1px solid #3a4942; }
+    .option:first-of-type { border-top: 0; }
+    .option-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .option h3 { margin: 0; font-size: 20px; line-height: 1.2; }
+    .selected-label { color: #efca72; font-size: 11px; font-weight: 800; text-transform: uppercase; vertical-align: middle; }
+    .option.selected { border-top: 2px solid #efca72; }
+    .size { color: #efca72; font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .option p { color: #bdcbc0; margin: 10px 0 16px; font-size: 13px; line-height: 1.5; }
+    .option strong { color: #e7ebe3; }
+    .sample { display: flex; gap: 18px; align-items: end; }
+    .zoom { display: block; width: 150px; height: 135px; max-width: 45%; image-rendering: pixelated; background: #25342c; border: 1px solid #3e5143; border-radius: 4px; }
+    .native { display: block; width: 90px; height: 90px; image-rendering: pixelated; background: #25342c; border: 1px solid #3e5143; border-radius: 4px; }
+    .sample-labels { display: flex; gap: 18px; color: #aebcb3; font-size: 11px; padding-top: 7px; }
+    .sample-labels span:first-child { width: 150px; max-width: 45%; }
+    .scene-wrap { min-width: 0; }
+    .scene { display: block; width: 100%; aspect-ratio: 640 / 290; image-rendering: pixelated; background: #243c2e; border: 1px solid #425346; border-radius: 5px; }
+    .lineup { display: block; width: 100%; aspect-ratio: 640 / 85; image-rendering: pixelated; background: #1b2b25; border: 1px solid #425346; border-top: 0; border-radius: 0 0 5px 5px; }
+    .metrics { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; }
+    .metrics span { border: 1px solid #435549; border-radius: 3px; padding: 5px 7px; color: #bfcdbf; font-size: 11px; }
+    .recommendation { border-top: 1px solid #3a4942; padding: 25px 0 48px; }
+    .recommendation p { color: #bfcdbf; line-height: 1.6; max-width: 85ch; }
+    .source-note { color: #98a99e; font-size: 12px; line-height: 1.5; }
+    footer { border-top: 1px solid #35423f; padding: 20px 0 32px; color: #a8b7ac; font-size: 12px; }
+    @media (max-width: 850px) { .option { grid-template-columns: 1fr; gap: 16px; } .scene-wrap { max-width: 700px; } }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 28px, 1280px); }
+      .topbar { align-items: start; flex-direction: column; gap: 10px; padding-block: 14px; }
+      nav { margin-left: 0; }
+      .intro { padding-top: 30px; }
+      .section-head { align-items: start; flex-direction: column; gap: 4px; }
+      .toolbar { justify-content: start; }
+      .option { padding-block: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><div class="brand">DEAD <b>ZONE</b></div><nav aria-label="Site"><a href="review.html#directions">Art direction</a><a href="sprite-sheet-pilot.html">Sprite-sheet pilot</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <div class="intro">
+      <div class="eyebrow">Native-grid art study</div>
+      <h1>From tactical pixels to miniature detail</h1>
+      <p>These five options climb from 12 x 16 to 32 x 40 pixels. D, the brighter 24 x 32 faceted-armor design, is the selected target. Each design is drawn on its own native grid, then shown at the same game footprint in a crowded isometric scene.</p>
+    </div>
+    <div class="toolbar" aria-label="Preview controls">
+      <div class="control-group"><span class="control-label">Unit focus</span><div id="roles" class="segments"></div></div>
+      <div class="control-group"><span class="control-label">Facing</span><div id="directions" class="segments"></div></div>
+    </div>
+    <div class="section-head"><h2>Five options</h2><p>Static art comparison. <a href="sprite-sheet-pilot.html">Open the frame-by-frame animation pilot</a>.</p></div>
+    <section class="option" id="option-a">
+      <div><div class="option-title"><h3>A. Tactical silhouettes</h3><span class="size">12 x 16 px</span></div><p>The first keeper. Crisp posture, large role props, and a restrained shadow plane. The smallest grid here, but already enough for distinct recoil, tool swing, and handoff poses.</p><div class="sample"><canvas class="zoom" id="zoom-0" width="150" height="135" aria-label="Enlarged 12 by 16 unit"></canvas><canvas class="native" id="native-0" width="90" height="90" aria-label="12 by 16 unit at game size"></canvas></div><div class="sample-labels"><span>Pixel structure</span><span>Game size</span></div><div class="metrics"><span>Broad silhouettes</span><span>Leanest atlas</span><span>Animated sniper pilot available</span></div></div>
+      <div class="scene-wrap"><canvas class="scene" id="scene-0" width="640" height="290" aria-label="Tactical silhouettes in a crowded battlefield"></canvas><canvas class="lineup" id="lineup-0" width="640" height="85" aria-label="Tactical silhouette role lineup"></canvas></div>
+    </section>
+    <section class="option" id="option-b">
+      <div><div class="option-title"><h3>B. Faceted minis</h3><span class="size">16 x 20 px</span></div><p>The second keeper. A wider shoulder line and broad light/shadow planes echo the chosen low-poly direction while keeping equipment prominent at game size.</p><div class="sample"><canvas class="zoom" id="zoom-1" width="150" height="135" aria-label="Enlarged 16 by 20 unit"></canvas><canvas class="native" id="native-1" width="90" height="90" aria-label="16 by 20 unit at game size"></canvas></div><div class="sample-labels"><span>Pixel structure</span><span>Game size</span></div><div class="metrics"><span>Broad facets</span><span>More pose room</span><span>Strong role props</span></div></div>
+      <div class="scene-wrap"><canvas class="scene" id="scene-1" width="640" height="290" aria-label="Faceted minis in a crowded battlefield"></canvas><canvas class="lineup" id="lineup-1" width="640" height="85" aria-label="Faceted mini role lineup"></canvas></div>
+    </section>
+    <section class="option" id="option-c">
+      <div><div class="option-title"><h3>C. Field operatives</h3><span class="size">20 x 26 px</span></div><p>Leaner bodies, separate forearms, long kit profiles, and more leg separation. This gives action poses more room without filling the sprite with texture.</p><div class="sample"><canvas class="zoom" id="zoom-2" width="150" height="135" aria-label="Enlarged 20 by 26 unit"></canvas><canvas class="native" id="native-2" width="90" height="90" aria-label="20 by 26 unit at game size"></canvas></div><div class="sample-labels"><span>Pixel structure</span><span>Game size</span></div><div class="metrics"><span>Lean field kit</span><span>Separated limbs</span><span>Clear action poses</span></div></div>
+      <div class="scene-wrap"><canvas class="scene" id="scene-2" width="640" height="290" aria-label="Field operatives in a crowded battlefield"></canvas><canvas class="lineup" id="lineup-2" width="640" height="85" aria-label="Field operative role lineup"></canvas></div>
+    </section>
+    <section class="option selected" id="option-d">
+      <div><div class="option-title"><h3>D. Faceted armor <span class="selected-label">Selected</span></h3><span class="size">24 x 32 px</span></div><p>Broad beveled armor and a brighter role palette give this size a readable front/back distinction. The selected grid leaves room for purposeful action poses without overloading crowded scenes.</p><div class="sample"><canvas class="zoom" id="zoom-3" width="150" height="135" aria-label="Enlarged 24 by 32 unit"></canvas><canvas class="native" id="native-3" width="90" height="90" aria-label="24 by 32 unit at game size"></canvas></div><div class="sample-labels"><span>Pixel structure</span><span>Game size</span></div><div class="metrics"><span>Bright role colors</span><span>Armor planes</span><span>Selected grid</span></div></div>
+      <div class="scene-wrap"><canvas class="scene" id="scene-3" width="640" height="290" aria-label="Faceted armor in a crowded battlefield"></canvas><canvas class="lineup" id="lineup-3" width="640" height="85" aria-label="Faceted armor role lineup"></canvas></div>
+    </section>
+    <section class="option" id="option-e">
+      <div><div class="option-title"><h3>E. Rendered miniatures</h3><span class="size">32 x 40 px</span></div><p>Split armor plates, visible kit, and the most room for directional animation. It has the richest close-up read, but small details may disappear at normal zoom.</p><div class="sample"><canvas class="zoom" id="zoom-4" width="150" height="135" aria-label="Enlarged 32 by 40 unit"></canvas><canvas class="native" id="native-4" width="90" height="90" aria-label="32 by 40 unit at game size"></canvas></div><div class="sample-labels"><span>Pixel structure</span><span>Game size</span></div><div class="metrics"><span>Split plates</span><span>Rich close-up</span><span>Highest atlas cost</span></div></div>
+      <div class="scene-wrap"><canvas class="scene" id="scene-4" width="640" height="290" aria-label="Rendered miniatures in a crowded battlefield"></canvas><canvas class="lineup" id="lineup-4" width="640" height="85" aria-label="Rendered miniature role lineup"></canvas></div>
+    </section>
+    <div class="recommendation"><h2>Production target: D</h2><p>Use a 24 x 32 logical grid for unit art, with a fixed foot anchor and distinct directional frames. Brighter role colors and equipment silhouettes should read before surface detail in a busy nighttime battle. <a href="sprite-sheet-pilot.html">The existing 12 x 16 sniper pilot</a> proves atlas playback, not the selected art resolution. <a href="zombie-lineup.html">Review the new animated zombie cast</a> at D's scale.</p><p class="source-note">These are original code-drawn studies, not copied sprites or downsampled 3D renders. The heading control sketches front, back, side, and mirrored views; it is not eight finished directional frames. The chosen low-poly direction can supply model and animation references. Final unit frames would be rendered, reduced, and pixel-cleaned to the 24 x 32 grid.</p></div>
+  </main>
+  <footer><div class="shell">Reference points: <a href="https://www.ea.com/ea-play/news/amaa-questions-and-answers" target="_blank" rel="noopener">Command &amp; Conquer's original-graphics comparison</a> and <a href="https://bestdosgames.com/games/dune-2" target="_blank" rel="noopener">Dune II gameplay screenshots</a>. <a href="README.md">Art notes</a>.</div></footer>
+  <script src="native-sprite-options.js"></script>
+</body>
+</html>

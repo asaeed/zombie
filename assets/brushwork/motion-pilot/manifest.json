@@ -1,0 +1,838 @@
+{
+  "version": 1,
+  "scope": "SE walk-only experiment; not a complete runtime art pack",
+  "imageSmoothing": false,
+  "actors": {
+    "soldier": {
+      "image": "soldier.png",
+      "cell": {
+        "width": 256,
+        "height": 320
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 300
+      },
+      "bodyHeight": 240,
+      "renderScale": 0.08866666666666667,
+      "direction": "SE",
+      "fps": 10,
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Contact A",
+          "source": {
+            "image": "soldier-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 0,
+            "scale": 0.5581395348837209,
+            "hip": {
+              "x": 182,
+              "y": 288
+            },
+            "phase": "Contact A",
+            "rect": {
+              "x": 57,
+              "y": 46,
+              "w": 266,
+              "h": 430,
+              "bodyTop": 59,
+              "bottom": 475,
+              "footX": 210.3205325140809,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 37
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 37
+            },
+            "correction": {
+              "x": 0,
+              "y": 0
+            }
+          }
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Down A",
+          "source": {
+            "image": "soldier-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 1,
+            "scale": 0.5581395348837209,
+            "hip": {
+              "x": 580,
+              "y": 287
+            },
+            "phase": "Down A",
+            "rect": {
+              "x": 452,
+              "y": 48,
+              "w": 258,
+              "h": 433,
+              "bodyTop": 59,
+              "bottom": 480,
+              "footX": 599.4517405063291,
+              "row": 0,
+              "col": 1
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 135,
+              "y": 65,
+              "headWidth": 38
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 38
+            },
+            "correction": {
+              "x": 7,
+              "y": -2
+            }
+          }
+        },
+        {
+          "x": 512,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Passing A",
+          "source": {
+            "image": "soldier-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 2,
+            "scale": 0.5581395348837209,
+            "hip": {
+              "x": 965,
+              "y": 281
+            },
+            "phase": "Passing A",
+            "rect": {
+              "x": 841,
+              "y": 45,
+              "w": 257,
+              "h": 430,
+              "bodyTop": 57,
+              "bottom": 474,
+              "footX": 969.689138576779,
+              "row": 0,
+              "col": 2
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 137.5,
+              "y": 66,
+              "headWidth": 36
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 37
+            },
+            "correction": {
+              "x": 4.5,
+              "y": -3
+            }
+          }
+        },
+        {
+          "x": 768,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Lift A",
+          "source": {
+            "image": "soldier-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 3,
+            "scale": 0.5581395348837209,
+            "hip": {
+              "x": 1360,
+              "y": 287
+            },
+            "phase": "Lift A",
+            "rect": {
+              "x": 1222,
+              "y": 48,
+              "w": 271,
+              "h": 437,
+              "bodyTop": 62,
+              "bottom": 484,
+              "footX": 1406.209968847352,
+              "row": 0,
+              "col": 3
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 130,
+              "y": 65,
+              "headWidth": 38
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 38
+            },
+            "correction": {
+              "x": 12,
+              "y": -2
+            }
+          }
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Contact B",
+          "source": {
+            "image": "soldier-opposite.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1910828025477707,
+            "hip": {
+              "x": 490,
+              "y": 890
+            },
+            "phase": "Contact B",
+            "rect": {
+              "x": 151,
+              "y": 150,
+              "w": 723,
+              "h": 1256,
+              "bodyTop": 176,
+              "bottom": 1405,
+              "footX": 718.9277163640529,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 141.5,
+              "y": 57,
+              "headWidth": 38
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 39
+            },
+            "correction": {
+              "x": 0.5,
+              "y": 6
+            }
+          }
+        },
+        {
+          "x": 1280,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Down B",
+          "source": {
+            "image": "soldier-downB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1910828025477707,
+            "hip": {
+              "x": 494,
+              "y": 891
+            },
+            "phase": "Down B",
+            "rect": {
+              "x": 151,
+              "y": 149,
+              "w": 728,
+              "h": 1262,
+              "bodyTop": 175,
+              "bottom": 1410,
+              "footX": 680.9898525447915,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 141,
+              "y": 56,
+              "headWidth": 39
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 39
+            },
+            "correction": {
+              "x": 1,
+              "y": 7
+            }
+          }
+        },
+        {
+          "x": 1536,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Passing B",
+          "source": {
+            "image": "soldier-passB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1910828025477707,
+            "hip": {
+              "x": 490,
+              "y": 891
+            },
+            "phase": "Passing B",
+            "rect": {
+              "x": 150,
+              "y": 148,
+              "w": 729,
+              "h": 1271,
+              "bodyTop": 173,
+              "bottom": 1418,
+              "footX": 556.1067800758781,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 141.5,
+              "y": 56,
+              "headWidth": 39
+            },
+            "after": {
+              "x": 142,
+              "y": 63,
+              "headWidth": 39
+            },
+            "correction": {
+              "x": 0.5,
+              "y": 7
+            }
+          }
+        },
+        {
+          "x": 1792,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Lift B",
+          "source": {
+            "image": "soldier-liftB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1910828025477707,
+            "hip": {
+              "x": 491,
+              "y": 888
+            },
+            "phase": "Lift B",
+            "rect": {
+              "x": 150,
+              "y": 149,
+              "w": 800,
+              "h": 1242,
+              "bodyTop": 180,
+              "bottom": 1390,
+              "footX": 734.4152363937983,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 141.5,
+              "y": 57,
+              "headWidth": 40
+            },
+            "after": {
+              "x": 142.5,
+              "y": 63,
+              "headWidth": 40
+            },
+            "correction": {
+              "x": 0.5,
+              "y": 6
+            }
+          }
+        }
+      ],
+      "alignment": {
+        "method": "stable head-root registration; translation only",
+        "referenceFrame": 0,
+        "target": {
+          "x": 142,
+          "y": 63
+        },
+        "before": {
+          "maxStep": 1.242124747716142,
+          "wrapStep": 0.5338440263264584,
+          "spanX": 1.064,
+          "spanY": 0.8866666666666667
+        },
+        "after": {
+          "maxStep": 0.044333333333333336,
+          "wrapStep": 0.044333333333333336,
+          "spanX": 0.044333333333333336,
+          "spanY": 0
+        }
+      },
+      "production": {
+        "method": "separately generated poses; common source scale and registered stable upper-body anchor",
+        "deformation": false,
+        "crossfade": false,
+        "tool": "built-in image_gen",
+        "model": "not exposed"
+      }
+    },
+    "walker": {
+      "image": "walker.png",
+      "cell": {
+        "width": 256,
+        "height": 320
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 300
+      },
+      "bodyHeight": 240,
+      "renderScale": 0.08866666666666667,
+      "direction": "SE",
+      "fps": 8,
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Contact A",
+          "source": {
+            "image": "walker-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 0,
+            "scale": 0.547945205479452,
+            "hip": {
+              "x": 200,
+              "y": 280
+            },
+            "phase": "Contact A",
+            "rect": {
+              "x": 75,
+              "y": 50,
+              "w": 261,
+              "h": 438,
+              "bodyTop": 65,
+              "bottom": 487,
+              "footX": 245.26274815103153,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 34
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 34
+            },
+            "correction": {
+              "x": 0,
+              "y": 0
+            }
+          }
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Down A",
+          "source": {
+            "image": "walker-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 1,
+            "scale": 0.547945205479452,
+            "hip": {
+              "x": 588,
+              "y": 280
+            },
+            "phase": "Down A",
+            "rect": {
+              "x": 457,
+              "y": 50,
+              "w": 276,
+              "h": 440,
+              "bodyTop": 67,
+              "bottom": 489,
+              "footX": 594.5798423890502,
+              "row": 0,
+              "col": 1
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 163.5,
+              "y": 62,
+              "headWidth": 36
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 36
+            },
+            "correction": {
+              "x": 2,
+              "y": 0
+            }
+          }
+        },
+        {
+          "x": 512,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Passing A",
+          "source": {
+            "image": "walker-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 2,
+            "scale": 0.547945205479452,
+            "hip": {
+              "x": 983,
+              "y": 280
+            },
+            "phase": "Passing A",
+            "rect": {
+              "x": 859,
+              "y": 49,
+              "w": 265,
+              "h": 437,
+              "bodyTop": 64,
+              "bottom": 485,
+              "footX": 984.7903624382208,
+              "row": 0,
+              "col": 2
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 160.5,
+              "y": 61,
+              "headWidth": 34
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 34
+            },
+            "correction": {
+              "x": 5,
+              "y": 1
+            }
+          }
+        },
+        {
+          "x": 768,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Lift A",
+          "source": {
+            "image": "walker-walk-sheet.png",
+            "columns": 4,
+            "rows": 2,
+            "cell": 3,
+            "scale": 0.547945205479452,
+            "hip": {
+              "x": 1374,
+              "y": 280
+            },
+            "phase": "Lift A",
+            "rect": {
+              "x": 1247,
+              "y": 49,
+              "w": 260,
+              "h": 443,
+              "bodyTop": 64,
+              "bottom": 491,
+              "footX": 1429.528681253696,
+              "row": 0,
+              "col": 3
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 163.5,
+              "y": 62,
+              "headWidth": 36
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 36
+            },
+            "correction": {
+              "x": 2,
+              "y": 0
+            }
+          }
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Contact B",
+          "source": {
+            "image": "walker-opposite.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1986754966887417,
+            "hip": {
+              "x": 556,
+              "y": 797
+            },
+            "phase": "Contact B",
+            "rect": {
+              "x": 172,
+              "y": 153,
+              "w": 738,
+              "h": 1208,
+              "bodyTop": 192,
+              "bottom": 1360,
+              "footX": 661.8495480383934,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 152,
+              "y": 60,
+              "headWidth": 37
+            },
+            "after": {
+              "x": 166,
+              "y": 62,
+              "headWidth": 37
+            },
+            "correction": {
+              "x": 13.5,
+              "y": 2
+            }
+          }
+        },
+        {
+          "x": 1280,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Down B",
+          "source": {
+            "image": "walker-downB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1986754966887417,
+            "hip": {
+              "x": 558,
+              "y": 794
+            },
+            "phase": "Down B",
+            "rect": {
+              "x": 170,
+              "y": 150,
+              "w": 755,
+              "h": 1218,
+              "bodyTop": 190,
+              "bottom": 1367,
+              "footX": 713.6892066946474,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 154.5,
+              "y": 60,
+              "headWidth": 38
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 38
+            },
+            "correction": {
+              "x": 11,
+              "y": 2
+            }
+          }
+        },
+        {
+          "x": 1536,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Passing B",
+          "source": {
+            "image": "walker-passB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1986754966887417,
+            "hip": {
+              "x": 556,
+              "y": 795
+            },
+            "phase": "Passing B",
+            "rect": {
+              "x": 168,
+              "y": 149,
+              "w": 766,
+              "h": 1242,
+              "bodyTop": 189,
+              "bottom": 1390,
+              "footX": 587.7035506922733,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 154.5,
+              "y": 60,
+              "headWidth": 38
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 38
+            },
+            "correction": {
+              "x": 11,
+              "y": 2
+            }
+          }
+        },
+        {
+          "x": 1792,
+          "y": 0,
+          "width": 256,
+          "height": 320,
+          "phase": "Lift B",
+          "source": {
+            "image": "walker-liftB.png",
+            "columns": 1,
+            "rows": 1,
+            "cell": 0,
+            "scale": 0.1986754966887417,
+            "hip": {
+              "x": 556,
+              "y": 770
+            },
+            "phase": "Lift B",
+            "rect": {
+              "x": 116,
+              "y": 134,
+              "w": 883,
+              "h": 1246,
+              "bodyTop": 184,
+              "bottom": 1379,
+              "footX": 686.320703868104,
+              "row": 0,
+              "col": 0
+            }
+          },
+          "alignment": {
+            "before": {
+              "x": 153.5,
+              "y": 62,
+              "headWidth": 40
+            },
+            "after": {
+              "x": 165.5,
+              "y": 62,
+              "headWidth": 40
+            },
+            "correction": {
+              "x": 12,
+              "y": 0
+            }
+          }
+        }
+      ],
+      "alignment": {
+        "method": "stable head-root registration; translation only",
+        "referenceFrame": 0,
+        "target": {
+          "x": 165.5,
+          "y": 62
+        },
+        "before": {
+          "maxStep": 1.064,
+          "wrapStep": 1.064,
+          "spanX": 1.197,
+          "spanY": 0.17733333333333334
+        },
+        "after": {
+          "maxStep": 0.044333333333333336,
+          "wrapStep": 0,
+          "spanX": 0.044333333333333336,
+          "spanY": 0
+        }
+      },
+      "production": {
+        "method": "separately generated poses; common source scale and registered stable upper-body anchor",
+        "deformation": false,
+        "crossfade": false,
+        "tool": "built-in image_gen",
+        "model": "not exposed"
+      }
+    }
+  },
+  "limitations": [
+    "Remaining facings and actions are not generated.",
+    "Drawn poses preferred by user, but head shape, paint and equipment details still vary; aligned playback awaits review.",
+    "Sheet second halves repeated leading-leg poses and were replaced by targeted single-frame edits."
+  ]
+}

@@ -1,0 +1,2570 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-rigged-full-verify-5Flbui",
+  "atlases": {
+    "soldier": {
+      "frames": 512,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "walker": {
+      "frames": 384,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "suv": {
+      "frames": 8,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {},
+      "markers": {},
+      "bodyPixels": 45
+    },
+    "scout": {
+      "frames": 448,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 23.712
+    },
+    "builder": {
+      "frames": 576,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "heavy": {
+      "frames": 448,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 28.728
+    },
+    "torchbearer": {
+      "frames": 448,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "runner": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 18.144
+    },
+    "medic": {
+      "frames": 448,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "sniper": {
+      "frames": 448,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "brute": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 35.568
+    },
+    "spitter": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {
+        "idle/S": 103,
+        "idle/SE": 75,
+        "idle/E": 60,
+        "idle/NE": 65,
+        "idle/N": 73,
+        "idle/NW": 58,
+        "idle/W": 49,
+        "idle/SW": 80,
+        "walk/S": 112,
+        "walk/SE": 84,
+        "walk/E": 55,
+        "walk/NE": 45,
+        "walk/N": 75,
+        "walk/NW": 48,
+        "walk/W": 55,
+        "walk/SW": 82,
+        "attack/S": 76,
+        "attack/SE": 42,
+        "attack/E": 64,
+        "attack/NE": 69,
+        "attack/N": 77,
+        "attack/NW": 63,
+        "attack/W": 49,
+        "attack/SW": 35
+      },
+      "bodyPixels": 25.536
+    },
+    "exploder": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {
+        "idle/S": 160,
+        "idle/SE": 120,
+        "idle/E": 130,
+        "idle/NE": 131,
+        "idle/N": 141,
+        "idle/NW": 129,
+        "idle/W": 157,
+        "idle/SW": 140,
+        "walk/S": 151,
+        "walk/SE": 103,
+        "walk/E": 106,
+        "walk/NE": 146,
+        "walk/N": 142,
+        "walk/NW": 143,
+        "walk/W": 120,
+        "walk/SW": 104,
+        "attack/S": 142,
+        "attack/SE": 87,
+        "attack/E": 125,
+        "attack/NE": 134,
+        "attack/N": 144,
+        "attack/NW": 130,
+        "attack/W": 131,
+        "attack/SW": 111
+      },
+      "bodyPixels": 27.816000000000003
+    },
+    "screamer": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {
+        "idle/S": 75,
+        "idle/SE": 78,
+        "idle/E": 95,
+        "idle/NE": 89,
+        "idle/N": 66,
+        "idle/NW": 70,
+        "idle/W": 97,
+        "idle/SW": 91,
+        "walk/S": 69,
+        "walk/SE": 89,
+        "walk/E": 95,
+        "walk/NE": 71,
+        "walk/N": 66,
+        "walk/NW": 72,
+        "walk/W": 95,
+        "walk/SW": 86,
+        "attack/S": 73,
+        "attack/SE": 43,
+        "attack/E": 39,
+        "attack/NE": 67,
+        "attack/N": 63,
+        "attack/NW": 63,
+        "attack/W": 67,
+        "attack/SW": 55
+      },
+      "bodyPixels": 26.447999999999997
+    },
+    "boss": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {
+        "idle/S": 173,
+        "idle/SE": 157,
+        "idle/E": 132,
+        "idle/NE": 177,
+        "idle/N": 202,
+        "idle/NW": 170,
+        "idle/W": 132,
+        "idle/SW": 152,
+        "walk/S": 177,
+        "walk/SE": 150,
+        "walk/E": 123,
+        "walk/NE": 160,
+        "walk/N": 184,
+        "walk/NW": 157,
+        "walk/W": 121,
+        "walk/SW": 139,
+        "attack/S": 64,
+        "attack/SE": 116,
+        "attack/E": 126,
+        "attack/NE": 180,
+        "attack/N": 198,
+        "attack/NW": 167,
+        "attack/W": 107,
+        "attack/SW": 74
+      },
+      "bodyPixels": 43.77599999999999
+    },
+    "walker-cap": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "walker-dress": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    },
+    "walker-onearm": {
+      "frames": 320,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "markers": {},
+      "bodyPixels": 25.536
+    }
+  },
+  "reviews": {
+    "spriteControls": true,
+    "spriteMobileFits": true,
+    "wholePackComparison": true,
+    "worldMobileFits": true
+  },
+  "game": {
+    "drawTypes": [
+      "terrain.png",
+      "rock.png",
+      "pine.png",
+      "bush.png",
+      "wall.png",
+      "barracks.png",
+      "cabin.png",
+      "hq.png",
+      "soldier.png",
+      "tower.png",
+      "depot.png",
+      "builder.png",
+      "scout.png",
+      "walker-onearm.png",
+      "walker.png",
+      "clinic.png",
+      "mechanics.png",
+      "medic.png",
+      "walker-cap.png",
+      "runner.png",
+      "suv.png",
+      "sniper.png",
+      "light.png",
+      "walker-dress.png",
+      "brute.png",
+      "heavy.png",
+      "spitter.png",
+      "torchbearer.png",
+      "exploder.png",
+      "car.png",
+      "screamer.png",
+      "bin.png",
+      "boss.png"
+    ],
+    "sampling": [
+      {
+        "src": "terrain.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "rock.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "pine.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "bush.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "wall.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "barracks.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "cabin.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "hq.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "soldier.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "tower.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "depot.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "builder.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "scout.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "walker-onearm.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "walker.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "clinic.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "mechanics.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "medic.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "walker-cap.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "runner.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "suv.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "sniper.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "light.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "walker-dress.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "brute.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "heavy.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "spitter.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "torchbearer.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "exploder.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "car.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "screamer.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "bin.png",
+        "smoothing": true,
+        "quality": "high"
+      },
+      {
+        "src": "boss.png",
+        "smoothing": true,
+        "quality": "high"
+      }
+    ],
+    "scales": {
+      "soldier": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "walker": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "suv": {
+        "actual": 1,
+        "expected": 1
+      },
+      "scout": {
+        "actual": 0.247,
+        "expected": 0.247
+      },
+      "builder": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "heavy": {
+        "actual": 0.29925,
+        "expected": 0.29925
+      },
+      "torchbearer": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "runner": {
+        "actual": 0.18899999999999997,
+        "expected": 0.189
+      },
+      "medic": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "sniper": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "brute": {
+        "actual": 0.3705,
+        "expected": 0.3705
+      },
+      "spitter": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "exploder": {
+        "actual": 0.28975,
+        "expected": 0.28975
+      },
+      "screamer": {
+        "actual": 0.27549999999999997,
+        "expected": 0.27549999999999997
+      },
+      "boss": {
+        "actual": 0.45599999999999996,
+        "expected": 0.4559999999999999
+      },
+      "walker-cap": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "walker-dress": {
+        "actual": 0.266,
+        "expected": 0.266
+      },
+      "walker-onearm": {
+        "actual": 0.266,
+        "expected": 0.266
+      }
+    },
+    "menuPause": true,
+    "atomicSwitchPreservesState": true,
+    "preferenceRefresh": true,
+    "saveRestoration": true,
+    "gathering": {
+      "commanded": true,
+      "peak": 20,
+      "delivered": 20,
+      "capacity": 20,
+      "autoGather": true
+    },
+    "nonblankPixels": 1228916
+  },
+  "limitations": [
+    "User accepted this delivered roster; future motion/art changes still require visual review. Soldier/walker images and cell rectangles are exact; direction labels are calibrated to runtime movement.",
+    "Eight genuine model rotations, authored source clips, fixed bone lengths and tested attachment constraints.",
+    "No painted-image bending, mirrored anatomy or frame crossfades.",
+    "Buildings retained; props recropped at native density; quiet terrain at 4x density; vehicle wheel-plane anchor corrected.",
+    "Legacy mobile game HUD remains crowded; the two new review pages are responsive.",
+    "Local only; no commit, push or GitHub Pages publication performed."
+  ],
+  "totalFrames": 6600,
+  "playback": {
+    "soldier": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 8
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 16
+      },
+      "shoot": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "walker": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 8
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 10
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 18
+      }
+    },
+    "scout": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 20
+      },
+      "shoot": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "builder": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 14
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      },
+      "repair": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "heavy": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 10
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "torchbearer": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 15
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "runner": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 22
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "medic": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 16
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      },
+      "heal": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "sniper": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 14
+      },
+      "shoot": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      },
+      "gather": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "brute": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 7
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "spitter": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "exploder": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 17
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "screamer": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 14
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "boss": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 7
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 12
+      }
+    },
+    "walker-cap": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 13
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "walker-dress": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 13
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    },
+    "walker-onearm": {
+      "idle": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fps": 4
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 13
+      },
+      "attack": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "fps": 24
+      }
+    }
+  },
+  "worldPixels": {
+    "objects": {
+      "hq": {
+        "occupied": 145579,
+        "edge": 0
+      },
+      "barracks": {
+        "occupied": 80003,
+        "edge": 0
+      },
+      "tower": {
+        "occupied": 63067,
+        "edge": 0
+      },
+      "wall": {
+        "occupied": 26086,
+        "edge": 0
+      },
+      "depot": {
+        "occupied": 114575,
+        "edge": 0
+      },
+      "light": {
+        "occupied": 25916,
+        "edge": 0
+      },
+      "car": {
+        "occupied": 112334,
+        "edge": 0
+      },
+      "clinic": {
+        "occupied": 91136,
+        "edge": 0
+      },
+      "mechanics": {
+        "occupied": 101096,
+        "edge": 0
+      },
+      "cabin": {
+        "occupied": 157441,
+        "edge": 0
+      },
+      "bush": {
+        "occupied": 71608,
+        "edge": 0
+      },
+      "pine": {
+        "occupied": 98241,
+        "edge": 0
+      },
+      "bin": {
+        "occupied": 78703,
+        "edge": 0
+      },
+      "rock": {
+        "occupied": 74107,
+        "edge": 0
+      }
+    },
+    "terrain": [
+      {
+        "type": "grass",
+        "variant": 0,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 1,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 2,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 3,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 4,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 5,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 6,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 7,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 8,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 9,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 10,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 11,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 12,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 13,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 14,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 15,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 0,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 1,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 2,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 3,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 4,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 5,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 6,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 7,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 8,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 9,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 10,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 11,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 12,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 13,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 14,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 15,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 0,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 1,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 2,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 3,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 4,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 5,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 6,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 7,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 8,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 9,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 10,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 11,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 12,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 13,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 14,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 15,
+        "occupied": 16256,
+        "area": 32768,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      }
+    ]
+  },
+  "export": {
+    "output": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-brushwork-full-pages-aZNjma",
+    "version": 1,
+    "release": "b1759d40fd00121c53fd7eb62b15f3485eea2d5a4f65df01fe87ded9758a1d26",
+    "files": 141,
+    "bytes": 133980782,
+    "sourceExcluded": true
+  },
+  "gameplayFilesUnchanged": 54,
+  "browserErrors": []
+}

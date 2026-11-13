@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-08",
+  "metrics": {
+    "before": {
+      "grass": {
+        "meanLuminance": 87.26731532552081,
+        "standardDeviation": 18.106449370206125,
+        "neighborDifference": 9.587127540983529,
+        "minOccupied": 1024
+      },
+      "dirt": {
+        "meanLuminance": 114.84171805989558,
+        "standardDeviation": 14.388343807731712,
+        "neighborDifference": 8.270722015027347,
+        "minOccupied": 1024
+      },
+      "water": {
+        "meanLuminance": 69.45526744791728,
+        "standardDeviation": 10.833087918578668,
+        "neighborDifference": 5.192822076502762,
+        "minOccupied": 1024
+      }
+    },
+    "after": {
+      "grass": {
+        "meanLuminance": 112.84444999997922,
+        "standardDeviation": 0.8744417861917135,
+        "neighborDifference": 0.014139344262295081,
+        "minOccupied": 1024
+      },
+      "dirt": {
+        "meanLuminance": 119.17042499996546,
+        "standardDeviation": 0.634113250723274,
+        "neighborDifference": 0.009221311475409836,
+        "minOccupied": 1024
+      },
+      "water": {
+        "meanLuminance": 95.11085000003479,
+        "standardDeviation": 0.8744417830984976,
+        "neighborDifference": 0.004713114754098361,
+        "minOccupied": 1024
+      }
+    }
+  },
+  "errors": [],
+  "checked": [
+    "48 terrain diamond frames",
+    "day/night in the served game",
+    "normal/close zoom",
+    "390px review layout",
+    "Opaque tile interiors limited to their two-color material palette by full-world browser audit"
+  ],
+  "scope": "Two-tone terrain; screenshots include half-size actors. Action repair is audited separately.",
+  "palette": {
+    "grass": [
+      "#667846",
+      "#697b49"
+    ],
+    "dirt": [
+      "#857562",
+      "#887865"
+    ],
+    "water": [
+      "#2d6b79",
+      "#306e7c"
+    ]
+  }
+}

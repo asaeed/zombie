@@ -1,0 +1,9 @@
+{
+  "unchangedBodySource": true,
+  "unchangedWalkingFrames": 128,
+  "exactSelectedSourceFrames": 448,
+  "readySourceFrame": 6,
+  "modelScale": [
+    "[1,1,1]"
+  ]
+}

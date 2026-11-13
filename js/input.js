@@ -6,6 +6,7 @@ class InputHandler {
     this.game = game;
     this.menuActions = menuActions;
     this.menuOpen = false;
+    this.modalOpen = false;
     this.menuNotice = null;
     this.saveMeta = { auto: null, slots: {} };
     this._productionPage = 0;
@@ -23,7 +24,7 @@ class InputHandler {
     this._dragging = false;
 
     // Set by mousedown paths that fully handle a click (train button,
-    // building select, attack-move) so the paired mouseup's fallback
+    // building select) so the paired mouseup's fallback
     // selection logic must not run.
     this._clickHandled = false;
 
@@ -42,10 +43,9 @@ class InputHandler {
     // Edge scrolling arms only on a click in the hot zone (hover alone is annoying)
     this._edgeScrollArmed = false;
 
-    // Control groups + attack-move arm state
+    // Control groups
     this.groups = {};            // digit -> unit array
     this._lastGroupTap = null;   // { d, t } for double-tap detection
-    this.attackMoveArm = false;
     this.flareArm = false;
 
     this._bind();
@@ -57,7 +57,7 @@ class InputHandler {
 
   setMenuOpen(open) {
     this.menuOpen = !!open;
-    if (this.game) this.game.paused = this.menuOpen;
+    if (this.game) this.game.paused = this.menuOpen || this.modalOpen;
     this.menuActions?.menuVisibility?.(this.menuOpen);
   }
 
@@ -65,8 +65,24 @@ class InputHandler {
     this.menuNotice = { text, t: 0, life: 2.2 };
   }
 
+  setModalOpen(open) {
+    if (this.modalOpen === !!open) return;
+    this.modalOpen = !!open;
+    if (this.modalOpen) {
+      this._pausedBeforeModal = this.game.paused;
+      this.game.paused = true;
+      this.keys = {};
+      this._edgeScrollArmed = false;
+      this._panStart = null;
+      this._minimapDrag = false;
+      this._dragStart = null;
+      this._dragging = false;
+      this.selectBox = null;
+    } else this.game.paused = this.menuOpen || this._pausedBeforeModal;
+  }
+
   resetTransient() {
-    this.attackMoveArm = false;
+    this.setModalOpen(false);
     this.flareArm = false;
     this.canvas.style.cursor = '';
     this.groups = {};
@@ -89,13 +105,19 @@ class InputHandler {
     c.addEventListener('wheel', e => this._onWheel(e), { passive: false });
     window.addEventListener('keydown', e => this._onKeyDown(e));
     window.addEventListener('keyup',   e => {
-      if (e.code.startsWith('Arrow')) e.preventDefault();
+      if (!this.modalOpen && e.code.startsWith('Arrow')) e.preventDefault();
       this.keys[e.code] = false;
     });
   }
 
   _onWheel(e) {
+    if (this.modalOpen) return;
     e.preventDefault();
+    if (this._isInCharacterPanel(e.clientX, e.clientY)) {
+      const rc = characterSelectionPanelRect(this.game, window.innerWidth, window.innerHeight);
+      this.game.selectionScroll = clamp(this.game.selectionScroll + Math.sign(e.deltaY), 0, rc.maxScroll);
+      return;
+    }
     if (this._isInMinimap(e.clientX, e.clientY) || this._isInBottomPanel(e.clientY)) return;
     const cam = this.game.camera;
     const before = screenToWorld(e.clientX, e.clientY, cam);
@@ -128,16 +150,23 @@ class InputHandler {
     return y > window.innerHeight - bottomPanelHeight(window.innerWidth);
   }
 
+  _isInCharacterPanel(x, y) {
+    const game = this.game;
+    if (game._selectedBuilding || game.selectedVehicle) return false;
+    const rc = characterSelectionPanelRect(game, window.innerWidth, window.innerHeight);
+    return rc.characters.length > 0 && x >= rc.x && x <= rc.x + rc.w && y >= rc.y && y <= rc.y + rc.h;
+  }
+
   _isInMinimap(x, y) {
-    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle);
-    const rc = minimapRect(window.innerWidth, window.innerHeight, selected);
+    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle || this.game.selectedZombies.length);
+    const rc = minimapRect(window.innerWidth, window.innerHeight, selected, unitSelectionPanelHeight(selectedCharacters(this.game)));
     return x >= rc.x && x <= rc.x + rc.w && y >= rc.y && y <= rc.y + rc.h;
   }
 
   // Map minimap pixel -> world point, center the camera there
   _centerFromMinimap(sx, sy) {
-    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle);
-    const { x: MX, y: MY } = minimapRect(window.innerWidth, window.innerHeight, selected);
+    const selected = !!(this.game.selected.length || this.game._selectedBuilding || this.game.selectedVehicle || this.game.selectedZombies.length);
+    const { x: MX, y: MY } = minimapRect(window.innerWidth, window.innerHeight, selected, unitSelectionPanelHeight(selectedCharacters(this.game)));
     const b = mapScreenBounds(1);
     const s = MINIMAP_W / (b.maxX - b.minX);
     const px = (sx - MX) / s + b.minX;
@@ -155,6 +184,7 @@ class InputHandler {
   }
 
   _onMouseDown(e) {
+    if (this.modalOpen) return;
     if (e.button === 0 && this._handleMainMenuClick(e.clientX, e.clientY)) return;
 
     if (this.game.status !== 'playing') {
@@ -174,6 +204,10 @@ class InputHandler {
     }
     if (e.button !== 0) return;
     this._updateMouseState(e);
+    if (this._isInCharacterPanel(e.clientX, e.clientY)) {
+      this._clickHandled = true;
+      return;
+    }
 
     const game = this.game;
     const wx = this.mouseWorld.x, wy = this.mouseWorld.y;
@@ -185,7 +219,6 @@ class InputHandler {
         if (game._selectedBuilding.type === 'mechanics') game.buildVehicle(game._selectedBuilding);
         else game.trainUnit(game._selectedBuilding, production);
         game.buildMode = null;
-        this.attackMoveArm = false;
         this.flareArm = false;
         this.canvas.style.cursor = '';
         this._clickHandled = true;
@@ -249,20 +282,6 @@ class InputHandler {
       return;
     }
 
-    // Armed attack-move: this click is the order
-    if (this.attackMoveArm) {
-      this.attackMoveArm = false;
-      this.canvas.style.cursor = '';
-      const count = game.selected.length;
-      game.selected.forEach((u, i) => {
-        const row = Math.floor(i / 5), col = i % 5;
-        u.moveTo(wx + (col - Math.min(count, 5) / 2) * 22, wy + row * 22, game);
-        u.attackMove = true;
-      });
-      this._clickHandled = true;
-      return;
-    }
-
     // Unit selection is resolved on release so Shift and drag selection still work.
     if (this._getUnitAt(e.clientX, e.clientY)) {
       this._dragStart = { x: e.clientX, y: e.clientY };
@@ -290,6 +309,7 @@ class InputHandler {
     const vehicle = this._getVehicleAt(e.clientX, e.clientY);
     if (vehicle) {
       game.selectedVehicle = vehicle;
+      game.selectedZombies = [];
       game._selectedBuilding = null;
       game.selected = [];
       for (const u of game.units) u.selected = false;
@@ -297,10 +317,17 @@ class InputHandler {
       return;
     }
 
+    if (this._getZombieAt(e.clientX, e.clientY)) {
+      this._dragStart = { x: e.clientX, y: e.clientY };
+      this._dragging = false;
+      return;
+    }
+
     // Check if clicking on a building (for selection/info panel)
     const building = this._getBuildingAt(wx, wy);
     if (building) {
       game._selectedBuilding = building;
+      game.selectedZombies = [];
       game.selectedVehicle = null;
       game.selected = [];
       for (const u of game.units) u.selected = false;
@@ -317,6 +344,7 @@ class InputHandler {
   }
 
   _onMouseMove(e) {
+    if (this.modalOpen) return;
     if (this._minimapDrag) {
       if (!(e.buttons & 1)) this._minimapDrag = false;
       else { this._centerFromMinimap(e.clientX, e.clientY); return; }
@@ -353,6 +381,7 @@ class InputHandler {
   }
 
   _onMouseUp(e) {
+    if (this.modalOpen) return;
     if (e.button === 1) { this._panStart = null; return; }
     if (e.button !== 0) return;
     this._updateMouseState(e);
@@ -366,17 +395,26 @@ class InputHandler {
         this.selectBox.x1, this.selectBox.y1,
         this.selectBox.x2, this.selectBox.y2
       );
-      if (units.length > 0) {
+      const zombies = game.zombiesInScreenRect(
+        this.selectBox.x1, this.selectBox.y1,
+        this.selectBox.x2, this.selectBox.y2
+      );
+      if (units.length > 0 || zombies.length > 0) {
         if (!e.shiftKey) {
           for (const u of game.units) u.selected = false;
           game.selected = [];
+          game.selectedZombies = [];
         }
         for (const u of units) {
           u.selected = true;
           if (!game.selected.includes(u)) game.selected.push(u);
         }
+        for (const z of zombies) {
+          if (!game.selectedZombies.includes(z)) game.selectedZombies.push(z);
+        }
         game._selectedBuilding = null;
         game.selectedVehicle = null;
+        game.selectionScroll = 0;
       }
     } else if (!this._dragging && !this._clickHandled && !this._minimapDrag) {
       // Single click - select unit
@@ -388,12 +426,29 @@ class InputHandler {
           if (!e.shiftKey) {
             for (const u of game.units) u.selected = false;
             game.selected = [];
+            game.selectedZombies = [];
           }
           game._selectedBuilding = null;
           game.selectedVehicle = null;
+          game.selectionScroll = 0;
           unit.selected = !unit.selected || !e.shiftKey;
           if (unit.selected) game.selected.push(unit);
           else game.selected = game.selected.filter(u => u !== unit);
+        } else {
+          const zombie = this._getZombieAt(e.clientX, e.clientY);
+          if (zombie) {
+            if (!e.shiftKey) {
+              for (const u of game.units) u.selected = false;
+              game.selected = [];
+              game.selectedZombies = [];
+            }
+            game._selectedBuilding = null;
+            game.selectedVehicle = null;
+            if (e.shiftKey && game.selectedZombies.includes(zombie)) {
+              game.selectedZombies = game.selectedZombies.filter(z => z !== zombie);
+            } else game.selectedZombies.push(zombie);
+            game.selectionScroll = 0;
+          }
         }
       }
     }
@@ -406,7 +461,9 @@ class InputHandler {
   }
 
   _onRightClick(e) {
+    if (this.modalOpen) return;
     this._updateMouseState(e);
+    if (this._isInCharacterPanel(e.clientX, e.clientY)) return;
     const game = this.game;
 
     // Cancel build mode
@@ -491,7 +548,7 @@ class InputHandler {
   }
 
   _onKeyDown(e) {
-    if (e.target?.closest?.('a')) return;
+    if (this.modalOpen || e.target?.closest?.('a, button, input, select, textarea')) return;
     if (e.code.startsWith('Arrow')) e.preventDefault();
     this.keys[e.code] = true;
     if (this.game.status !== 'playing') {
@@ -501,15 +558,12 @@ class InputHandler {
     }
     const game = this.game;
 
-    // Escape: cancel flare arm / attack-move arm / build mode / deselect
+    // Escape: cancel flare arm / build mode / deselect
     if (e.code === 'Escape') {
       if (this.menuOpen) {
         this.setMenuOpen(false);
       } else if (this.flareArm) {
         this.flareArm = false;
-        this.canvas.style.cursor = '';
-      } else if (this.attackMoveArm) {
-        this.attackMoveArm = false;
         this.canvas.style.cursor = '';
       } else if (game.buildMode) {
         game.buildMode = null;
@@ -518,18 +572,18 @@ class InputHandler {
         game.selected = [];
         game._selectedBuilding = null;
         game.selectedVehicle = null;
+        game.selectedZombies = [];
       }
     }
 
-    if (this.menuOpen) return;
+    if (this.menuOpen || this.modalOpen) return;
 
     // Build hotkeys: mnemonic letters (digits are control groups now)
     const buildKeys = { KeyW: 'wall', KeyT: 'tower', KeyB: 'barracks', KeyD: 'depot', KeyL: 'light', KeyK: 'clinic', KeyM: 'mechanics' };
     if (buildKeys[e.code] && !e.shiftKey) {
       const type = buildKeys[e.code];
       game.buildMode = game.buildMode === type ? null : type;
-      if (game.buildMode) {          // last intent wins: entering build mode disarms attack-move/flare
-        this.attackMoveArm = false;
+      if (game.buildMode) {
         this.flareArm = false;
         this.canvas.style.cursor = '';
       }
@@ -557,6 +611,7 @@ class InputHandler {
         for (const u of grp) u.selected = true;
         if (grp.length > 0) game._selectedBuilding = null;
         if (grp.length > 0) game.selectedVehicle = null;
+        if (grp.length > 0) game.selectedZombies = [];
         const now = performance.now();
         if (this._lastGroupTap && this._lastGroupTap.d === d &&
             now - this._lastGroupTap.t < 400 && grp.length > 0) {
@@ -578,6 +633,7 @@ class InputHandler {
       for (const u of game.selected) u.selected = true;
       if (game.selected.length > 0) game._selectedBuilding = null;
       if (game.selected.length > 0) game.selectedVehicle = null;
+      if (game.selected.length > 0) game.selectedZombies = [];
     }
 
     // Delete: sell selected building
@@ -602,14 +658,6 @@ class InputHandler {
       }
     }
 
-    // A: arm attack-move — next left-click orders move-and-engage
-    if (e.code === 'KeyA' && game.selected.length > 0) {
-      this.attackMoveArm = true;
-      this.flareArm = false;         // last intent wins: arming cancels flare arm
-      this.canvas.style.cursor = 'crosshair';
-      game.buildMode = null;         // last intent wins: arming cancels build mode
-    }
-
     // F: arm flare throw (next click is the target)
     if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
       if (this.flareArm) {
@@ -620,7 +668,6 @@ class InputHandler {
         game.addToast(`Need ${FLARE_COST} supplies for a flare`, 'warning', 'flare-supplies', 2);
       } else {
         this.flareArm = true;
-        this.attackMoveArm = false;
         game.buildMode = null;
         this.canvas.style.cursor = 'crosshair';
         game.addToast('Flare armed: click explored ground', 'info', 'flare-armed', 1);
@@ -630,7 +677,6 @@ class InputHandler {
     // S: stop all
     if (e.code === 'KeyS' && !e.ctrlKey) {
       for (const u of game.selected) u.stop();
-      this.attackMoveArm = false;
       this.canvas.style.cursor = '';
     }
 
@@ -671,7 +717,7 @@ class InputHandler {
       if (sx >= rc.x && sx <= rc.x + rc.w && sy >= rc.y && sy <= rc.y + rc.h) {
         const type = rc.type;
         game.buildMode = game.buildMode === type ? null : type;
-        if (game.buildMode) { this.attackMoveArm = false; this.flareArm = false; this.canvas.style.cursor = ''; }
+        if (game.buildMode) { this.flareArm = false; this.canvas.style.cursor = ''; }
         break;
       }
     }
@@ -814,7 +860,7 @@ class InputHandler {
   _getZombieAt(sx, sy) {
     const cam = this.game.camera, z = cam.zoom;
     for (const zb of this.game.zombies) {
-      if (zb.dead) continue;
+      if (zb.dead || !this.game.tileVisible(Math.floor(zb.x / TILE), Math.floor(zb.y / TILE))) continue;
       const s = worldToScreen(zb.x, zb.y, cam);
       const r = zb.def.radius * z;
       const artwork = sculptedActor(zb.type);
@@ -836,7 +882,23 @@ class InputHandler {
       if (b.dead) continue;
       const hw = b.width/2 + 2, hh = b.height/2 + 2;
       let onBuilding = wx > b.x - hw && wx < b.x + hw && wy > b.y - hh && wy < b.y + hh;
-      const artwork = sculptedObject(b.type);
+      const artwork = b.type === 'wall' ? null : sculptedObject(b.type);
+      if (b.type === 'wall') {
+        const h = ISO_HEIGHTS.wall * this.game.camera.zoom;
+        const shape = wallShape(this.game.buildings, b.tileX, b.tileY);
+        const project = p => worldToScreen(p.x,p.y,this.game.camera);
+        const z = this.game.camera.zoom;
+        onBuilding ||= shape.posts.some(p => {
+          const foot=project(p);
+          return screen.x>=foot.x-4*z && screen.x<=foot.x+4*z && screen.y>=foot.y-21*z && screen.y<=foot.y+z;
+        });
+        onBuilding ||= shape.roofs.some(roof => pointInPolygon(screen.x,screen.y,
+          roof.map(p => {const s=project(p);return {x:s.x,y:s.y-h};}))) ||
+          shape.edges.some(edge => {
+            const a=project(edge.a),c=project(edge.b);
+            return pointInPolygon(screen.x,screen.y,[a,c,{x:c.x,y:c.y-h},{x:a.x,y:a.y-h}]);
+          });
+      }
       if (artwork) {
         const foot = worldToScreen((b.tileX + b.def.tileSize) * TILE, (b.tileY + b.def.tileSize) * TILE, this.game.camera);
         onBuilding ||= sculptedObjectHit(artwork, sculptedObjectRect(artwork, foot, this.game.camera.zoom), screen.x, screen.y);
@@ -882,7 +944,7 @@ class InputHandler {
       this.menuNotice.t += dt;
       if (this.menuNotice.t >= this.menuNotice.life) this.menuNotice = null;
     }
-    if (this.menuOpen) return;
+    if (this.menuOpen || this.modalOpen) return;
 
     const game = this.game;
     const cam = game.camera;

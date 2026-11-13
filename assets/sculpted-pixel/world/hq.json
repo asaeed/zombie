@@ -1,0 +1,17 @@
+{
+  "image": "hq.png",
+  "group": "building",
+  "tiles": 3,
+  "width": 200,
+  "height": 151,
+  "footAnchor": {
+    "x": 90.24518267150134,
+    "y": 147
+  },
+  "sourceRect": {
+    "x": 136,
+    "y": 31,
+    "width": 1259,
+    "height": 932
+  }
+}
