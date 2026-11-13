@@ -30,9 +30,10 @@ test('Pages export contains the current game and every referenced runtime asset,
     assert.ok(release.files>40);assert.ok(release.bytes>1000000);
     const expected=new Set(['index.html','style.css','assets/favicon.svg','assets/favicon-32.png','assets/favicon-64.png',
       'assets/rigged-full/intro.webp','assets/art-packs/registry.json','assets/rigged-full/manifest.json',
-      ...['config','utils','pathfinding','entities','game','art','renderer','input','main'].map(name=>'js/'+name+'.js')]);
+      ...['config','utils','pathfinding','entities','game','art','renderer','input','analytics','main'].map(name=>'js/'+name+'.js')]);
     for(const record of [...Object.values(meta.characters),...Object.values(meta.objects),meta.terrain])
       for(const image of [record.image,record.nightImage].filter(Boolean))expected.add(path.posix.normalize('assets/rigged-full/'+image));
+    try {await fs.access(path.join(root,'analytics-config.json'));expected.add('analytics-config.json');} catch {}
     const exported=[];
     async function list(dir,relative=''){for(const item of await fs.readdir(dir,{withFileTypes:true})){
       const name=path.posix.join(relative,item.name);if(item.isDirectory())await list(path.join(dir,item.name),name);else exported.push(name);
@@ -44,7 +45,7 @@ test('Pages export contains the current game and every referenced runtime asset,
     for(const script of (await fs.readFile(path.join(output,'index.html'),'utf8')).matchAll(/<script[^>]+src="([^"]+)"/g))
       assert.ok((await fs.stat(path.join(output,script[1].split('?')[0]))).size>0);
     assert.equal((await fs.stat(path.join(output,'.nojekyll'))).size,0);
-    for(const excluded of ['docs','tools','tests','node_modules','.git','assets/sculpted-pixel','assets/brushwork',
+    for(const excluded of ['.env.local','docs','tools','tests','node_modules','.git','assets/sculpted-pixel','assets/brushwork',
       'assets/brushwork-full','assets/diorama-pilot','assets/rigged-pilot','js/zombie-art.js','js/diorama-art.js'])
       await assert.rejects(fs.access(path.join(output,excluded)));
   }finally{await fs.rm(output,{recursive:true,force:true});}
