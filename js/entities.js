@@ -9,7 +9,7 @@ function rememberSettleOrder(order) { _nextSettleOrder = Math.max(_nextSettleOrd
 
 // ─── Projectile ───────────────────────────────────────────────────────────────
 class Projectile {
-  constructor(sx, sy, target, damage, speed = 350, color = '#ffff88', source = 'unit') {
+  constructor(sx, sy, target, damage, speed = 350, color = '#ffff88', source = 'unit', attacker = null) {
     this.id = nextId();
     this.x = sx; this.y = sy;
     this.target = target;    // entity reference
@@ -17,6 +17,7 @@ class Projectile {
     this.speed = speed;
     this.color = color;
     this.source = source;
+    this.attacker = attacker;
     this.dead = false;
   }
 
@@ -30,8 +31,8 @@ class Projectile {
     const d = Math.sqrt(dx*dx + dy*dy);
 
     if (d < this.speed * dt + 4) {
-      if (game) game.damageEntity(this.target, this.damage, this.source);
-      else this.target.takeDamage(this.damage, this.source);
+      if (game) game.damageEntity(this.target, this.damage, this.source, this.attacker);
+      else this.target.takeDamage(this.damage, this.source, this.attacker);
       this.dead = true;
     } else {
       this.x += (dx/d) * this.speed * dt;
@@ -267,8 +268,8 @@ class Unit {
     this._settledAt = nextSettleOrder();
     this.atkTarget = null;     // attack target (zombie)
     this.atkCooldown = 0;
+    this.heavyRetreating = false;
     this.moveTarget = null;    // {x, y} destination
-    this.attackMove = false;   // pause at enemies encountered en route
     this.carrying = 0;         // scavenged supplies being hauled
     this.gatherTarget = null;  // cache assigned for auto-hauling
     this.gatherCenter = null;
@@ -288,6 +289,7 @@ class Unit {
     // For builder repair
     this.repairTarget = null;
     this.repairCooldown = 0;
+    this._repairWaitingForSupplies = false;
 
     // For medic healing
     this.healCooldown = 0;
@@ -322,17 +324,25 @@ class Unit {
     return (1 / this.def.atkRate) / rateFactor;
   }
 
-  takeDamage(amount) {
+  takeDamage(amount, source, attacker) {
     if (this.dead || this.vehicle) return;
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;
       this.dead = true;
     }
+    if (amount > 0 && !this.dead && !this.heavyRetreating &&
+        (this.type !== 'heavy' || this.hp >= this.maxHp * HEAVY_RETREAT_HEALTH_FRACTION) &&
+        attacker instanceof Zombie && !attacker.dead &&
+        this.def.atkDmg > 0 && this.def.atkRate > 0 && this.atkTarget !== attacker) {
+      this.atkTarget = attacker;
+      this._heavyCharge = null;
+    }
   }
 
   // Command to move to world position
   moveTo(wx, wy, game) {
+    this._heavyCharge = null;
     this._clearGatherOrder();
     this._clearBundleGatherOrder();
     this._clearReturnCargoOrder();
@@ -340,13 +350,13 @@ class Unit {
     this.moveTarget = { x: wx, y: wy };
     this.atkTarget = null;
     this.repairTarget = null;
-    this.attackMove = false;
     this._setDestination(wx, wy, game);
   }
 
   // Command to attack a zombie
   attackTarget(zombie) {
     if (this.def.atkDmg <= 0 || this.def.atkRate <= 0) return;
+    this._heavyCharge = null;
     this._clearGatherOrder();
     this._clearBundleGatherOrder();
     this._clearReturnCargoOrder();
@@ -366,7 +376,6 @@ class Unit {
     this.atkTarget = null;
     this.moveTarget = null;
     this.waypoints = [];
-    this.attackMove = false;
     this.repairTarget = building;
   }
 
@@ -380,7 +389,6 @@ class Unit {
     this._clearReturnCargoOrder();
     this.atkTarget = null;
     this.repairTarget = null;
-    this.attackMove = false;
     this._updateGatherOrder(game);
   }
 
@@ -391,7 +399,6 @@ class Unit {
     this._clearSupportOrder();
     this.atkTarget = null;
     this.repairTarget = null;
-    this.attackMove = false;
     this.returnCargoTarget = dropoff;
     this._updateReturnCargoOrder(game);
   }
@@ -404,7 +411,6 @@ class Unit {
     this.waypoints = [];
     this.moveTarget = null;
     this.atkTarget = null;
-    this.attackMove = false;
     this.repairTarget = null;
   }
 
@@ -451,7 +457,6 @@ class Unit {
     this._bundleGatherReturning = this.carrying >= this.carryCapacity;
     this.atkTarget = null;
     this.repairTarget = null;
-    this.attackMove = false;
     this._updateBundleGatherOrder(game);
   }
 
@@ -734,7 +739,12 @@ class Unit {
       return;
     }
 
-    if (this.boardingVehicle) {
+    if (this._updateHeavyRetreat(dt, game)) {
+      this.atkCooldown -= dt;
+      return;
+    }
+
+    if (this.boardingVehicle && !this.atkTarget) {
       if (this.boardingVehicle.dead) this.boardingVehicle = null;
       else if (dist2(this.x, this.y, this.boardingVehicle.x, this.boardingVehicle.y) <= (TILE * 1.1) ** 2) {
         if (!game.boardUnit(this, this.boardingVehicle)) this.boardingVehicle = null;
@@ -782,9 +792,21 @@ class Unit {
       if (drop) this.returnCargoTo(drop, game);
     }
 
-    // If attack target is dead, clear it
+    // Replace defeated targets before resuming movement.
     if (this.atkTarget && this.atkTarget.dead) {
-      this.atkTarget = null;
+      this.atkTarget = this.type === 'heavy'
+        ? game.nearestZombie(this.x, this.y, HEAVY_AGGRO_RADIUS, true) : null;
+      this._heavyCharge = null;
+      if (!this.atkTarget && this.moveTarget) {
+        this._setDestination(this.moveTarget.x, this.moveTarget.y, game);
+      }
+    }
+
+    if (this.type === 'heavy' && !this.atkTarget && !this.boardingVehicle &&
+        !this.gatherCenter && !this.bundleGatherCenter && !this.returnCargoTarget && !this.repairTarget &&
+        this.waypoints.length === 0) {
+      this.atkTarget = game.nearestZombie(this.x, this.y, HEAVY_AGGRO_RADIUS, true);
+      this._heavyCharge = null;
     }
 
     // Attack target logic
@@ -792,7 +814,7 @@ class Unit {
       const d = dist(this.x, this.y, this.atkTarget.x, this.atkTarget.y);
       if (d > this.def.atkRange) {
         // Chase
-        this._moveToward(this.atkTarget.x, this.atkTarget.y, dt, game);
+        this._pursueAttackTarget(dt, game);
       } else {
         // In range - attack
         if (this.atkCooldown <= 0) {
@@ -828,27 +850,79 @@ class Unit {
       if (healing === null && this.supportHome) this._startSupportReturn(game);
     }
 
-    // Follow waypoints (attack-move pauses while an enemy is in range)
     if (this.waypoints.length > 0) {
-      if (this.attackMove && game.nearestZombie(this.x, this.y, this.def.atkRange)) {
-        // hold position; the auto-attack block below does the shooting
+      const wp = this.waypoints[0];
+      const d = dist(this.x, this.y, wp.x, wp.y);
+      if (d < 4) {
+        this.waypoints.shift();
+        if (this.waypoints.length === 0) this._settledAt = nextSettleOrder();
       } else {
-        const wp = this.waypoints[0];
-        const d = dist(this.x, this.y, wp.x, wp.y);
-        if (d < 4) {
-          this.waypoints.shift();
-          if (this.waypoints.length === 0) this._settledAt = nextSettleOrder();
-        } else {
-          this._moveToward(wp.x, wp.y, dt, game);
-        }
+        this._moveToward(wp.x, wp.y, dt, game);
       }
     } else {
-      this.attackMove = false;
       if (!this.gatherCenter && !this.bundleGatherCenter && !this.returnCargoTarget &&
           !this.repairTarget && !this.atkTarget && !this._supportReturning) this._settleApart(game);
     }
 
     this._autoAttack(game);
+  }
+
+  _updateHeavyRetreat(dt, game) {
+    if (this.type !== 'heavy' ||
+        !this.heavyRetreating && this.hp >= this.maxHp * HEAVY_RETREAT_HEALTH_FRACTION) return false;
+    const hq = game.buildings.find(b => b.type === 'hq' && !b.dead);
+    if (!hq) {
+      this.heavyRetreating = false;
+      this._heavyRetreatRoute = null;
+      return false;
+    }
+    if (!this.heavyRetreating) {
+      this.stop();
+      this.heavyRetreating = true;
+      this._heavyRetreatRoute = null;
+      game.addToast('Heavy retreating to HQ', 'warning', `heavy-retreat-${this.id}`, 10);
+    }
+    this.atkTarget = null;
+    this._heavyCharge = null;
+    const nearBase = (x, y) => game.distanceToBuilding(x, y, hq) <= TILE &&
+      game.canOccupyGround(x, y, this.def.radius);
+    if (nearBase(this.x, this.y)) {
+      this.waypoints = [];
+      this.moveTarget = null;
+      this._heavyRetreatRoute = null;
+      if (this.hp >= this.maxHp * HEAVY_RETREAT_HEALTH_FRACTION) {
+        this.heavyRetreating = false;
+        return false;
+      }
+      return true;
+    }
+    let route = this._heavyRetreatRoute;
+    if (!route || route.base !== hq || route.field !== game.flowField) {
+      this._heavyRetreatRoute = route = {base:hq, field:game.flowField, points:null, retryIn:0};
+    }
+    route.retryIn = Math.max(0, route.retryIn - dt);
+    if (!route.points) {
+      if (route.retryIn > 0) return true;
+      route.retryIn = 1;
+      route.points = findPath(this.x, this.y, hq.x, hq.y,
+        (x, y) => !game.canOccupyGround(tileCenterX(x), tileCenterY(y), this.def.radius), {
+          isGoal:(x, y) => nearBase(tileCenterX(x), tileCenterY(y)),
+          goalRadius:Math.ceil(Math.max(hq.width, hq.height) / (2 * TILE)) + 1,
+          maxIterations:MAP_W * MAP_H,
+        });
+      if (!route.points) { this.waypoints = []; this.moveTarget = null; return true; }
+      if (!route.points.length) route.points.push({x:tileCenterX(Math.floor(this.x / TILE)),
+        y:tileCenterY(Math.floor(this.y / TILE))});
+    }
+    const point = route.points[0];
+    if (!point) { route.points = null; route.retryIn = 0; return true; }
+    this.waypoints = route.points;
+    this.moveTarget = { ...route.points[route.points.length - 1] };
+    const x = this.x, y = this.y;
+    this._moveToward(point.x, point.y, dt, game);
+    if (dist2(this.x, this.y, point.x, point.y) < 4) route.points.shift();
+    else if (this.x === x && this.y === y) route.points = null;
+    return true;
   }
 
   _autoAttack(game) {
@@ -862,6 +936,42 @@ class Unit {
     }
   }
 
+  _pursueAttackTarget(dt, game) {
+    const target = this.atkTarget;
+    let route = this._heavyCharge;
+    if (!route || route.target !== target || route.field !== game.flowField ||
+        dist2(route.x, route.y, target.x, target.y) > (TILE / 2) ** 2) {
+      this._heavyCharge = route = {target, field:game.flowField, x:target.x, y:target.y,
+        points:null, index:0, retryIn:0};
+    }
+    route.retryIn = Math.max(0, route.retryIn - dt);
+    if (!route.points) {
+      if (route.retryIn > 0) return;
+      route.retryIn = 1;
+      const left = Math.min(this.x, target.x) - HEAVY_AGGRO_RADIUS;
+      const right = Math.max(this.x, target.x) + HEAVY_AGGRO_RADIUS;
+      const top = Math.min(this.y, target.y) - HEAVY_AGGRO_RADIUS;
+      const bottom = Math.max(this.y, target.y) + HEAVY_AGGRO_RADIUS;
+      route.points = findPath(this.x, this.y, target.x, target.y,
+        (x,y) => tileCenterX(x) < left || tileCenterX(x) > right ||
+          tileCenterY(y) < top || tileCenterY(y) > bottom ||
+          !game.canOccupyGround(tileCenterX(x), tileCenterY(y), this.def.radius), {
+          isGoal:(x,y) => dist2(tileCenterX(x), tileCenterY(y), target.x, target.y) <= this.def.atkRange ** 2,
+          goalRadius:Math.ceil(this.def.atkRange / TILE), maxIterations:MAP_W * MAP_H,
+        });
+      route.index = 0;
+      if (!route.points) return;
+      if (!route.points.length) route.points.push({x:tileCenterX(Math.floor(this.x / TILE)),
+        y:tileCenterY(Math.floor(this.y / TILE))});
+    }
+    const point = route.points[route.index];
+    if (!point) { route.points = null; route.retryIn = 0; return; }
+    const oldX = this.x, oldY = this.y;
+    this._moveToward(point.x, point.y, dt, game);
+    if (dist2(this.x, this.y, point.x, point.y) < 4) route.index++;
+    else if (this.x === oldX && this.y === oldY) route.points = null;
+  }
+
   _attackZombie(target, game) {
     this.atkCooldown = this.attackCooldownTime();
     this.attackAnimStart = game.gameTime;
@@ -869,7 +979,7 @@ class Unit {
     if (this.type === 'heavy') {
       const vx = target.x - this.x, vy = target.y - this.y;
       for (const z of game.nearbyZombies(this.x, this.y, HEAVY_SWING_RADIUS)) {
-        if (z.dead || z.dormant || dist2(this.x, this.y, z.x, z.y) > HEAVY_SWING_RADIUS ** 2) continue;
+        if (z.dead || (z.dormant && z !== target) || dist2(this.x, this.y, z.x, z.y) > HEAVY_SWING_RADIUS ** 2) continue;
         if ((z.x - this.x) * vx + (z.y - this.y) * vy < 0) continue;
         z.takeDamage(this.def.atkDmg);
       }
@@ -979,7 +1089,14 @@ class Unit {
     }
   }
 
+  canRepairBuilding(building, game) {
+    return this.type === 'builder' && !this.dead && !this.vehicle && building &&
+      !building.dead && building.hp < building.maxHp && game.supplies >= REPAIR_TICK_COST &&
+      dist2(this.x, this.y, building.x, building.y) <= (TILE * 2) ** 2;
+  }
+
   _repairBuilding(dt, game, building) {
+    if (building.dead || building.hp >= building.maxHp) return;
     const d = dist(this.x, this.y, building.x, building.y);
     if (d > TILE * 2) {
       this._moveToward(building.x, building.y, dt, game);
@@ -988,8 +1105,16 @@ class Unit {
 
     this.waypoints = [];
     this.moveTarget = null;
-    this.repairCooldown -= dt;
-    if (this.repairCooldown <= 0 && game.supplies >= REPAIR_TICK_COST) {
+    this.repairCooldown = Math.max(0, this.repairCooldown - dt);
+    if (!this.canRepairBuilding(building, game)) {
+      if (game.supplies < REPAIR_TICK_COST && !this._repairWaitingForSupplies) {
+        game.addToast(`Repairs paused: need ${REPAIR_TICK_COST} supplies`, 'warning', 'repair-supplies', 10);
+        this._repairWaitingForSupplies = true;
+      }
+      return;
+    }
+    this._repairWaitingForSupplies = false;
+    if (this.repairCooldown <= 0) {
       this.repairCooldown = REPAIR_TICK_INTERVAL;
       game.spendSupplies(REPAIR_TICK_COST);
       building.hp = Math.min(building.maxHp, building.hp + REPAIR_TICK_AMOUNT);
@@ -1016,15 +1141,19 @@ class Unit {
     const len = Math.sqrt(nx*nx + ny*ny);
     if (len > 0) { nx /= len; ny /= len; }
 
-    const speed = this.def.speed * this.moveSpeedFactor();
+    const charging = this.type === 'heavy' && this.atkTarget;
+    const speed = this.def.speed * this.moveSpeedFactor() * (charging ? HEAVY_CHARGE_SPEED_FACTOR : 1);
     const step = Math.min(speed * dt, d);
     const newX = this.x + nx * step;
     const newY = this.y + ny * step;
 
     // Clamp to map
     const oldX = this.x, oldY = this.y;
-    this.x = clamp(newX, this.def.radius, MAP_W * TILE - this.def.radius);
-    this.y = clamp(newY, this.def.radius, MAP_H * TILE - this.def.radius);
+    if (charging || this.heavyRetreating) game.moveGroundEntity(this, nx * step, ny * step);
+    else {
+      this.x = clamp(newX, this.def.radius, MAP_W * TILE - this.def.radius);
+      this.y = clamp(newY, this.def.radius, MAP_H * TILE - this.def.radius);
+    }
     const traveled = Math.hypot(this.x - oldX, this.y - oldY);
     if (traveled > 0.05) {
       this.animDistance += traveled;
@@ -1241,10 +1370,10 @@ class Zombie {
           const target = this.atkTarget;
           if (this.type === 'spitter') {
             game.projectiles.push(new Projectile(
-              this.x, this.y, target, this.def.atkDmg, 180, '#a6e54a', 'acid'
+              this.x, this.y, target, this.def.atkDmg, 180, '#a6e54a', 'acid', this
             ));
           } else {
-            game.damageEntity(target, this.def.atkDmg);
+            game.damageEntity(target, this.def.atkDmg, 'zombie', this);
           }
           game.addAlert(target.x, target.y, target instanceof Building ? 'building' : 'unit');
           if (target.dead) {
@@ -1288,14 +1417,16 @@ class Zombie {
     let nx = dx / d, ny = dy / d;
 
     // Separation from other zombies while chasing a specific unit
-    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22))) {
+    const separationBuffer = 4;
+    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22) + separationBuffer)) {
       if (z === this || z.dead) continue;
       const sdx = this.x - z.x, sdy = this.y - z.y;
       const sd = Math.sqrt(sdx*sdx + sdy*sdy);
-      const minD = this.def.radius + z.def.radius;
+      const minD = this.def.radius + z.def.radius + separationBuffer;
       if (sd < minD && sd > 0) {
-        nx += (sdx/sd) * 0.6;
-        ny += (sdy/sd) * 0.6;
+        const push = 0.6 * Math.min(1, (minD - sd) / separationBuffer);
+        nx += (sdx/sd) * push;
+        ny += (sdy/sd) * push;
       }
     }
 
@@ -1477,14 +1608,16 @@ class Zombie {
     if (nx === 0 && ny === 0) return;
 
     // Separation from other zombies
-    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22))) {
+    const separationBuffer = 4;
+    for (const z of game.nearbyZombies(this.x, this.y, this.def.radius + (game._zombieGrid?.maxRadius ?? 22) + separationBuffer)) {
       if (z === this || z.dead) continue;
       const sdx = this.x - z.x, sdy = this.y - z.y;
       const sd = Math.sqrt(sdx*sdx + sdy*sdy);
-      const minD = this.def.radius + z.def.radius;
+      const minD = this.def.radius + z.def.radius + separationBuffer;
       if (sd < minD && sd > 0) {
-        nx += (sdx/sd) * 0.6;
-        ny += (sdy/sd) * 0.6;
+        const push = 0.6 * Math.min(1, (minD - sd) / separationBuffer);
+        nx += (sdx/sd) * push;
+        ny += (sdy/sd) * push;
       }
     }
 
