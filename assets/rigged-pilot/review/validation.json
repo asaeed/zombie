@@ -1,0 +1,257 @@
+{
+  "technical": {
+    "soldier": {
+      "count": 512,
+      "blank": 0,
+      "edge": 0,
+      "distinct": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "bodyCSS": 21.28
+    },
+    "walker": {
+      "count": 384,
+      "blank": 0,
+      "edge": 0,
+      "distinct": {
+        "S": 16,
+        "SE": 16,
+        "E": 16,
+        "NE": 16,
+        "N": 16,
+        "NW": 16,
+        "W": 16,
+        "SW": 16
+      },
+      "bodyCSS": 21.28
+    }
+  },
+  "controls": {
+    "step": true,
+    "slowPlayback": true,
+    "mobileFits": true,
+    "mobileCanvasPixels": [
+      5648,
+      5126,
+      4900,
+      5635,
+      5425,
+      5331,
+      4886,
+      5430
+    ]
+  },
+  "visualReview": {
+    "automaticApproval": false,
+    "required": true
+  },
+  "carryWeapon": {
+    "idle/S": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 1.1771624049529237,
+      "seam": 0.4672718441157561,
+      "maxAdjacent": 0.5286711788566649
+    },
+    "idle/SE": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 15,
+      "centroidSpan": 1.0630667175648953,
+      "seam": 0.29385007744698544,
+      "maxAdjacent": 0.5890314140397453
+    },
+    "idle/E": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 0.8599430279882411,
+      "seam": 0.3183896228310896,
+      "maxAdjacent": 0.48549975476876256
+    },
+    "idle/NE": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 0.8254878951006848,
+      "seam": 0.35366138592240626,
+      "maxAdjacent": 0.5174597439737006
+    },
+    "idle/N": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 0.9151016123592397,
+      "seam": 0.31359883560855706,
+      "maxAdjacent": 0.3712619412858133
+    },
+    "idle/NW": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 1.140287324295169,
+      "seam": 0.3844643977881763,
+      "maxAdjacent": 0.504673329816112
+    },
+    "idle/W": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 1.1709048802736919,
+      "seam": 0.44902754035322945,
+      "maxAdjacent": 0.5242121406843608
+    },
+    "idle/SW": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 1.17733154782555,
+      "seam": 0.45661386918640956,
+      "maxAdjacent": 0.4904969534310241
+    },
+    "walk/S": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.294848819225392,
+      "seam": 1.3110226743313889,
+      "maxAdjacent": 1.2342889594631747
+    },
+    "walk/SE": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.3425943936663494,
+      "seam": 1.2868451487538461,
+      "maxAdjacent": 1.3076231572679353
+    },
+    "walk/E": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.0839417925136674,
+      "seam": 1.2463347979317287,
+      "maxAdjacent": 1.287570876507632
+    },
+    "walk/NE": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.214308960767505,
+      "seam": 1.351766868540138,
+      "maxAdjacent": 1.183308611368577
+    },
+    "walk/N": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 2.919550884937697,
+      "seam": 1.2036206869508534,
+      "maxAdjacent": 1.3482630397532003
+    },
+    "walk/NW": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.1557071506874994,
+      "seam": 0.8903799349805182,
+      "maxAdjacent": 1.3656855358334674
+    },
+    "walk/W": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.224490703811051,
+      "seam": 0.5122905877098692,
+      "maxAdjacent": 1.355874664824537
+    },
+    "walk/SW": {
+      "blank": 0,
+      "edge": 0,
+      "distinct": 16,
+      "centroidSpan": 3.171793040474477,
+      "seam": 0.7550144326226755,
+      "maxAdjacent": 1.3806484272877957
+    }
+  },
+  "stowedWeapon": {
+    "S": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 8.695412691903652,
+      "seam": 0.5308652454992239,
+      "maxAdjacent": 1.7885137548842192
+    },
+    "SE": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 4.582500365810289,
+      "seam": 0.36707993982600184,
+      "maxAdjacent": 1.0782896247134524
+    },
+    "E": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 3.620095704141911,
+      "seam": 0.1675925727996493,
+      "maxAdjacent": 1.1593804229941465
+    },
+    "NE": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 9.22084459307418,
+      "seam": 0.3633734856667445,
+      "maxAdjacent": 2.614854886104839
+    },
+    "N": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 10.078626904077197,
+      "seam": 0.47321231948862064,
+      "maxAdjacent": 2.801157953364445
+    },
+    "NW": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 8.237152440454093,
+      "seam": 0.3436879603969196,
+      "maxAdjacent": 2.4461022059645963
+    },
+    "W": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 7.326031869790125,
+      "seam": 0.23273343372780605,
+      "maxAdjacent": 2.313468893268729
+    },
+    "SW": {
+      "frames": 16,
+      "blank": 0,
+      "edge": 0,
+      "centroidSpan": 8.988359951715594,
+      "seam": 0.3810002823083124,
+      "maxAdjacent": 2.4543746858991637
+    }
+  },
+  "playback": {
+    "soldier": 16,
+    "walker": 16
+  },
+  "existingAssetsAndGameUnchanged": 38,
+  "browserErrors": []
+}

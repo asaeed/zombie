@@ -1,0 +1,25 @@
+{
+  "asset": "brute-84c4ae574d77.png",
+  "source": "source/brute/custom-dd3dde656b0d.glb",
+  "status": "local revision for user review",
+  "production": "neutral humanoid bind-pose mesh sculpt and rigged sprite bake",
+  "visualReview": {
+    "reviewer": "single agent self-review; no independent art review",
+    "coverage": [
+      "eight directions at native and enlarged sizes",
+      "idle and walking on light background",
+      "attacks at normal and quarter speed on light and dark backgrounds"
+    ],
+    "body": "source torso contours retained, wider upper back, thicker arms and natural waist",
+    "motion": "hanging walking arms and lateral attack sweeps preserved"
+  },
+  "technical": {
+    "frames": 320,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "auditWarnings": 0,
+    "testsPassed": 17,
+    "displayScale": 0.2964
+  },
+  "publication": "local only"
+}

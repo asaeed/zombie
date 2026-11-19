@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Selected voxel diorama</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #111716; color: #edf0e9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button { font: inherit; }
+    a { color: #edc777; }
+    .shell { width: min(1390px, calc(100% - 36px)); margin-inline: auto; }
+    header { border-bottom: 1px solid #39473e; background: #1b2520; }
+    .topbar { min-height: 58px; display: flex; align-items: center; gap: 22px; }
+    .brand { color: #f3eee1; text-decoration: none; font-weight: 850; white-space: nowrap; }
+    .brand b { color: #db806b; }
+    nav { margin-left: auto; display: flex; gap: 20px; flex-wrap: wrap; }
+    nav a { color: #c2cec4; font-size: 13px; text-decoration: none; }
+    nav a:hover, nav a:focus-visible { color: white; text-decoration: underline; }
+    .intro { padding: 27px 0 19px; }
+    .eyebrow { color: #edc777; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+    h1 { margin: 6px 0 8px; font-size: clamp(28px, 3vw, 39px); line-height: 1.12; }
+    .intro p { margin: 0; max-width: 95ch; color: #bdcbc0; font-size: 14px; line-height: 1.5; }
+    .choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; border-block: 1px solid #3a4940; padding: 12px 0; }
+    .choices button { min-width: 0; padding: 0; background: #223128; color: #eaf0e9; border: 1px solid #4b6051; border-radius: 4px; overflow: hidden; text-align: left; cursor: pointer; }
+    .choices button[aria-pressed="true"] { border-color: #edc777; box-shadow: inset 0 0 0 1px #edc777; }
+    .choices button:focus-visible, a:focus-visible { outline: 2px solid #fff2c1; outline-offset: 2px; }
+    .choices img { display: block; width: 100%; height: 90px; object-fit: cover; object-position: center top; }
+    .choice-label { display: block; min-height: 54px; padding: 7px 9px; }
+    .choice-label small { display: block; color: #b6c9b7; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .choice-label strong { display: block; font-size: 13px; line-height: 1.2; }
+    .choices button[aria-pressed="true"] .choice-label { background: #edc777; color: #16231d; }
+    .choices button[aria-pressed="true"] small { color: #395040; }
+    .review { padding: 17px 0 25px; }
+    .review-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+    .review-head h2 { margin: 0; font-size: 19px; }
+    .review-head a { margin-left: auto; font-size: 12px; }
+    figure { margin: 0; }
+    figure img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border: 1px solid #415046; background: #263029; }
+    figcaption { margin-top: 7px; color: #acbcae; font-size: 12px; line-height: 1.4; }
+    .notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; border-top: 1px solid #3a4940; margin-top: 18px; }
+    .note { padding: 13px 0; }
+    .note h3 { margin: 0 0 5px; color: #edc777; font-size: 12px; }
+    .note p { margin: 0; color: #bfcec0; font-size: 13px; line-height: 1.5; }
+    .key { border-top: 1px solid #3a4940; padding: 17px 0 26px; color: #aebcaf; font-size: 13px; line-height: 1.55; }
+    .key strong { color: #e7eadd; }
+    footer { border-top: 1px solid #35443a; padding: 17px 0 24px; color: #a5b5a8; font-size: 12px; }
+    @media (max-width: 800px) { .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); } .notes { grid-template-columns: 1fr; } .note { border-top: 1px solid #344139; } }
+    @media (max-width: 500px) { .shell { width: calc(100% - 24px); } .topbar { align-items: start; flex-direction: column; gap: 7px; padding: 11px 0; } nav { margin-left: 0; } .choices { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; } .choices button { flex: 0 0 160px; scroll-snap-align: start; } .choice-label { min-height: 49px; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><a class="brand" href="../../index.html">DEAD <b>ZONE</b></a><nav><a href="whole-game-directions.html">All six directions</a><a href="README.md">Art notes</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <section class="intro"><div class="eyebrow">Selected art direction</div><h1>Voxel diorama, refined zombie heads</h1><p>The original world, characters, lighting, and motion language stay intact. Only the walker, runner, and spitter heads have been nudged away from perfect cubes. The untouched original and broader revisions remain below for comparison.</p></section>
+    <div class="choices" aria-label="Focused art directions">
+      <button type="button" data-option="heads" aria-pressed="true"><img src="focused-voxel-zombie-heads.png" alt="" width="1536" height="1024"><span class="choice-label"><small>Selected direction</small><strong>Refined heads</strong></span></button>
+      <button type="button" data-option="original" aria-pressed="false"><img src="whole-game-f.png" alt="" width="1536" height="1024"><span class="choice-label"><small>Untouched reference</small><strong>Original voxel</strong></span></button>
+      <button type="button" data-option="faceted" aria-pressed="false"><img src="focused-faceted-diorama.png" alt="" width="1536" height="1024"><span class="choice-label"><small>Refinement</small><strong>Faceted diorama</strong></span></button>
+      <button type="button" data-option="rounded" aria-pressed="false"><img src="focused-rounded-diorama.png" alt="" width="1536" height="1024"><span class="choice-label"><small>Broad revision</small><strong>Rounded diorama</strong></span></button>
+      <button type="button" data-option="bright" aria-pressed="false"><img src="whole-game-d.png" alt="" width="1536" height="1024"><span class="choice-label"><small>Original favorite</small><strong>Brighter pixel</strong></span></button>
+      <button type="button" data-option="bold" aria-pressed="false"><img src="focused-bold-pixel.png" alt="" width="1536" height="1024"><span class="choice-label"><small>New variant</small><strong>Bold pixel</strong></span></button>
+      <button type="button" data-option="sculpted" aria-pressed="false"><img src="focused-sculpted-pixel.png" alt="" width="1536" height="1024"><span class="choice-label"><small>New variant</small><strong>Sculpted pixel</strong></span></button>
+      <button type="button" data-option="painted" aria-pressed="false"><img src="focused-painted-diorama.png" alt="" width="1536" height="1024"><span class="choice-label"><small>New variant</small><strong>Painted tabletop</strong></span></button>
+    </div>
+    <section class="review" aria-live="polite">
+      <div class="review-head"><h2 id="name">Voxel diorama with refined zombie heads</h2><a id="full" href="focused-voxel-zombie-heads.png" target="_blank" rel="noopener">Open full-resolution board</a></div>
+      <figure><img id="board" src="focused-voxel-zombie-heads.png" width="1536" height="1024" alt="Original voxel diorama with subtly refined zombie heads, plus five rows of motion key poses"><figcaption>Scene above; sniper, walker, runner, spitter, and brute poses below. Each row reads idle, movement, attack. These are concepts, not seamless animation frames.</figcaption></figure>
+      <div class="notes">
+        <div class="note"><h3>What changes</h3><p id="difference">Only the walker, runner, and spitter heads gain sloped skulls, angled cheeks, and tapered jaws.</p></div>
+        <div class="note"><h3>Best quality</h3><p id="strength">Keeps the original modular diorama intact while the smaller zombies read less like perfect cube-headed figures.</p></div>
+        <div class="note"><h3>Watch for</h3><p id="tradeoff">Check these subtle skull changes at actual game size before building directional sprites.</p></div>
+      </div>
+    </section>
+    <div class="key"><strong>Production check:</strong> The original voxel diorama with the smaller zombies' heads refined is the selected visual direction. None of these images is a measured-resolution or seamless sprite sheet. The live game art remains unchanged.</div>
+  </main>
+  <footer><div class="shell">See the <a href="whole-game-directions.html">broader six-direction comparison</a> for the earlier A/B/C and cel studies.</div></footer>
+  <script>
+    'use strict';
+    const options = {
+      heads: { name: 'Voxel diorama with refined zombie heads', image: 'focused-voxel-zombie-heads.png', difference: 'Only the walker, runner, and spitter heads gain sloped skulls, angled cheeks, and tapered jaws.', strength: 'Keeps the original modular diorama intact while the smaller zombies read less like perfect cube-headed figures.', tradeoff: 'Check these subtle skull changes at actual game size before building directional sprites.' },
+      original: { name: 'Original voxel diorama', image: 'whole-game-f.png', difference: 'The original board keeps its cubic heads, chunky limbs, modular buildings, and warm physical lighting.', strength: 'A unified, instantly recognizable construction style across the structures, humans, and zombies.', tradeoff: 'Check expression and role identity at actual game size before committing to the square-headed character design.' },
+      faceted: { name: 'Faceted diorama', image: 'focused-faceted-diorama.png', difference: 'The rounded diorama\'s heads, shoulders, hands, and boots gain firmer low-poly planes and restrained bevels, while faces remain humanlike.', strength: 'Keeps the physical lighting and modular world without the toy-cube or overly soft character look.', tradeoff: 'Small facial planes and scene detail must be simplified when rendered to actual RTS sprite size.' },
+      bright: { name: 'Brighter pixel', image: 'whole-game-d.png', difference: 'The established brighter-D look: crisp pixel clusters, saturated role accents, and a detailed but readable battlefield.', strength: 'Strong continuity with the current art target and distinct movement silhouettes for the four enemy classes.', tradeoff: 'Environmental detail may compete with units at normal zoom; reduce clutter when making production sprites and tiles.' },
+      rounded: { name: 'Rounded diorama', image: 'focused-rounded-diorama.png', difference: 'The voxel favorite, revised with natural rounded heads, jaws, hands, and limb joints. Buildings retain modular geometry.', strength: 'Expressive figures and physical depth without the square-headed, Minecraft-like character read.', tradeoff: 'Richer lighting and small face detail will need aggressive simplification when rendered to game-size frames.' },
+      bold: { name: 'Bold pixel', image: 'focused-bold-pixel.png', difference: 'A lower-detail pixel budget with bigger clusters, flatter ramps, and less costume and ground noise.', strength: 'The clearest shapes when many units are moving at once or the camera is zoomed out.', tradeoff: 'Role identity must come from silhouette, props, and accents because tiny surface details will not survive.' },
+      sculpted: { name: 'Sculpted pixel', image: 'focused-sculpted-pixel.png', difference: 'Rounded miniature anatomy and broad light planes rendered into a crisp pixel-art world.', strength: 'A middle ground: the warmth of the diorama with pixel edges and proportions close to brighter D.', tradeoff: 'This needs a disciplined render-and-cleanup pipeline to avoid looking like two mismatched art styles.' },
+      painted: { name: 'Painted tabletop', image: 'focused-painted-diorama.png', difference: 'Hand-painted resin-miniature forms and modular scenery replace visible cubes and pixel blocks.', strength: 'The most tactile, characterful 3D option, with readable silhouettes and expressive faces.', tradeoff: 'The presentation bases are not game assets; at actual RTS scale, brush detail and small props must be pared back.' },
+    };
+    const buttons = [...document.querySelectorAll('[data-option]')];
+    function select(key) {
+      const option = options[key];
+      if (!option) return;
+      document.getElementById('name').textContent = option.name;
+      document.getElementById('board').src = option.image;
+      document.getElementById('board').alt = `${option.name} whole-game scene and five rows of motion key poses`;
+      document.getElementById('full').href = option.image;
+      document.getElementById('difference').textContent = option.difference;
+      document.getElementById('strength').textContent = option.strength;
+      document.getElementById('tradeoff').textContent = option.tradeoff;
+      buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.option === key)));
+      history.replaceState(null, '', `#${key}`);
+    }
+    buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.option)));
+    select(location.hash.slice(1) in options ? location.hash.slice(1) : 'heads');
+  </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+{
+  "version": 1,
+  "method": "emitted-joint-source-skin-clearance",
+  "armSamples": 417,
+  "torsoSamples": 501,
+  "limitations": "Vertex sampling against a core torso convex hull and vest box, excluding the shoulder seam. Not triangle collision, projected readability, or aesthetic approval.",
+  "hashes": {
+    "assets/rigged-pilot/manifest.json": "392a236f777b27c81daa80b2df542c64ac47220273a0d0fb08c0a4a0feba68ac",
+    "assets/rigged-pilot/soldier.png": "a2d359ee3e662fa00dc6e37f17a8b821630b957c4166d07fe8e39ffed3fb05e1",
+    "assets/rigged-pilot/source/model.gltf": "09b23d3bf91a246c5537193d6f3a989da4449fc2192ce16403e45740a51ff101",
+    "assets/rigged-pilot/source/Superhero_Male_FullBody.bin": "459003f9745853ae562a85506a2b94dd56515c1f37728f9fa3d2ce1a3e4cd92f",
+    "assets/rigged-pilot/source/animations.glb": "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997",
+    "tools/rigged-pilot/weapon-rig.mjs": "385fd22b714ebf827cf7ebb46e5abc918e04d81e3539882b3ab45e4afc466207",
+    "tools/rigged-pilot/bake.mjs": "9530f2765e49ad5b5dd7222090598ec29a401cd7a50648beee466b507d005ac4",
+    "tools/rigged-pilot/audit-clearance.mjs": "4745714920f9caddc67e0725c51abdae4aa7717317df796ed627dfa47adeccaf"
+  },
+  "poses": {
+    "before": [
+      {
+        "frame": 0,
+        "inTorso": 66,
+        "inVest": 62,
+        "maxTorsoDepth": 0.08171185680593562,
+        "maxVestDepth": 0.06030092942458506,
+        "minVestGap": -0.06030092942458506,
+        "reconstructionError": 1.5463181750953069e-7
+      },
+      {
+        "frame": 1,
+        "inTorso": 67,
+        "inVest": 65,
+        "maxTorsoDepth": 0.08062319540442253,
+        "maxVestDepth": 0.060376352871165155,
+        "minVestGap": -0.060376352871165155,
+        "reconstructionError": 1.557458317338073e-7
+      },
+      {
+        "frame": 2,
+        "inTorso": 64,
+        "inVest": 58,
+        "maxTorsoDepth": 0.08212952970626541,
+        "maxVestDepth": 0.0584056592647432,
+        "minVestGap": -0.0584056592647432,
+        "reconstructionError": 1.5474277066670348e-7
+      },
+      {
+        "frame": 3,
+        "inTorso": 58,
+        "inVest": 50,
+        "maxTorsoDepth": 0.0750037841281011,
+        "maxVestDepth": 0.05736343726755716,
+        "minVestGap": -0.05736343726755716,
+        "reconstructionError": 1.5236137095365064e-7
+      },
+      {
+        "frame": 4,
+        "inTorso": 58,
+        "inVest": 48,
+        "maxTorsoDepth": 0.0710714810146229,
+        "maxVestDepth": 0.062157754371766155,
+        "minVestGap": -0.062157754371766155,
+        "reconstructionError": 1.4868797327828036e-7
+      },
+      {
+        "frame": 5,
+        "inTorso": 55,
+        "inVest": 47,
+        "maxTorsoDepth": 0.06729261380494367,
+        "maxVestDepth": 0.057979011892853566,
+        "minVestGap": -0.057979011892853566,
+        "reconstructionError": 1.4420024694361733e-7
+      },
+      {
+        "frame": 6,
+        "inTorso": 51,
+        "inVest": 49,
+        "maxTorsoDepth": 0.05914276706464378,
+        "maxVestDepth": 0.05745681729285851,
+        "minVestGap": -0.05745681729285851,
+        "reconstructionError": 1.3933913277126548e-7
+      },
+      {
+        "frame": 7,
+        "inTorso": 52,
+        "inVest": 49,
+        "maxTorsoDepth": 0.05512663504882337,
+        "maxVestDepth": 0.055787290881633506,
+        "minVestGap": -0.055787290881633506,
+        "reconstructionError": 1.3454824950471088e-7
+      },
+      {
+        "frame": 8,
+        "inTorso": 47,
+        "inVest": 47,
+        "maxTorsoDepth": 0.0501694509640766,
+        "maxVestDepth": 0.049297800429236815,
+        "minVestGap": -0.049297800429236815,
+        "reconstructionError": 1.3031932498425448e-7
+      },
+      {
+        "frame": 9,
+        "inTorso": 45,
+        "inVest": 43,
+        "maxTorsoDepth": 0.047773035225483186,
+        "maxVestDepth": 0.04637255583923375,
+        "minVestGap": -0.04637255583923375,
+        "reconstructionError": 1.280062400727532e-7
+      },
+      {
+        "frame": 10,
+        "inTorso": 46,
+        "inVest": 42,
+        "maxTorsoDepth": 0.05032330804040841,
+        "maxVestDepth": 0.050372477868266055,
+        "minVestGap": -0.050372477868266055,
+        "reconstructionError": 1.288867900155854e-7
+      },
+      {
+        "frame": 11,
+        "inTorso": 47,
+        "inVest": 42,
+        "maxTorsoDepth": 0.05481282479105693,
+        "maxVestDepth": 0.05425487765006819,
+        "minVestGap": -0.05425487765006819,
+        "reconstructionError": 1.324057205530463e-7
+      },
+      {
+        "frame": 12,
+        "inTorso": 48,
+        "inVest": 42,
+        "maxTorsoDepth": 0.06407019908742304,
+        "maxVestDepth": 0.055934186986520765,
+        "minVestGap": -0.055934186986520765,
+        "reconstructionError": 1.3732609110568333e-7
+      },
+      {
+        "frame": 13,
+        "inTorso": 52,
+        "inVest": 43,
+        "maxTorsoDepth": 0.06951287969093989,
+        "maxVestDepth": 0.06336223572363961,
+        "minVestGap": -0.06336223572363961,
+        "reconstructionError": 1.427522056235036e-7
+      },
+      {
+        "frame": 14,
+        "inTorso": 56,
+        "inVest": 51,
+        "maxTorsoDepth": 0.0720647222065089,
+        "maxVestDepth": 0.058381108311128055,
+        "minVestGap": -0.058381108311128055,
+        "reconstructionError": 1.4769768247235215e-7
+      },
+      {
+        "frame": 15,
+        "inTorso": 60,
+        "inVest": 57,
+        "maxTorsoDepth": 0.07940736493606643,
+        "maxVestDepth": 0.05814137366911579,
+        "minVestGap": -0.05814137366911579,
+        "reconstructionError": 1.5169507965388189e-7
+      }
+    ],
+    "now": [
+      {
+        "frame": 0,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.00886600315775294,
+        "reconstructionError": 1.1540244828723791e-7
+      },
+      {
+        "frame": 1,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008582010472425305,
+        "reconstructionError": 1.1770149670705966e-7
+      },
+      {
+        "frame": 2,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008293470490521974,
+        "reconstructionError": 1.1566518799266261e-7
+      },
+      {
+        "frame": 3,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008492321134375879,
+        "reconstructionError": 1.102672823743014e-7
+      },
+      {
+        "frame": 4,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.009619023505536561,
+        "reconstructionError": 1.0346524901566018e-7
+      },
+      {
+        "frame": 5,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.006379969517909756,
+        "reconstructionError": 9.730699767588277e-8
+      },
+      {
+        "frame": 6,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.003398577990339713,
+        "reconstructionError": 9.530611883436569e-8
+      },
+      {
+        "frame": 7,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.0013134218025318,
+        "reconstructionError": 9.372072546122067e-8
+      },
+      {
+        "frame": 8,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.0005082065465775443,
+        "reconstructionError": 9.244099543806407e-8
+      },
+      {
+        "frame": 9,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.0013045938216706132,
+        "reconstructionError": 9.16306135717262e-8
+      },
+      {
+        "frame": 10,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.003359717673864032,
+        "reconstructionError": 9.162537654211954e-8
+      },
+      {
+        "frame": 11,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.006206069954882404,
+        "reconstructionError": 9.255850309094982e-8
+      },
+      {
+        "frame": 12,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.00915720562037739,
+        "reconstructionError": 9.432347547335538e-8
+      },
+      {
+        "frame": 13,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008248722927882807,
+        "reconstructionError": 9.842649888798461e-8
+      },
+      {
+        "frame": 14,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008149796362734475,
+        "reconstructionError": 1.044565910600028e-7
+      },
+      {
+        "frame": 15,
+        "inTorso": 0,
+        "inVest": 0,
+        "maxTorsoDepth": 0,
+        "maxVestDepth": 0,
+        "minVestGap": 0.008633237896055948,
+        "reconstructionError": 1.1025357595437716e-7
+      }
+    ]
+  }
+}

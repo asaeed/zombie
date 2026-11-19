@@ -1,0 +1,1081 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-brushwork-verify-BCOsbz",
+  "atlases": {
+    "soldier": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "walker": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "scout": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 19.76
+    },
+    "builder": {
+      "frames": 400,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "medic": {
+      "frames": 336,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "sniper": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "heavy": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 23.939999999999998
+    },
+    "torchbearer": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "runner": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 15.120000000000001
+    },
+    "brute": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 29.64
+    },
+    "spitter": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "exploder": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 23.18
+    },
+    "screamer": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 22.04
+    },
+    "boss": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 36.480000000000004
+    },
+    "walker-cap": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "walker-dress": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "walker-onearm": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "bodyPixels": 21.28
+    },
+    "suv": {
+      "frames": 8,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {},
+      "bodyPixels": 18
+    }
+  },
+  "reviews": {
+    "spriteControls": true,
+    "spriteMobileFits": true,
+    "wholePackComparison": true,
+    "worldMobileFits": true
+  },
+  "game": {
+    "drawTypes": [
+      "terrain.png",
+      "bush.png",
+      "pine.png",
+      "rock.png",
+      "wall.png",
+      "barracks.png",
+      "cabin.png",
+      "hq.png",
+      "soldier.png",
+      "tower.png",
+      "depot.png",
+      "builder.png",
+      "scout.png",
+      "walker-onearm.png",
+      "walker.png",
+      "clinic.png",
+      "mechanics.png",
+      "medic.png",
+      "walker-cap.png",
+      "runner.png",
+      "suv.png",
+      "sniper.png",
+      "light.png",
+      "walker-dress.png",
+      "brute.png",
+      "heavy.png",
+      "spitter.png",
+      "torchbearer.png",
+      "exploder.png",
+      "car.png",
+      "screamer.png",
+      "bin.png",
+      "boss.png"
+    ],
+    "scales": {
+      "soldier": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "walker": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "scout": {
+        "actual": 0.3466666666666667,
+        "expected": 0.3466666666666667
+      },
+      "builder": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "medic": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "sniper": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "heavy": {
+        "actual": 0.42,
+        "expected": 0.42
+      },
+      "torchbearer": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "runner": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "brute": {
+        "actual": 0.52,
+        "expected": 0.52
+      },
+      "spitter": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "exploder": {
+        "actual": 0.4066666666666667,
+        "expected": 0.4066666666666667
+      },
+      "screamer": {
+        "actual": 0.38666666666666666,
+        "expected": 0.38666666666666666
+      },
+      "boss": {
+        "actual": 0.64,
+        "expected": 0.64
+      },
+      "walker-cap": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "walker-dress": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "walker-onearm": {
+        "actual": 0.37333333333333335,
+        "expected": 0.37333333333333335
+      },
+      "suv": {
+        "actual": 0.4000000000000001,
+        "expected": 0.4
+      }
+    },
+    "menuPause": true,
+    "atomicSwitchPreservesState": true,
+    "preferenceRefresh": true,
+    "saveRestoration": true,
+    "gathering": {
+      "commanded": true,
+      "peak": 20,
+      "delivered": 20,
+      "capacity": 20,
+      "autoGather": true
+    },
+    "nonblankPixels": 316994
+  },
+  "limitations": [
+    "First-pass painted animation candidate; user appearance and motion review pending.",
+    "Soldier/walker have painted contact/strike sources. Other actors use restrained baked texture rigs, not individually painted frames.",
+    "Some generated direction/weapon poses still merit visual refinement; frame uniqueness is not an aesthetic guarantee.",
+    "Legacy mobile game HUD remains crowded; the two new review pages are responsive.",
+    "Local only; no commit, push or GitHub Pages publication performed."
+  ],
+  "totalFrames": 4344,
+  "worldPixels": {
+    "objects": {
+      "hq": {
+        "occupied": 14647,
+        "edge": 0
+      },
+      "wall": {
+        "occupied": 1314,
+        "edge": 0
+      },
+      "tower": {
+        "occupied": 7407,
+        "edge": 0
+      },
+      "barracks": {
+        "occupied": 8487,
+        "edge": 0
+      },
+      "depot": {
+        "occupied": 7895,
+        "edge": 0
+      },
+      "light": {
+        "occupied": 2101,
+        "edge": 0
+      },
+      "clinic": {
+        "occupied": 9562,
+        "edge": 0
+      },
+      "mechanics": {
+        "occupied": 10578,
+        "edge": 0
+      },
+      "car": {
+        "occupied": 1415,
+        "edge": 0
+      },
+      "cabin": {
+        "occupied": 2976,
+        "edge": 0
+      },
+      "bin": {
+        "occupied": 917,
+        "edge": 0
+      },
+      "pine": {
+        "occupied": 3608,
+        "edge": 0
+      },
+      "rock": {
+        "occupied": 523,
+        "edge": 0
+      },
+      "bush": {
+        "occupied": 636,
+        "edge": 0
+      }
+    },
+    "terrain": [
+      {
+        "type": "grass",
+        "variant": 0,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 1,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 2,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 3,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 4,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 5,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 6,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 7,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 8,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 9,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 10,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 11,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 12,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 13,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 14,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "grass",
+        "variant": 15,
+        "occupied": 1024,
+        "colors": [
+          "#8e9b64",
+          "#919e67"
+        ],
+        "palette": [
+          "#8e9b64",
+          "#919e67"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 0,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 1,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 2,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 3,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 4,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 5,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 6,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 7,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 8,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 9,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 10,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 11,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 12,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 13,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 14,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "dirt",
+        "variant": 15,
+        "occupied": 1024,
+        "colors": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ],
+        "palette": [
+          "#b1b0a0",
+          "#b4b3a3"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 0,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 1,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 2,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 3,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 4,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 5,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 6,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 7,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 8,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 9,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 10,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 11,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 12,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 13,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 14,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      },
+      {
+        "type": "water",
+        "variant": 15,
+        "occupied": 1024,
+        "colors": [
+          "#548d9f",
+          "#5790a2"
+        ],
+        "palette": [
+          "#548d9f",
+          "#5790a2"
+        ]
+      }
+    ]
+  },
+  "export": {
+    "output": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-brushwork-pages-Goa4qj",
+    "version": 1,
+    "release": "53e09d1e05784d6e485223facd47b2a833126e2d8ec5bad9ab90e547285f9c99",
+    "files": 90,
+    "bytes": 33652325,
+    "sourceExcluded": true
+  },
+  "originalFilesUnchanged": 145,
+  "browserErrors": []
+}

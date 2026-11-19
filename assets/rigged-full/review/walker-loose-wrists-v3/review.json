@@ -1,0 +1,53 @@
+{
+  "actor": "walker-cap",
+  "image": "walker-cap-f0dfafe61a3f.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Mostly downward palms and relaxed drooping wrists; accepted arm reach and gait preserved",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeCycleSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after phase grids plus complete directional cycles",
+    "timedNativePlayback": "not reviewed; browser playback is checked separately",
+    "observations": [
+      "Palms face mostly downward",
+      "Wrists droop with a subtle stride-following variation",
+      "Accepted arm reaches, loose finger curl and all leg poses are preserved"
+    ]
+  },
+  "preserved": {
+    "unchangedArmPoses": 320,
+    "unchangedLegPoses": 320,
+    "unchangedLooseFingerPoses": 320
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Idle and attack share the same ready pose at frame zero",
+  "deferredHandCorrections": [
+    "spitter",
+    "exploder",
+    "screamer",
+    "walker-onearm"
+  ]
+}

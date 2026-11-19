@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "date": "2026-10-09",
+  "tool": "built-in image_gen",
+  "model": "not exposed",
+  "transparentRequested": true,
+  "status": "candidate repair; user motion approval pending",
+  "generations": [
+    {
+      "id": "builder-legs",
+      "file": "builder-legs.png",
+      "size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "prompt": "Use case: stylized-concept. Asset type: replacement articulated RTS leg components. Image 1 is the appearance/material/lighting reference ONLY: the orange builder in Dead Zone. Replace its anatomically incorrect leg drawings with TEN isolated COMPLETE legs arranged exactly in TWO columns and FIVE rows on a truly transparent background. No torso, no arms, no lettering, no grid, no shadows cast on a backdrop. Grey cargo trousers and sturdy brown work boots exactly matching the reference's painterly sculpted-pixel shading, neither photoreal nor new style. Each isolated leg runs from upper thigh/hip joint cap to complete boot sole, with generous transparent gaps, same limb length and scale. IMPORTANT both legs in each row face the SAME direction; they are the near/far leg of the SAME person, not mirrored opposite-facing boots. Row 1: straight front view toward viewer, left/right legs with toes toward bottom, separate parallel lanes. Row 2: front three-quarter toward lower-right (SE), both boots toward lower-right. Row 3: exact RIGHT-facing side/profile E, BOTH boots with toes pointing RIGHT and heels LEFT; anatomical knee slightly flexed forward/right, never backwards. Row 4: rear three-quarter toward upper-right (NE), both boots point upper-right, showing side and some heel. Row 5: directly away N, both boots showing heels at bottom and toes hidden beyond. Near leg in left column, far leg in right column. Neutral relaxed standing legs, almost straight, no walk lunge, no crossed legs, no crouching or extreme bent knees. Perspective consistent with a slightly elevated orthographic strategy camera. Complete hidden upper thigh, knee and ankle surfaces for overlap articulation. Preserve broad warm grey trouser folds, readable boot toe/heel anatomy, color and smooth shading from reference. Prioritize directional correctness above ornament.",
+      "reference": "../builder.png",
+      "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-4a1a2df0-0b5e-4be4-8aee-ac4c4ec924b6.png"
+    },
+    {
+      "id": "soldier-poses",
+      "file": "soldier-poses.png",
+      "size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "prompt": "Use case: stylized-concept. Asset type: six complete upper-body pose paintings for a small RTS sprite, not disembodied arms. Image 1 is the soldier identity, blue uniform, cap, olive harness, rifle and shading reference. Repaint SIX coherent waist-up soldier poses on a truly transparent background, TWO columns by THREE rows, generous empty gutters. Preserve character, painterly sculpted shading and slightly elevated orthographic camera. Every pose includes head, torso, pelvis/belt, BOTH anatomically connected complete arms and hands, and complete rifle; terminate consistently at upper thigh, no legs, no labels or grid or cast backdrop. Order left-to-right row-major: (1) S straight front aiming and firing toward the viewer/bottom of image, foreshortened barrel toward viewer, trigger hand on grip and support hand under fore-end, elbows natural; (2) SE front three-quarter aiming down-right, rifle supported horizontally at chest/shoulder level and along the facing, right trigger hand and left support hand under fore-end; (3) E exact right profile aiming RIGHT, rifle stock firmly against shoulder, both hands on gun, barrel horizontal RIGHT, elbows in front of chest; (4) NE rear three-quarter aiming away upper-right, correct rear head/backpack, rifle shouldered upper-right, hands connected; (5) N directly away aiming straight away/up, backpack and back of head visible, both arms forward away from camera, gun mostly foreshortened/occluded beyond torso; (6) S straight front ready/resting pose, rifle held naturally at waist across front with TWO hands, no arm behind back, forearms bend toward center, left and right shoulders attached on correct sides. Not a walk sequence. No muzzle flashes (engine supplies them). Do not put weapon on hip or point it at feet in the five aiming poses. NOT separate arm and torso parts; the whole upper body must be one integrated painting with an anatomically correct support hand. Avoid enlarged muscle, huge weapon, backwards elbow, crossed arms, mismatched sleeve lengths. Same height and proportions in all six portraits; full unobstructed silhouettes, no clipping.",
+      "reference": "../soldier.png",
+      "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-91dfeb52-01a7-4685-98d3-4218fc63cd05.png"
+    },
+    {
+      "id": "scout-poses",
+      "file": "scout-poses.png",
+      "size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "prompt": "Use case: stylized-concept. Create SIX coherent waist-up RTS scout pose paintings on a truly transparent background, TWO columns by THREE rows, generous gutters. Image 1 is the scout identity/material/lighting reference: bright CYAN blue cap and jacket, dark grey trousers at the waist edge, olive harness/backpack, black GLOVES, compact short black carbine, leaner than soldier. Preserve this reference's sculpted painted forms and slightly elevated orthographic camera. Each pose includes head, torso, belt, BOTH anatomically connected arms/hands and full carbine, ending at upper thighs; no legs, labels, grid, backdrop or cast shadows. Left-to-right row-major order: 1 S front aiming toward viewer, muzzle foreshortened toward bottom/viewer, trigger hand grip and support hand under fore-end. 2 SE front three-quarter aiming down-right, rifle shouldered, both hands attached. 3 E exact right profile aiming RIGHT, stock planted against shoulder, horizontal barrel RIGHT, elbows forward. 4 NE rear three-quarter aiming away upper-right, back/head/backpack correctly turned, shoulder stock and both hands. 5 N directly away/up, back of cap and backpack, rifle mostly foreshortened beyond torso, no face. 6 S front ready, compact carbine across waist in BOTH hands, elbows natural and forearms inward. No muzzle flashes. Same character/proportions/painting scale in every view. No detached support hand, backwards elbow, crossed arms, large assault rifle, oversized weapon or weapon pointing at feet in aiming poses. Use complete integrated upper bodies, not separate arms. Keep saturated CYAN distinct from the soldier's blue.",
+      "reference": "../scout.png",
+      "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-dd4d5118-adf2-4737-9436-29fc523f72ae.png"
+    },
+    {
+      "id": "sniper-poses",
+      "file": "sniper-poses.png",
+      "size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "prompt": "Use case: stylized-concept. Create SIX complete waist-up RTS SNIPER paintings on a truly transparent background, TWO columns by THREE rows with generous clear gutters. Image 1 controls the exact identity/olive GREEN cap and uniform, dark gloves, olive tactical harness/backpack, dark long SCOPED rifle, shading and material palette. Preserve sculpted painted game style and slightly elevated orthographic camera. Each separate pose includes head, torso and belt, both complete connected arms/hands and full rifle. Terminate at upper thighs, no legs, text, labels, grid, backdrop or cast shadow. Row-major order: 1 S directly toward viewer AIMING, foreshortened scope/barrel toward viewer/bottom, right trigger hand on grip and left support hand underneath fore-end; 2 SE front three-quarter aiming down-right, rifle stock shouldered with both hands; 3 E RIGHT profile aiming horizontally RIGHT, scope aligned to eye, BOTH hands attached with forearms naturally in front of body, entire long barrel uncut; 4 NE rear three-quarter aimed upper-right, back of head and backpack, both arms forward; 5 N directly away/up, back of head/backpack, rifle foreshortened beyond right shoulder, no face; 6 S front ready/resting with scoped rifle diagonally across waist held with BOTH hands. No muzzle flash. Consistent anatomy and scale per view, broad dark green fabric shading matches reference, no extra muscle, no detached support hand or broken backwards elbows. Important these are coherent integrated upper bodies, NOT individual disconnected arm parts. Same plausible head/torso proportions in all six views; sniper's rifle moderately longer than carbine but not absurdly oversized.",
+      "reference": "../sniper.png",
+      "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-5bb70670-ba4a-4555-8655-61d014585ecf.png",
+      "notes": "N pose rejected for aiming NE; unused and replaced by sniper-back.png"
+    },
+    {
+      "id": "sniper-back",
+      "file": "sniper-back.png",
+      "size": {
+        "width": 1122,
+        "height": 1402
+      },
+      "prompt": "Use case: stylized-concept. One single complete waist-up GREEN SNIPER game painting on genuinely transparent background. Image 1 controls identity, cap, green uniform, olive backpack, dark gloves, scoped rifle and sculpted-painterly materials. CRITICAL VIEW: exact straight REAR view, soldier facing DIRECTLY AWAY from the viewer toward the TOP of the image (N), no three-quarter turn, no face or cheek, symmetric back of cap and centered backpack. Elevated orthographic RTS camera. He shoulders and aims rifle STRAIGHT AWAY into depth. Rifle is strongly FORESHORTENED / mostly OCCLUDED by torso, shoulder and arms. Both arms reach forward away from the camera, elbow silhouettes modest on left and right. The muzzle's projection is nearly directly ABOVE the right shoulder, NOT far to the right; do NOT draw a long diagonal NE-facing barrel, do NOT show the rifle side profile or a long sideways scope. Visible rear of stock/short rear scope may peek over right shoulder, but most gun extends away into the page and is hidden. Anatomically attached two hands on rifle, right trigger and left support. Head/torso/belt/both arms complete, terminate at upper thighs, no legs, no shadows, no labels, no extra poses. Maintain torso proportions, green/olive palette, clean shading and same character appearance. This is a directional correction, not a new character design.",
+      "reference": "../sniper.png",
+      "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-f299ccf0-d675-4b94-9be1-b91411b07cb3.png",
+      "notes": "Head landmark below raised barrel; never normalize by complete weapon bounds"
+    }
+  ],
+  "scope": [
+    "builder directional legs",
+    "soldier S idle/walk",
+    "soldier/scout/sniper shoot"
+  ],
+  "unchanged": "all other actor assets, world assets and gameplay"
+}

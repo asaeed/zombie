@@ -1,0 +1,16 @@
+{
+  "image": "bush.png",
+  "group": "decoration",
+  "width": 44,
+  "height": 36,
+  "footAnchor": {
+    "x": 23.550045382346266,
+    "y": 32
+  },
+  "sourceRect": {
+    "x": 367,
+    "y": 187,
+    "width": 863,
+    "height": 678
+  }
+}

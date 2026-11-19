@@ -298,10 +298,30 @@ function vehicleUnloadRect(W, H) {
   return { x: 170, y: H - bottomPanelHeight(W) - 33, w: 94, h: 22 };
 }
 
-function minimapRect(W, H, selectionVisible = false) {
+function selectedCharacters(game) {
+  return [...game.selected.filter(u => !u.dead && !u.vehicle),
+    ...game.selectedZombies.filter(z => !z.dead &&
+      game.tileVisible(Math.floor(z.x / TILE), Math.floor(z.y / TILE)))];
+}
+
+function unitSelectionPanelHeight(units, W = window.innerWidth, H = window.innerHeight) {
+  const top = W < 620 ? 144 : 80;
+  const available = H - bottomPanelHeight(W) - top - (W < 620 ? MINIMAP_H + 24 : 0);
+  return Math.min(Math.max(86, 48 + units.length * 28), Math.max(86, available));
+}
+
+function characterSelectionPanelRect(game, W, H) {
+  const characters = selectedCharacters(game);
+  const h = unitSelectionPanelHeight(characters, W, H);
+  const rows = Math.max(1, Math.floor((h - 48) / 28));
+  return { x:10, y:H - bottomPanelHeight(W) - h - 8, w:260, h,
+    characters, rows, maxScroll:Math.max(0, characters.length - rows) };
+}
+
+function minimapRect(W, H, selectionVisible = false, selectionHeight = 86) {
   const stacked = W < 620 && selectionVisible;
   return { x: W - MINIMAP_W - 10,
-    y: H - bottomPanelHeight(W) - MINIMAP_H - 10 - (stacked ? 100 : 0),
+    y: H - bottomPanelHeight(W) - MINIMAP_H - 10 - (stacked ? selectionHeight + 14 : 0),
     w: MINIMAP_W, h: MINIMAP_H };
 }
 // The painted ground contact, not the roof envelope, defines occupied space.

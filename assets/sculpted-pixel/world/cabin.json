@@ -1,0 +1,16 @@
+{
+  "image": "cabin.png",
+  "group": "cache",
+  "width": 72,
+  "height": 64,
+  "footAnchor": {
+    "x": 40.31671270574255,
+    "y": 60
+  },
+  "sourceRect": {
+    "x": 278,
+    "y": 68,
+    "width": 989,
+    "height": 862
+  }
+}

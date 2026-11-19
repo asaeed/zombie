@@ -1,0 +1,52 @@
+{
+  "frames": [
+    {
+      "id": "heavy",
+      "unchangedFrames": 512
+    },
+    {
+      "id": "torchbearer",
+      "unchangedFrames": 384
+    }
+  ],
+  "idleRuntime": [
+    {
+      "type": "heavy",
+      "image": "http://127.0.0.1:8787/assets/rigged-full/heavy-5e3cd13f0847.png",
+      "ready": true
+    },
+    {
+      "type": "torchbearer",
+      "image": "http://127.0.0.1:8787/assets/rigged-full/torchbearer-27447fb51aa3.png",
+      "ready": true
+    }
+  ],
+  "battle": {
+    "visible": true,
+    "range": 390,
+    "vision": 390,
+    "shots": 1,
+    "sniperHP": 48,
+    "spitterHP": 13
+  },
+  "outcome": {
+    "shots": 2,
+    "sniperHP": 26,
+    "sniperDead": false,
+    "spitterDead": true
+  },
+  "errors": [],
+  "sourceSha256": "66c772e9ecad3495a8564cd1f3238d183c9706b945ccbe402b2b8a60b9be06b0",
+  "sprites": {
+    "heavy": {
+      "before": "heavy-68e214b1d38f.png",
+      "after": "heavy-5e3cd13f0847.png",
+      "sha256": "5e3cd13f0847d372b82a18da39e9086a17a71d35c2756b24889f59b4a68ff4f0"
+    },
+    "torchbearer": {
+      "before": "torchbearer.png",
+      "after": "torchbearer-27447fb51aa3.png",
+      "sha256": "27447fb51aa3d9931023b04bacfaaa2274ea5a7e09eb007771364ac848034e5a"
+    }
+  }
+}

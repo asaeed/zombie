@@ -37,12 +37,12 @@ Walking, running, and directional sprite previews.
 - Left click / drag: select units · selected unit + cache click: auto-gather
 - Right click: move / attack / gather / dump cargo / repair
 - Build: `W`all, `T`ower, `B`arracks, `D`epot, `L`ight tower, clinic (`K`), mechanics bay (`M`) · one placement per selection · Esc: cancel · Del: sell
-- `A` + click: attack-move · `S`: stop · `R`: builder repair · `H`: select idle units
+- `S`: stop · `R`: builder repair · `H`: select idle units
 - `1–9`: control groups (`Shift+digit` assigns, double-tap centers)
 - Barracks: click for training (`Z`/`X`/`C`/`V`/`Q`/`E`/`Y`) · right-click sets rally point
 - Mechanics bay: select and press `U` or use its production button to build an armored truck
 - Armored truck: select and right-click ground to drive; right-click it with units selected to board (four seats); `E` or Unload to disembark
-- `F` + click: throw a signal flare (50 supplies, 60s cooldown) — lights terrain, wakes sleepers, and ignites nearby zombies without distracting them; burning zombies move 20% faster
+- `F` + click: launch a signal flare from HQ (100 supplies, 5-minute cooldown) — streaks to the target, bursts on landing, then lights terrain, wakes sleepers, and ignites nearby zombies without distracting them; burning zombies move 20% faster
 - Camera: wheel zoom · middle-drag / arrows / minimap click: pan
 - Click a screen edge to arm auto-scroll; moving off the edge stops it
 - `Space`: jump to HQ · `F1–F4`: bookmarks (`Shift+F` sets) · `N`: latest alert
@@ -91,9 +91,14 @@ Walking, running, and directional sprite previews.
   repair tick per second, then return to their station. Range includes building
   footprints, and builders respond to new nearby damage during the return trip
 - Waves keep escalating until the HQ falls
-- Wave 4 brings spitters that lob acid over walls; wave 6 adds exploders
-  whose shot-down blast is wider and loses damage with distance; wave 8 adds screamers that speed nearby zombies
+- Wave 3 brings one spitter that lobs acid over walls; wave 4 adds one exploder
+  (also one on wave 5). Its shot-down blast is wider and loses damage with distance; wave 8 adds screamers that speed nearby zombies
   and shriek to wake dormant guards only when a human unit comes close.
+  Each screamer arrives with six extra walker escorts in a loose ring, with
+  up to two survivors taking the front positions. Escorts fight normally and
+  continue independently when their screamer dies; killed escorts are not replaced.
+  Regular brutes start with one on waves 5–6, two on waves 7–8, three on
+  waves 9–10, and keep adding one every two waves.
   The first boss brute arrives on wave 10, then two on wave 15, three on
   wave 20, and so on. Bosses hit hard and resist tower fire. Zombie HP
   stays fixed by type; later waves add more enemies instead

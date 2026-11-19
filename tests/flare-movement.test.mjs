@@ -28,6 +28,7 @@ function fixture(type = 'walker') {
 test('a direct flare hit never parks zombies at the flare or interrupts their path to HQ', () => {
   const {game, zombie, hq} = fixture();
   assert.equal(game.throwFlare(zombie.x, zombie.y), true);
+  game._updateFlareShots(game.flareShots[0].duration);
   assert.equal(zombie.burning, true);
   for (let i = 0; i < 20; i++) {
     const before = Math.hypot(hq.x - zombie.x, hq.y - zombie.y);
@@ -44,6 +45,7 @@ test('burning zombies retain their human target instead of chasing an off-path f
   const human = new Unit('soldier', zombie.x + 300, zombie.y);
   game.units = [human]; zombie.atkTarget = human;
   assert.equal(game.throwFlare(zombie.x, zombie.y + 80), true);
+  game._updateFlareShots(game.flareShots[0].duration);
   const start = {x:zombie.x, y:zombie.y};
   for (let i = 0; i < 10; i++) {
     zombie.update(.05, game);
@@ -96,6 +98,7 @@ for (const type of ['walker', 'spitter', 'exploder']) {
     const human = new Unit('soldier', zombie.x + 20, zombie.y);
     game.units = [human]; zombie.atkTarget = human;
     game.throwFlare(zombie.x, zombie.y);
+    game._updateFlareShots(game.flareShots[0].duration);
     zombie.update(.05, game);
     if (type === 'spitter') assert.equal(game.projectiles.at(-1)?.target, human);
     else assert.ok(human.hp < human.maxHp);
@@ -108,6 +111,7 @@ test('saved burning zombies resume their target and boosted movement without a n
   const human = new Unit('soldier', zombie.x + 300, zombie.y);
   game.units = [human]; zombie.atkTarget = human;
   game.throwFlare(zombie.x, zombie.y);
+  game._updateFlareShots(game.flareShots[0].duration);
   const restored = Game.fromSaveData(game.toSaveData());
   const resumed = restored.zombies[0], x = resumed.x;
   assert.equal(resumed.burnTime, FIRE_DURATION);

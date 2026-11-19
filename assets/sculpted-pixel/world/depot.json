@@ -1,0 +1,17 @@
+{
+  "image": "depot.png",
+  "group": "building",
+  "tiles": 2,
+  "width": 136,
+  "height": 106,
+  "footAnchor": {
+    "x": 63.18995492835394,
+    "y": 102
+  },
+  "sourceRect": {
+    "x": 179,
+    "y": 48,
+    "width": 1211,
+    "height": 927
+  }
+}

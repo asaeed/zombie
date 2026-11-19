@@ -1,0 +1,82 @@
+{
+  "asset": "boss-23d666b24281.png",
+  "source": "source/boss/custom-9b7ead6e73a2.glb",
+  "status": "local revision for user review",
+  "method": "subtle opposing arm swing while walking; sustained raised guard through idle, punch preparation and recovery",
+  "reviewer": "single-agent self-review; no independent art review",
+  "visualCoverage": [
+    "eight directions at native and enlarged sizes",
+    "complete attack cycles for south, east and north",
+    "actual game sprite-renderer output at varied zoom and pixel density"
+  ],
+  "timedNativePreview": "not reviewed",
+  "reviewedHolds": {
+    "groups": [
+      [
+        "idle/S/0",
+        "attack/S/0",
+        "attack/S/31"
+      ],
+      [
+        "idle/SE/0",
+        "attack/SE/0",
+        "attack/SE/31"
+      ],
+      [
+        "idle/E/0",
+        "attack/E/0",
+        "attack/E/31"
+      ],
+      [
+        "idle/NE/0",
+        "attack/NE/0",
+        "attack/NE/31"
+      ],
+      [
+        "idle/N/0",
+        "attack/N/0",
+        "attack/N/31"
+      ],
+      [
+        "idle/NW/0",
+        "attack/NW/0",
+        "attack/NW/31"
+      ],
+      [
+        "idle/W/0",
+        "attack/W/0",
+        "attack/W/31"
+      ],
+      [
+        "idle/SW/0",
+        "attack/SW/0",
+        "attack/SW/31"
+      ]
+    ],
+    "reason": "idle, attack start and recovery share the exact raised ready guard"
+  },
+  "minGuardWristHeight": 1.4300000472399934,
+  "preservation": {
+    "unchangedBodySource": true,
+    "unchangedLegPoses": 448,
+    "modelScale": [
+      "[1,1,1]"
+    ]
+  },
+  "renderer": {
+    "renderedFrames": 504,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "publication": "local only"
+}

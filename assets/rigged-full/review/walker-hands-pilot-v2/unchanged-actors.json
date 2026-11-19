@@ -1,0 +1,22 @@
+{
+  "walker": {
+    "image": "walker.png",
+    "sha256": "01806093340ada68eed5edf3dbd2c8fc62d769aa76cd0f92643fa128dfc4b36d"
+  },
+  "spitter": {
+    "image": "spitter.png",
+    "sha256": "23018ff17f14a46656f566c4a2a04e6f6517e7d818a555c7c03302efba27f735"
+  },
+  "exploder": {
+    "image": "exploder-3ac1dbdf56f5.png",
+    "sha256": "3ac1dbdf56f512b12beaad03e5c55960debd5b47ceed83b31d65c5881f7577ea"
+  },
+  "screamer": {
+    "image": "screamer.png",
+    "sha256": "ce9278853c3038785d6f3d49d16a1cefba5c9659caf797488f3d12e1f33c3e5d"
+  },
+  "walker-onearm": {
+    "image": "walker-onearm.png",
+    "sha256": "a39684f27d8a3a56bd94c84c14492fa83ddc7b370069d3352da3281ac9593963"
+  }
+}

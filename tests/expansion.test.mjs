@@ -301,7 +301,6 @@ const handler = Object.create(InputHandler.prototype);
 handler.game = boarding;
 handler.canvas = { style: {} };
 handler._handleMainMenuClick = () => false;
-handler.attackMoveArm = false;
 handler.flareArm = false;
 handler._clickHandled = false;
 const vehicleScreen = worldToScreen(vehicle.x, vehicle.y, boarding.camera);

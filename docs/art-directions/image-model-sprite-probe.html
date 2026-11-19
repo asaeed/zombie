@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone sprite model probe</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #17211d; color: #e8eee7; font: 14px system-ui, sans-serif; }
+    header, main { max-width: 1120px; margin: auto; padding: 18px 24px; }
+    header { border-bottom: 1px solid #35473d; }
+    h1 { margin: 0 0 7px; font-size: 22px; }
+    h2 { margin: 0 0 10px; font-size: 16px; }
+    p { margin: 0; line-height: 1.5; color: #bdc9bf; }
+    a { color: #d4df9e; }
+    .source { margin: 20px 0 26px; }
+    .sheet { position: relative; margin-top: 12px; overflow: hidden; background: #27372e; }
+    .sheet img { display: block; width: 100%; height: auto; }
+    .grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); pointer-events: none; }
+    .grid div { border-left: 1px solid #ff7866; }
+    .grid div:last-child { border-right: 1px solid #ff7866; }
+    .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 16px; }
+    button { background: #314d3b; color: #fff; border: 1px solid #779273; padding: 7px 13px; cursor: pointer; }
+    input[type="range"] { width: 140px; accent-color: #a2b877; }
+    .players { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+    .player { border-top: 1px solid #45584b; padding-top: 14px; }
+    .preview { display: flex; align-items: end; gap: 18px; min-height: 302px; padding: 12px; background: #25352d; }
+    .large { width: 240px; height: 288px; image-rendering: pixelated; }
+    .game { width: 80px; height: 96px; image-rendering: pixelated; }
+    .metrics { margin-top: 11px; font: 12px ui-monospace, monospace; color: #c9d4c4; }
+    footer { margin-top: 24px; border-top: 1px solid #35473d; padding: 18px 0 24px; color: #bdc9bf; line-height: 1.5; }
+    @media (max-width: 720px) { .players { grid-template-columns: 1fr; } .preview { min-height: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Image-model sprite-sheet probe</h1>
+    <p>One controlled generation using the selected Sculpted Pixel concept as reference. This is an asset-production test, not a game asset.</p>
+  </header>
+  <main>
+    <section class="source">
+      <h2>Generated row with nominal four-cell grid</h2>
+      <p>The art is stronger, but three figures cross the equal-width cell boundaries. The red rules mark the requested cuts.</p>
+      <div class="sheet">
+        <img id="source" src="image-model-sniper-walk-probe.png" alt="Four generated sniper walk poses on a transparent background">
+        <div class="grid"><div></div><div></div><div></div><div></div></div>
+      </div>
+    </section>
+    <div class="controls">
+      <button id="play" type="button">Pause</button>
+      <label for="fps">Playback <output id="fpsLabel">8</output> fps</label>
+      <input id="fps" type="range" min="2" max="16" value="8">
+    </div>
+    <div class="players">
+      <section class="player">
+        <h2>Equal-cell slice</h2>
+        <div class="preview"><canvas class="large" id="rawLarge" width="80" height="96"></canvas><canvas class="game" id="rawGame" width="80" height="96"></canvas></div>
+        <p class="metrics" id="rawMetric"></p>
+      </section>
+      <section class="player">
+        <h2>Silhouette-separated salvage</h2>
+        <div class="preview"><canvas class="large" id="fixedLarge" width="80" height="96"></canvas><canvas class="game" id="fixedGame" width="80" height="96"></canvas></div>
+        <p class="metrics" id="fixedMetric"></p>
+      </section>
+    </div>
+    <footer>
+      The salvage aligns feet and scales every frame consistently, but it cannot invent distinct intermediate poses or other facings. The test supports image generation for a character master, followed by a controlled animation and cleanup pipeline.
+      <a href="focused-sculpted-pixel.png">Selected concept</a>
+    </footer>
+  </main>
+  <script>
+    const image = document.getElementById('source');
+    const fpsInput = document.getElementById('fps');
+    const fpsLabel = document.getElementById('fpsLabel');
+    const playButton = document.getElementById('play');
+    const displays = {
+      raw: [document.getElementById('rawLarge'), document.getElementById('rawGame')],
+      fixed: [document.getElementById('fixedLarge'), document.getElementById('fixedGame')],
+    };
+    let playing = true, frame = 0, lastFrameAt = 0, components = [];
+
+    function silhouetteRuns() {
+      const source = document.createElement('canvas');
+      source.width = image.naturalWidth;
+      source.height = image.naturalHeight;
+      const ctx = source.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0);
+      const pixels = ctx.getImageData(0, 0, source.width, source.height).data;
+      const active = new Uint8Array(source.width);
+      for (let x = 0; x < source.width; x++) {
+        let count = 0;
+        for (let y = 0; y < source.height; y++) {
+          if (pixels[(y * source.width + x) * 4 + 3] > 128) count++;
+        }
+        active[x] = count > 3 ? 1 : 0;
+      }
+      const runs = [];
+      let start = -1;
+      for (let x = 0; x <= source.width; x++) {
+        if (active[x] && start < 0) start = x;
+        if ((!active[x] || x === source.width) && start >= 0) {
+          if (x - start > 20) runs.push([start, x - 1]);
+          start = -1;
+        }
+      }
+      return runs.map(([left, right]) => {
+        let top = source.height, bottom = -1;
+        for (let x = left; x <= right; x++) {
+          for (let y = 0; y < source.height; y++) {
+            if (pixels[(y * source.width + x) * 4 + 3] > 128) {
+              top = Math.min(top, y);
+              bottom = Math.max(bottom, y);
+            }
+          }
+        }
+        return { left, top, width: right - left + 1, height: bottom - top + 1 };
+      });
+    }
+
+    function render() {
+      const cellWidth = image.naturalWidth / 4;
+      for (const canvas of displays.raw) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 80, 96);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(image, frame * cellWidth, 0, cellWidth, image.naturalHeight, 0, 0, 80, 96);
+      }
+      const box = components[frame];
+      const widest = Math.max(...components.map(item => item.width));
+      const scale = 74 / widest;
+      for (const canvas of displays.fixed) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 80, 96);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(image, box.left, box.top, box.width, box.height,
+          (80 - box.width * scale) / 2, 86 - box.height * scale,
+          box.width * scale, box.height * scale);
+      }
+      document.getElementById('rawMetric').textContent = `Frame ${frame + 1}: fixed cell ${cellWidth} x ${image.naturalHeight}`;
+      document.getElementById('fixedMetric').textContent = `Frame ${frame + 1}: source x ${box.left}-${box.left + box.width - 1}, width ${box.width}`;
+    }
+
+    function tick(time) {
+      if (playing && time - lastFrameAt >= 1000 / Number(fpsInput.value)) {
+        frame = (frame + 1) % 4;
+        lastFrameAt = time;
+        render();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    playButton.addEventListener('click', () => {
+      playing = !playing;
+      playButton.textContent = playing ? 'Pause' : 'Play';
+    });
+    fpsInput.addEventListener('input', () => { fpsLabel.value = fpsInput.value; });
+    image.addEventListener('load', () => {
+      components = silhouetteRuns();
+      if (components.length !== 4) throw new Error(`Expected four separated figures; found ${components.length}`);
+      render();
+      requestAnimationFrame(tick);
+    });
+  </script>
+</body>
+</html>

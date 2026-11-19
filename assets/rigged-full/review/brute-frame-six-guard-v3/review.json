@@ -1,0 +1,185 @@
+{
+  "asset": "brute-d6ff2557a9ae.png",
+  "status": "local revision for user review",
+  "referenceAsset": "brute-105681855a43.png",
+  "method": "exact original frame-six guard for idle and attack boundaries, with a rig-blended recovery",
+  "motion": {
+    "version": "frame-six-ready-combo-v3",
+    "readyFrame": 6,
+    "attackSources": [
+      "Punch_Jab",
+      "Punch_Cross"
+    ],
+    "attackDuration": 1.3333333333333333
+  },
+  "reviewer": "single-agent self-review; no independent art review",
+  "visualCoverage": [
+    "all eight directions at key poses, atlas and game display sizes",
+    "complete south, east and north attack strips",
+    "southeast heavy sweep",
+    "actual Canvas sprite renderer at varied zoom and pixel density"
+  ],
+  "timedNativePreview": "not reviewed",
+  "reviewedDuplicates": {
+    "groups": [
+      [
+        "idle/S/0",
+        "idle/S/1",
+        "idle/S/2",
+        "idle/S/3",
+        "idle/S/4",
+        "idle/S/5",
+        "idle/S/6",
+        "idle/S/7",
+        "attack/S/0",
+        "attack/S/1",
+        "attack/S/2",
+        "attack/S/3",
+        "attack/S/4",
+        "attack/S/5",
+        "attack/S/47"
+      ],
+      [
+        "idle/SE/0",
+        "idle/SE/1",
+        "idle/SE/2",
+        "idle/SE/3",
+        "idle/SE/4",
+        "idle/SE/5",
+        "idle/SE/6",
+        "idle/SE/7",
+        "attack/SE/0",
+        "attack/SE/1",
+        "attack/SE/2",
+        "attack/SE/3",
+        "attack/SE/4",
+        "attack/SE/5",
+        "attack/SE/47"
+      ],
+      [
+        "idle/E/0",
+        "idle/E/1",
+        "idle/E/2",
+        "idle/E/3",
+        "idle/E/4",
+        "idle/E/5",
+        "idle/E/6",
+        "idle/E/7",
+        "attack/E/0",
+        "attack/E/1",
+        "attack/E/2",
+        "attack/E/3",
+        "attack/E/4",
+        "attack/E/5",
+        "attack/E/47"
+      ],
+      [
+        "idle/NE/0",
+        "idle/NE/1",
+        "idle/NE/2",
+        "idle/NE/3",
+        "idle/NE/4",
+        "idle/NE/5",
+        "idle/NE/6",
+        "idle/NE/7",
+        "attack/NE/0",
+        "attack/NE/1",
+        "attack/NE/2",
+        "attack/NE/3",
+        "attack/NE/4",
+        "attack/NE/5",
+        "attack/NE/47"
+      ],
+      [
+        "idle/N/0",
+        "idle/N/1",
+        "idle/N/2",
+        "idle/N/3",
+        "idle/N/4",
+        "idle/N/5",
+        "idle/N/6",
+        "idle/N/7",
+        "attack/N/0",
+        "attack/N/1",
+        "attack/N/2",
+        "attack/N/3",
+        "attack/N/4",
+        "attack/N/5",
+        "attack/N/47"
+      ],
+      [
+        "idle/NW/0",
+        "idle/NW/1",
+        "idle/NW/2",
+        "idle/NW/3",
+        "idle/NW/4",
+        "idle/NW/5",
+        "idle/NW/6",
+        "idle/NW/7",
+        "attack/NW/0",
+        "attack/NW/1",
+        "attack/NW/2",
+        "attack/NW/3",
+        "attack/NW/4",
+        "attack/NW/5",
+        "attack/NW/47"
+      ],
+      [
+        "idle/W/0",
+        "idle/W/1",
+        "idle/W/2",
+        "idle/W/3",
+        "idle/W/4",
+        "idle/W/5",
+        "idle/W/6",
+        "idle/W/7",
+        "attack/W/0",
+        "attack/W/1",
+        "attack/W/2",
+        "attack/W/3",
+        "attack/W/4",
+        "attack/W/5",
+        "attack/W/47"
+      ],
+      [
+        "idle/SW/0",
+        "idle/SW/1",
+        "idle/SW/2",
+        "idle/SW/3",
+        "idle/SW/4",
+        "idle/SW/5",
+        "idle/SW/6",
+        "idle/SW/7",
+        "attack/SW/0",
+        "attack/SW/1",
+        "attack/SW/2",
+        "attack/SW/3",
+        "attack/SW/4",
+        "attack/SW/5",
+        "attack/SW/47"
+      ]
+    ],
+    "reason": "held frame-six ready guard"
+  },
+  "preservation": {
+    "unchangedBodySource": true,
+    "exactFrameSixGuards": 80,
+    "unchangedWalkingFrames": 128
+  },
+  "renderer": {
+    "renderedFrames": 632,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "publication": "local only"
+}

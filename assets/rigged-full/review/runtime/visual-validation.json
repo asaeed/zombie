@@ -1,0 +1,45 @@
+{
+  "startup": {
+    "noFallbackFrames": true,
+    "noPilotImages": true,
+    "noLegacyZombieAtlases": true
+  },
+  "errors": [],
+  "compass": {
+    "center": {
+      "x": 340,
+      "y": 88
+    },
+    "radius": 36,
+    "points": [
+      {
+        "edge": 0,
+        "label": "N",
+        "x": 365.9383885389976,
+        "y": 75.03080573050121
+      },
+      {
+        "edge": 1,
+        "label": "E",
+        "x": 365.9383885389976,
+        "y": 100.96919426949879
+      },
+      {
+        "edge": 2,
+        "label": "S",
+        "x": 314.0616114610024,
+        "y": 100.96919426949879
+      },
+      {
+        "edge": 3,
+        "label": "W",
+        "x": 314.0616114610024,
+        "y": 75.03080573050121
+      }
+    ]
+  },
+  "hiddenPanels": {
+    "noAnimation": true,
+    "noDraws": true
+  }
+}

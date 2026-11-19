@@ -1,0 +1,52 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-6de6768c399d.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Same raised reach and palm roll as cap walker; higher and wider waistband with the existing hem",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeCycleSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after phase grids plus complete directional cycles",
+    "timedNativePlayback": "not reviewed; browser playback is checked separately",
+    "observations": [
+      "Raised waistband covers hips and buttocks in rear views",
+      "Hem and short-step gait are preserved",
+      "Arms and hands match the refined cap walker pose"
+    ]
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedShortGait": true
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Idle and attack share the same ready pose at frame zero",
+  "deferredHandCorrections": [
+    "spitter",
+    "exploder",
+    "screamer",
+    "walker-onearm"
+  ]
+}

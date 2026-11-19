@@ -1,0 +1,36 @@
+{
+  "version": 5,
+  "baseline": "../motion-r4/manifest.json",
+  "sourceArt": "../source/layered-r3/generation.json",
+  "frameCount": 16,
+  "rearMotion": {
+    "stride": 8.2,
+    "lift": 4.4
+  },
+  "actors": {
+    "soldier": {
+      "stride": 24,
+      "lift": 9,
+      "bob": 1.5,
+      "fps": 16,
+      "cycleSeconds": 1,
+      "bobCurve": "twice-per-cycle cosine; torso and hips, not whole-sprite translation"
+    },
+    "walker": {
+      "stride": 18.5,
+      "lift": 6.5,
+      "bob": 1.2,
+      "fps": 13,
+      "cycleSeconds": 1.2307692307692308,
+      "bobCurve": "twice-per-cycle cosine; torso and hips, not whole-sprite translation"
+    }
+  },
+  "changes": {
+    "bobRatio": 0.75,
+    "footTravel": "about 9% more requested stride; measured ankle envelopes also increase",
+    "cadence": "unchanged",
+    "sourcePaintings": "unchanged"
+  },
+  "newImageGeneration": false,
+  "gameplayReplacement": false
+}

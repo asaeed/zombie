@@ -1,0 +1,46 @@
+{
+  "actor": "exploder",
+  "image": "exploder-3ac1dbdf56f5.png",
+  "method": "rigged 3D rendered to sprite atlas",
+  "scope": "Animated chest-relative forward reach, stride-synced sway and body-following hand orientation",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "fullCycleContactSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after all directions at quarter phases and native display scale",
+    "timedNativePlayback": "not reviewed: separate in-app browser unavailable; existing native browser sessions were in use",
+    "observations": [
+      "Both arms stay forward through all 16 running poses",
+      "Reach follows torso bob, lean and twist",
+      "Small cyclic hand sway and soft elbows retained"
+    ]
+  },
+  "preserved": {
+    "unchangedLegPoses": 128,
+    "unchangedNonWalkFrames": 192
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": null
+}

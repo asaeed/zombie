@@ -57,7 +57,7 @@ test('all survivors, zombies and vehicles use lighter ground shadows',()=>{
  vm.runInContext(fs.readFileSync(new URL('js/renderer.js',root),'utf8'),sandbox);
  const Renderer=vm.runInContext('Renderer',sandbox),renderer=Object.create(Renderer.prototype);
  renderer._groundEllipse=()=>{};renderer._drawActorSprite=()=>{};renderer._drawHealthBar=()=>{};
- const game={camera:{zoom:1},gameTime:0,selectedVehicle:null};
+ const game={camera:{zoom:1},gameTime:0,selectedVehicle:null,selectedZombies:[],units:[]};
  for(const type of ['soldier','scout','builder','medic','sniper','heavy','torchbearer',
   'walker','runner','brute','spitter','exploder','screamer','boss','suv']){
   const actor={type,x:100,y:100,id:1,def:{radius:18},hp:100,maxHp:100,
@@ -119,6 +119,7 @@ test('heavy keeps the club in his right palm through walking, carrying and attac
   assert.ok(r.prop.palms.r<1e-5,label+' palm contact');
   if(r.action!=='walk')assert.ok(r.handErrors.r.error<1e-5,label+' reachable grip');
   if(r.action==='idle'){
+   assert.ok(r.joints.r.shoulder[1]-r.joints.r.elbow[1]>.20,label+' idle elbow hangs below the shoulder');
    assert.ok(r.prop.bodyLocal[0]<-.25,label+' carry grip outside right torso');
    assert.ok(r.prop.bodyLocal[2]>.20,label+' carried weapon in front of body');
   }
@@ -322,5 +323,16 @@ test('brute holds the exact sixth-frame ready pose before and after attacks in t
    assert.deepEqual(pose.joints,guard.joints,'holds frame six instead of dropping to neutral');
    assert.deepEqual(pose.handDirections,guard.handDirections,'keeps the same ready wrist orientation');
   }
+ }
+});
+
+test('the standing Torchbearer keeps his free left arm relaxed at his side',()=>{
+ const poses=manifest.characters.torchbearer.production.measurements.filter(r=>r.action==='idle');
+ assert.equal(poses.length,8*8);
+ for(const r of poses){
+  const arm=r.joints.l;
+  assert.ok(arm.shoulder[1]-arm.elbow[1]>.15,'idle elbow stays below the shoulder');
+  assert.ok(arm.elbow[1]>arm.wrist[1],'free forearm hangs down');
+  assert.ok(arm.shoulder[1]-arm.wrist[1]>.35,'free hand rests beside the body');
  }
 });

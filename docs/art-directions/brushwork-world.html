@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../../"><title>Dead Zone - Brushwork Outpost</title><link rel="icon" href="assets/favicon.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f0f2ef;color:#273936;font:13px system-ui,sans-serif;letter-spacing:0;height:100dvh;display:flex;flex-direction:column}header{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid #c8d2cf;background:#fff;flex-wrap:wrap;flex-shrink:0}h1{font-size:18px;line-height:24px;margin:0}nav{display:flex;gap:16px;margin-left:auto}a{color:#276e72;text-decoration:none}a:hover{text-decoration:underline}.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}label{display:flex;align-items:center;gap:6px}select,button{font:inherit;color:inherit;background:#fff;border:1px solid #8eaaa4;border-radius:4px;height:30px;padding:3px 7px}button{width:30px;display:grid;place-items:center;cursor:pointer}button svg{width:18px;height:18px;fill:currentColor}input[type=range]{width:85px;accent-color:#26757a}#viewport{flex:1;min-height:0;overflow:hidden}canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none;image-rendering:auto}canvas:active{cursor:grabbing}#failure{position:fixed;top:70px;left:20px;color:#9c3223;background:white;padding:8px}@media(max-width:800px){header{gap:10px}nav{margin-left:0}.controls{gap:8px}}
+</style></head><body>
+<header><h1>Brushwork Outpost</h1><div class="controls">
+<label>Graphics <select id="pack"><option value="brushwork">Brushwork Tactics</option><option value="sculpted">Sculpted Pixel</option><option value="classic">Classic</option></select></label>
+<button id="play" title="Pause" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M6 3h4v18H6zM14 3h4v18h-4z"></path></svg></button>
+<label>State <select id="motion"><option value="idle">Idle</option><option value="walk" selected>Walk</option><option value="strike">Attack</option><option value="work">Work</option></select></label>
+<label>Facing <select id="facing"><option>S</option><option selected>SE</option><option>E</option><option>NE</option><option>N</option><option>NW</option><option>W</option><option>SW</option></select></label>
+<label>Light <select id="light"><option value="day">Day</option><option value="night">Night</option></select></label>
+<label>Zoom <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1"></label>
+</div><nav><a href="docs/art-directions/brushwork-sprites.html">Sprites</a><a href="docs/art-directions/next-brushwork-tactics.png">Concept</a><a href="?artPack=brushwork">Play</a></nav></header>
+<div id="viewport"><canvas id="scene"></canvas></div><p id="failure" hidden></p>
+<script>const reviewURL=new URL(location.href);if(!reviewURL.searchParams.has('artPack')){reviewURL.searchParams.set('artPack','brushwork');history.replaceState(null,'',reviewURL);}</script>
+<script src="js/config.js"></script><script src="js/utils.js"></script><script src="js/pathfinding.js"></script>
+<script src="js/entities.js"></script><script src="js/game.js"></script><script src="js/zombie-art.js"></script><script src="js/diorama-art.js"></script><script src="js/renderer.js"></script>
+<script type="module" src="docs/art-directions/sculpted-world.mjs"></script>
+<script type="module">
+const pack=document.getElementById('pack'),failure=document.getElementById('failure');
+await ART_PACK_READY;pack.value=ART_PACK_STATE.active;
+pack.onchange=async()=>{pack.disabled=true;failure.hidden=true;try{await selectArtPack(pack.value,{persist:false});}catch(error){failure.hidden=false;failure.textContent=error.message;}finally{pack.value=ART_PACK_STATE.active;pack.disabled=false;}};
+</script></body></html>

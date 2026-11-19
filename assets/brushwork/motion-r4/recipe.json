@@ -1,0 +1,24 @@
+{
+  "version": 4,
+  "baseline": "../motion-r3/manifest.json",
+  "sourceArt": "../source/layered-r3/generation.json",
+  "frameCount": 16,
+  "actors": {
+    "soldier": {
+      "stride": 22,
+      "lift": 8,
+      "bob": "twice-per-cycle cosine in atlas pixels; torso and hips, not whole-sprite translation",
+      "fps": 16,
+      "cycleSeconds": 1
+    },
+    "walker": {
+      "stride": 17,
+      "lift": 6,
+      "bob": "twice-per-cycle cosine in atlas pixels; torso and hips, not whole-sprite translation",
+      "fps": 13,
+      "cycleSeconds": 1.2307692307692308
+    }
+  },
+  "newImageGeneration": false,
+  "gameplayReplacement": false
+}

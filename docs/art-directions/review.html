@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Visual review</title>
+  <link id="preview-favicon" rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101717;
+      color: #e8eae5;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; }
+    a { color: inherit; }
+    button { font: inherit; }
+    .shell { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
+    header { border-bottom: 1px solid #35423f; background: #172220; }
+    .topbar { min-height: 70px; display: flex; align-items: center; gap: 28px; }
+    .brand { font-size: 17px; font-weight: 850; letter-spacing: .04em; white-space: nowrap; }
+    .brand b { color: #db735f; }
+    nav { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+    nav a { padding: 8px 12px; color: #b8c7c1; text-decoration: none; border-radius: 4px; }
+    nav a:hover, nav a:focus-visible { color: #fff; background: #304540; }
+    .page-title { padding: 52px 0 32px; }
+    .eyebrow { color: #d1b564; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 9px 0 12px; font-size: clamp(30px, 5vw, 52px); line-height: 1.08; letter-spacing: 0; }
+    .lede { color: #aebfb8; line-height: 1.5; max-width: 64ch; margin: 0; }
+    section { scroll-margin-top: 30px; padding-bottom: 58px; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid #35423f; padding-bottom: 12px; margin-bottom: 20px; }
+    h2 { margin: 0; font-size: 21px; line-height: 1.2; }
+    .section-head p { margin: 0; color: #aebfb8; font-size: 13px; }
+    .icon-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .option { display: block; width: 100%; min-width: 0; padding: 17px; text-align: left; color: inherit; cursor: pointer; border: 1px solid #364541; border-radius: 8px; background: #1b2825; transition: border-color .15s, background .15s, transform .15s; }
+    .option:hover { border-color: #9bc2a5; background: #233630; transform: translateY(-2px); }
+    .option:focus-visible { outline: 2px solid #f3c966; outline-offset: 3px; }
+    .option[aria-pressed="true"] { border-color: #f2c464; background: #28352e; box-shadow: inset 0 0 0 1px #f2c464; }
+    .option-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .option-num { color: #d4b965; font-size: 11px; font-weight: 800; }
+    .option-state { color: #f3ce75; font-size: 11px; opacity: 0; }
+    .option[aria-pressed="true"] .option-state { opacity: 1; }
+    .big-preview { height: 104px; display: flex; align-items: center; justify-content: center; }
+    .icon-64 { width: 64px; height: 64px; display: block; }
+    .icon-32 { width: 32px; height: 32px; display: block; }
+    .icon-16 { width: 16px; height: 16px; display: block; }
+    .option-name { display: block; font-size: 15px; font-weight: 720; line-height: 1.25; }
+    .option-type { display: block; min-height: 34px; padding-top: 4px; color: #aebfb8; font-size: 12px; line-height: 1.4; }
+    .sizes { display: flex; align-items: end; gap: 15px; margin-top: 13px; padding-top: 13px; border-top: 1px solid #394a44; }
+    .size { display: grid; justify-items: center; align-content: end; gap: 7px; min-width: 32px; height: 52px; }
+    .size span { color: #aebfb8; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .tab-preview { display: flex; align-items: center; gap: 9px; max-width: 380px; margin-top: 22px; padding: 11px 14px; border: 1px solid #3a4945; border-radius: 7px 7px 0 0; background: #24312e; color: #e4eae3; font-size: 13px; }
+    .tab-preview svg { width: 16px; height: 16px; flex: none; }
+    .tab-preview .tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-status { margin: 9px 0 0; min-height: 18px; color: #aebfb8; font-size: 12px; }
+    .direction { padding: 24px 0 32px; border-bottom: 1px solid #35423f; }
+    .direction:last-child { border: 0; }
+    .direction-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 14px; }
+    .direction h3 { margin: 0; font-size: 17px; }
+    .direction p { color: #b7c4bd; margin: 5px 0 0; font-size: 13px; line-height: 1.5; }
+    .direction a { color: #f0cd78; white-space: nowrap; font-size: 13px; }
+    .board { margin: 0; width: 100%; background: #27302d; border: 1px solid #44534b; border-radius: 6px; overflow: hidden; }
+    .board img { display: block; width: 100%; height: auto; }
+    footer { border-top: 1px solid #35423f; padding: 20px 0 32px; color: #a7b5ae; font-size: 12px; }
+    footer a { color: #f0cd78; }
+    @media (max-width: 1000px) { .icon-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 28px, 1240px); }
+      .topbar { align-items: start; flex-direction: column; justify-content: center; gap: 8px; padding-block: 13px; }
+      nav { margin-left: -12px; }
+      .page-title { padding-top: 36px; }
+      .section-head { align-items: start; flex-direction: column; gap: 5px; }
+      .icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .option { padding: 12px; }
+      .big-preview { height: 88px; }
+      .option-type { min-height: 50px; }
+      .sizes { gap: 8px; }
+    }
+    @media (max-width: 370px) { .icon-grid { grid-template-columns: 1fr; } .option-type { min-height: 0; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <symbol id="flare" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#202b28"/>
+      <path d="M32 8 40 25 56 32 40 39 32 56 24 39 8 32 24 25Z" fill="#eb6e4d"/>
+      <circle cx="32" cy="32" r="8" fill="#ffd47b"/>
+    </symbol>
+    <symbol id="wall" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#202b28"/>
+      <path d="M12 21h40v28H12z" fill="#e7c46d"/>
+      <path d="M12 31h40M12 41h40M25 21v10m14 0v10M25 41v8m14-28v10" stroke="#202b28" stroke-width="4"/>
+      <path d="M26 25h12v24H26z" fill="#3d6251"/>
+      <path d="M27 26h10v23H27z" fill="#dce5d2"/>
+    </symbol>
+    <symbol id="tile" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#1f2927"/>
+      <path d="M32 9 57 32 32 55 7 32Z" fill="#6dab75"/>
+      <path d="M32 9v46M7 32h50" stroke="#283d30" stroke-width="3"/>
+      <path d="M32 19 45 32 32 45 19 32Z" fill="#263a34"/>
+      <circle cx="32" cy="32" r="6" fill="#e66c57"/>
+    </symbol>
+    <symbol id="target" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#28332f"/>
+      <circle cx="32" cy="32" r="21" fill="none" stroke="#e4eadb" stroke-width="5"/>
+      <circle cx="32" cy="32" r="11" fill="none" stroke="#82bf84" stroke-width="5"/>
+      <circle cx="32" cy="32" r="4" fill="#e96853"/>
+      <path d="M32 5v10m0 34v10M5 32h10m34 0h10" stroke="#e4eadb" stroke-width="4"/>
+    </symbol>
+    <symbol id="hand" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#25322b"/>
+      <path d="M18 52V36l-4-10 6-3 8 12V13h6v18l5-20 6 2-4 22 7-15 6 3-8 25-9 8H18Z" fill="#8bba74" stroke="#17251e" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M17 44h24" stroke="#c45649" stroke-width="4"/>
+    </symbol>
+    <symbol id="beacon" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#202b2b"/>
+      <path d="M32 8 11 18l7 8 14-8 14 8 7-8Z" fill="#eabf5c"/>
+      <path d="M23 27h18l5 26H18Z" fill="#8ab9a1"/>
+      <path d="M28 27v26m8-26v26M16 54h32" stroke="#273b36" stroke-width="4"/>
+      <circle cx="32" cy="20" r="6" fill="#ffdf84"/>
+    </symbol>
+    <symbol id="crate" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#26302d"/>
+      <path d="M32 8 54 20v25L32 57 10 45V20Z" fill="#c39b60"/>
+      <path d="M32 32v25M10 20l22 12 22-12M32 32l11-18" fill="none" stroke="#26302d" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M20 35h8m-4-4v8" stroke="#f2e2a0" stroke-width="3"/>
+    </symbol>
+    <symbol id="breach" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#242b2a"/>
+      <path d="M13 13h38v38H13z" fill="none" stroke="#dedec9" stroke-width="7"/>
+      <path d="M33 8 23 28l10 4-8 24 21-28-11-3 8-17Z" fill="#ec7354" stroke="#242b2a" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="moon" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#1c292e"/>
+      <path d="M41 12a22 22 0 1 0 11 33 20 20 0 0 1-11-33Z" fill="#e7d58c"/>
+      <path d="M13 49h34" stroke="#86b993" stroke-width="5" stroke-linecap="round"/>
+      <path d="m38 38 5 6 7-8" fill="none" stroke="#e96b55" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="shield" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="9" fill="#222d2b"/>
+      <path d="M32 7 52 16v17c0 12-8 19-20 24C20 52 12 45 12 33V16Z" fill="#7eac85" stroke="#e0e4cb" stroke-width="3"/>
+      <path d="M32 14v35M18 28h28" stroke="#263b34" stroke-width="6"/>
+      <circle cx="32" cy="28" r="5" fill="#ee715a"/>
+    </symbol>
+  </svg>
+
+  <header>
+    <div class="shell topbar">
+      <div class="brand">DEAD <b>ZONE</b></div>
+      <nav aria-label="Review sections">
+        <a href="#icons">Favicon options</a>
+        <a href="#directions">Art directions</a>
+        <a href="native-sprite-options.html">Sprite options</a>
+        <a href="sprite-sheet-pilot.html">Animation pilot</a>
+        <a href="../../index.html">Open game</a>
+      </nav>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="page-title">
+      <div class="eyebrow">Visual review</div>
+      <h1>Choose the signal.</h1>
+      <p class="lede">Breach is the chosen favicon. Pre-rendered low-poly 3D is the chosen art direction; the alternatives remain here for comparison.</p>
+    </div>
+    <section id="icons" aria-labelledby="icon-title">
+      <div class="section-head">
+        <h2 id="icon-title">Favicon options</h2>
+        <p>Actual-size previews at 64, 32, and 16 pixels.</p>
+      </div>
+      <div id="icon-grid" class="icon-grid"></div>
+      <div class="tab-preview" aria-label="Browser tab preview">
+        <svg id="tab-icon" viewBox="0 0 64 64" aria-hidden="true"></svg>
+        <span class="tab-name">Dead Zone RTS - Visual review</span>
+      </div>
+      <p id="preview-status" class="preview-status" role="status">Breach is the current game favicon. Other choices preview only on this page.</p>
+    </section>
+    <section id="directions" aria-labelledby="directions-title">
+      <div class="section-head">
+        <h2 id="directions-title">Art directions</h2>
+        <p>Concept studies; not game-ready sprite sheets.</p>
+      </div>
+      <article class="direction">
+        <div class="direction-head">
+          <div><h3>A. Chunky isometric pixel art</h3><p>Best fit for the existing Canvas renderer and small, night-time units.</p></div>
+          <a href="pixel-art-concept.png" target="_blank" rel="noopener">Open full image</a>
+        </div>
+        <figure class="board"><img src="pixel-art-concept.png" alt="Pixel-art HQ and light tower, with sniper, medic, builder, and torchbearer" loading="lazy"></figure>
+      </article>
+      <article class="direction">
+        <div class="direction-head">
+          <div><h3>B. Inked graphic novel</h3><p>Strong silhouettes and personality, with harder small-scale legibility.</p></div>
+          <a href="graphic-novel-concept.png" target="_blank" rel="noopener">Open full image</a>
+        </div>
+        <figure class="board"><img src="graphic-novel-concept.png" alt="Graphic-novel HQ and light tower, with sniper, medic, builder, and torchbearer" loading="lazy"></figure>
+      </article>
+      <article class="direction">
+        <div class="direction-head">
+          <div><h3>C. Pre-rendered low-poly 3D - selected</h3><p>3D-authored models baked to 2D frames for the current renderer. <a href="native-sprite-options.html#option-d">Option D, a brighter 24 x 32 design, is the selected sprite target</a>.</p></div>
+          <a href="pre-rendered-3d-concept.png" target="_blank" rel="noopener">Open full image</a>
+        </div>
+        <figure class="board"><img src="pre-rendered-3d-concept.png" alt="Low-poly 3D HQ and light tower, with sniper, medic, builder, and torchbearer" loading="lazy"></figure>
+      </article>
+    </section>
+  </main>
+  <footer><div class="shell">Dead Zone visual studies. <a href="README.md">Read the production notes</a>.</div></footer>
+  <script>
+    'use strict';
+    const choices = [
+      ['flare', 'Signal flare', 'Fire and attention'],
+      ['wall', 'Last wall', 'Hold the perimeter'],
+      ['tile', 'Red sector', 'The contested map'],
+      ['target', 'Crosshair', 'Tactical defense'],
+      ['hand', 'Rising hand', 'The undead threat'],
+      ['beacon', 'Watchtower', 'Light against night'],
+      ['crate', 'Supply run', 'Scavenge and survive'],
+      ['breach', 'Breach', 'Under attack'],
+      ['moon', 'Night watch', 'Survive the dark'],
+      ['shield', 'Safe zone', 'Defend the base'],
+    ];
+    const ns = 'http://www.w3.org/2000/svg';
+    const grid = document.getElementById('icon-grid');
+    const tabIcon = document.getElementById('tab-icon');
+    const favicon = document.getElementById('preview-favicon');
+    const status = document.getElementById('preview-status');
+
+    function icon(id, size) {
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 64 64');
+      svg.setAttribute('class', `icon-${size}`);
+      svg.setAttribute('aria-hidden', 'true');
+      const use = document.createElementNS(ns, 'use');
+      use.setAttribute('href', `#${id}`);
+      svg.append(use);
+      return svg;
+    }
+
+    choices.forEach(([id, name, type], index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'option';
+      button.setAttribute('aria-pressed', 'false');
+      const top = document.createElement('span');
+      top.className = 'option-top';
+      const number = document.createElement('span');
+      number.className = 'option-num';
+      number.textContent = String(index + 1).padStart(2, '0');
+      const state = document.createElement('span');
+      state.className = 'option-state';
+      state.textContent = id === 'breach' ? 'SELECTED' : 'PREVIEWING';
+      top.append(number, state);
+      const big = document.createElement('span');
+      big.className = 'big-preview';
+      big.append(icon(id, 64));
+      const title = document.createElement('span');
+      title.className = 'option-name';
+      title.textContent = name;
+      const description = document.createElement('span');
+      description.className = 'option-type';
+      description.textContent = type;
+      const sizes = document.createElement('span');
+      sizes.className = 'sizes';
+      for (const size of [64, 32, 16]) {
+        const box = document.createElement('span');
+        box.className = 'size';
+        const label = document.createElement('span');
+        label.textContent = `${size}px`;
+        box.append(icon(id, size), label);
+        sizes.append(box);
+      }
+      button.append(top, big, title, description, sizes);
+      button.addEventListener('click', () => {
+        grid.querySelectorAll('.option').forEach(option => option.setAttribute('aria-pressed', 'false'));
+        button.setAttribute('aria-pressed', 'true');
+        tabIcon.replaceChildren(icon(id, 16).firstChild);
+        const symbol = document.getElementById(id);
+        const source = `<svg xmlns="${ns}" viewBox="0 0 64 64">${symbol.innerHTML}</svg>`;
+        favicon.href = `data:image/svg+xml,${encodeURIComponent(source)}`;
+        status.textContent = `${name} is previewing in this tab. The game favicon has not changed.`;
+      });
+      grid.append(button);
+    });
+    grid.children[7].click();
+    status.textContent = 'Breach is the current game favicon. Other choices preview only on this page.';
+  </script>
+</body>
+</html>

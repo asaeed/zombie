@@ -11,7 +11,9 @@ test('Boss preserves its display size and gameplay stats with the authored attac
   assert.equal(boss.renderScale,.55575);
   assert.equal(boss.presentationScale,BOSS_DISPLAY_SCALE);
   assert.equal(boss.bodyHeight,96);
-  assert.ok(Math.abs(brute.renderScale-.2964)<1e-12);
+  assert.ok(Math.abs(brute.renderScale-.5187)<1e-12);
+  assert.ok(brute.bodyHeight*brute.renderScale>manifest.characters.heavy.bodyHeight*manifest.characters.heavy.renderScale*1.4);
+  assert.ok(brute.bodyHeight*brute.renderScale<boss.bodyHeight*boss.renderScale);
   const context=vm.createContext({});
   vm.runInContext(readFileSync(new URL('js/config.js',root),'utf8'),context);
   const def=vm.runInContext('ZOMBIE_DEFS.boss',context);

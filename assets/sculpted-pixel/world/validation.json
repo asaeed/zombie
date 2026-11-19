@@ -1,0 +1,466 @@
+{
+  "atlases": {
+    "walker": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1536,
+      "height": 3072,
+      "bodyPixels": 21.28
+    },
+    "builder": {
+      "frames": 400,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3840,
+      "bodyPixels": 21.28
+    },
+    "medic": {
+      "frames": 336,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3072,
+      "bodyPixels": 21.28
+    },
+    "soldier": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3072,
+      "bodyPixels": 21.28
+    },
+    "scout": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3072,
+      "bodyPixels": 19.76
+    },
+    "sniper": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1536,
+      "height": 4096,
+      "bodyPixels": 21.28
+    },
+    "runner": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 15.120000000000001
+    },
+    "heavy": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3072,
+      "bodyPixels": 23.939999999999998
+    },
+    "brute": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 29.64
+    },
+    "torchbearer": {
+      "frames": 304,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 3072,
+      "bodyPixels": 21.28
+    },
+    "spitter": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 21.28
+    },
+    "screamer": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 22.04
+    },
+    "exploder": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 23.18
+    },
+    "boss": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1440,
+      "height": 2304,
+      "bodyPixels": 36.480000000000004
+    },
+    "walker-onearm": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 21.28
+    },
+    "suv": {
+      "frames": 8,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {},
+      "width": 96,
+      "height": 768,
+      "bodyPixels": 18
+    },
+    "walker-dress": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 21.28
+    },
+    "walker-cap": {
+      "frames": 208,
+      "blank": 0,
+      "edges": 0,
+      "uniqueWalk": {
+        "S": 12,
+        "SE": 12,
+        "E": 12,
+        "NE": 12,
+        "N": 12,
+        "NW": 12,
+        "W": 12,
+        "SW": 12
+      },
+      "width": 1152,
+      "height": 2304,
+      "bodyPixels": 21.28
+    }
+  },
+  "totalFrames": 4344,
+  "drawTypes": [
+    "terrain.png",
+    "pine.png",
+    "rock.png",
+    "bush.png",
+    "wall.png",
+    "barracks.png",
+    "cabin.png",
+    "hq.png",
+    "soldier.png",
+    "tower.png",
+    "depot.png",
+    "builder.png",
+    "scout.png",
+    "walker-onearm.png",
+    "walker.png",
+    "clinic.png",
+    "mechanics.png",
+    "medic.png",
+    "walker-cap.png",
+    "runner.png",
+    "suv.png",
+    "sniper.png",
+    "light.png",
+    "walker-dress.png",
+    "brute.png",
+    "heavy.png",
+    "spitter.png",
+    "torchbearer.png",
+    "exploder.png",
+    "car.png",
+    "screamer.png",
+    "bin.png",
+    "boss.png"
+  ],
+  "rendering": {
+    "sniper": {
+      "scale": 0.28,
+      "expected": 0.28
+    },
+    "walker": {
+      "scale": 0.28,
+      "expected": 0.28
+    },
+    "scout": {
+      "scale": 0.3466666666666667,
+      "expected": 0.3466666666666667
+    },
+    "builder": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "soldier": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "medic": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "heavy": {
+      "scale": 0.42,
+      "expected": 0.42
+    },
+    "torchbearer": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "runner": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "screamer": {
+      "scale": 0.38666666666666666,
+      "expected": 0.38666666666666666
+    },
+    "walker-cap": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "exploder": {
+      "scale": 0.4066666666666667,
+      "expected": 0.4066666666666667
+    },
+    "boss": {
+      "scale": 0.6399999999999999,
+      "expected": 0.64
+    },
+    "brute": {
+      "scale": 0.5199999999999999,
+      "expected": 0.52
+    },
+    "spitter": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "walker-dress": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "walker-onearm": {
+      "scale": 0.37333333333333335,
+      "expected": 0.37333333333333335
+    },
+    "suv": {
+      "scale": 0.4000000000000001,
+      "expected": 0.4
+    }
+  },
+  "occlusion": {
+    "behind": true,
+    "frontAlpha": 1,
+    "visibleBodySelectable": true
+  },
+  "gathering": {
+    "commanded": true,
+    "peak": 20,
+    "delivered": 20,
+    "capacity": 20,
+    "autoGather": true
+  },
+  "saveRestored": true,
+  "menuPaused": true,
+  "errors": [],
+  "screenshots": [
+    "sheet-soldier.png",
+    "sheet-runner.png",
+    "sheet-heavy.png",
+    "sheet-medic.png",
+    "sheet-torchbearer.png",
+    "world-day-1440.png",
+    "world-night-1440.png",
+    "review-1440.png",
+    "world-day-390.png",
+    "world-night-390.png",
+    "review-390.png",
+    "game-default.png",
+    "game-crowded.png"
+  ],
+  "limitations": [
+    "Textured 2D mesh poses, not individually painted action frames.",
+    "Walker dress master also has a missing arm; runner currently has one appearance.",
+    "NE/SW vehicle views mirror correct opposite diagonals, including their baked lighting.",
+    "The legacy game HUD has known mobile layout overlap; the new review pages fit both checked widths.",
+    "New artwork remains pending user review."
+  ]
+}

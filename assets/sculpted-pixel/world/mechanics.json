@@ -1,0 +1,17 @@
+{
+  "image": "mechanics.png",
+  "group": "building",
+  "tiles": 2,
+  "width": 136,
+  "height": 107,
+  "footAnchor": {
+    "x": 59.69723436279563,
+    "y": 103
+  },
+  "sourceRect": {
+    "x": 138,
+    "y": 16,
+    "width": 1262,
+    "height": 976
+  }
+}

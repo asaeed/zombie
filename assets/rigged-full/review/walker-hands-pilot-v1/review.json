@@ -1,0 +1,62 @@
+{
+  "actor": "walker-cap",
+  "image": "walker-cap-29f0c1c1b56d.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Hand and forward-reach pilot on cap walker only",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeWalkCycles": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "completeAttackCycles": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "idleAndAttackPhaseComparison": "before and after all eight directions, native and source scale",
+    "timedNativePlayback": "not reviewed: separate in-app browser unavailable",
+    "observations": [
+      "Thumbs face up and palms face inward",
+      "Arms reach forward with soft elbows",
+      "Loose fingers curl toward the palms"
+    ]
+  },
+  "preserved": {
+    "unchangedLegPoses": 320
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Idle and attack begin from the same forward ready pose",
+  "deferredHandCorrections": [
+    "spitter",
+    "exploder",
+    "screamer",
+    "walker-dress",
+    "walker-onearm"
+  ]
+}

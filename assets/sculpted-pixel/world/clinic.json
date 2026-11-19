@@ -1,0 +1,17 @@
+{
+  "image": "clinic.png",
+  "group": "building",
+  "tiles": 2,
+  "width": 136,
+  "height": 109,
+  "footAnchor": {
+    "x": 58.139632790728925,
+    "y": 105
+  },
+  "sourceRect": {
+    "x": 145,
+    "y": 16,
+    "width": 1251,
+    "height": 983
+  }
+}

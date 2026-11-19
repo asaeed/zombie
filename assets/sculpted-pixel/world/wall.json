@@ -1,0 +1,17 @@
+{
+  "image": "wall.png",
+  "group": "building",
+  "tiles": 1,
+  "width": 70,
+  "height": 56,
+  "footAnchor": {
+    "x": 43.679285627141724,
+    "y": 52
+  },
+  "sourceRect": {
+    "x": 214,
+    "y": 74,
+    "width": 1110,
+    "height": 866
+  }
+}

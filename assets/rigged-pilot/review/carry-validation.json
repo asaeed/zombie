@@ -1,0 +1,24 @@
+{
+  "protectedResult": {
+    "soldier": {
+      "checked": 384,
+      "different": 0
+    },
+    "walker": {
+      "checked": 384,
+      "different": 0
+    }
+  },
+  "carry": {
+    "idle": {
+      "maxPositionChange": 0.01714150914552533,
+      "maxGripError": 7.366994013368915e-8,
+      "maxBodyLocalSlip": 6.672892949406044e-16
+    },
+    "walk": {
+      "maxPositionChange": 0.0536106497744701,
+      "maxGripError": 9.301751969933924e-8,
+      "maxBodyLocalSlip": 4.663019308573781e-16
+    }
+  }
+}

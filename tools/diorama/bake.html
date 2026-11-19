@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone sprite comparison</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 22px; background: #17221d; color: #edf0e9; font: 14px system-ui, sans-serif; }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p { margin: 0 0 18px; color: #b9c9b9; }
+    nav { display: flex; gap: 18px; margin: 0 0 18px; }
+    a { color: #d8df9b; }
+    .samples { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 1420px; }
+    figure { margin: 0; border: 1px solid #415548; padding: 12px; }
+    figcaption { margin-bottom: 9px; font-weight: 700; }
+    canvas { display: block; width: 100%; height: auto; image-rendering: auto; background: #304128; }
+    canvas[id^="pixel"] { image-rendering: pixelated; }
+    @media (max-width: 900px) { .samples { grid-template-columns: 1fr; } nav { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <h1>Dead Zone sprite comparison</h1>
+  <p>Lit 3D diorama, native-grid pixel art, and inked 2D horror. Columns show idle, walk, attack, and gather (sniper only). Rows face south, east, north, and west.</p>
+  <nav><a href="../../?artPilot=diorama">Diorama in game</a><a href="../../?artPilot=pixel">Sculpted Pixel in game</a><a href="../../?artPilot=horror">Stylized Horror in game</a><a href="../../docs/art-directions/focused-sculpted-pixel.png">Sculpted Pixel concept</a></nav>
+  <div class="samples">
+    <figure><figcaption>Diorama / Sniper</figcaption><canvas id="diorama-sniper"></canvas></figure>
+    <figure><figcaption>Sculpted Pixel / Sniper</figcaption><canvas id="pixel-sniper"></canvas></figure>
+    <figure><figcaption>Stylized Horror / Sniper</figcaption><canvas id="horror-sniper"></canvas></figure>
+    <figure><figcaption>Diorama / Walker</figcaption><canvas id="diorama-walker"></canvas></figure>
+    <figure><figcaption>Sculpted Pixel / Walker</figcaption><canvas id="pixel-walker"></canvas></figure>
+    <figure><figcaption>Stylized Horror / Walker</figcaption><canvas id="horror-walker"></canvas></figure>
+  </div>
+  <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js"}}</script>
+  <script type="module">
+    import { CELL, DIRECTIONS } from './atlas-contract.mjs';
+    import { buildAtlas as buildDioramaAtlas } from './model-v2.mjs';
+    import { buildPixelAtlas } from './sculpted-pixel.mjs';
+    import { buildHorrorAtlas } from './stylized-horror.mjs';
+
+    const builders = { diorama: buildDioramaAtlas, pixel: buildPixelAtlas, horror: buildHorrorAtlas };
+
+    const samples = {};
+    const displays = [];
+    for (const type of ['sniper', 'walker']) {
+      for (const [style, buildAtlas] of Object.entries(builders)) {
+        const built = buildAtlas(type);
+        samples[`${style}-${type}`] = built;
+        const canvas = document.getElementById(`${style}-${type}`);
+        canvas.width = 4 * CELL.width;
+        canvas.height = 4 * CELL.height;
+        displays.push({ canvas, built, type, style });
+      }
+    }
+
+    function draw(time) {
+      for (const { canvas, built, type, style } of displays) {
+        const ctx = canvas.getContext('2d');
+        const clips = type === 'sniper' ? ['idle', 'walk', 'shoot', 'gather'] : ['idle', 'walk', 'attack'];
+        const backgrounds = {
+          diorama: ['#3d5636', '#354c31'],
+          pixel: ['#24363a', '#293b3e'],
+          horror: ['#202a2d', '#253033'],
+        }[style];
+        for (let row = 0; row < 4; row++) {
+          const direction = DIRECTIONS[row * 2];
+          for (let column = 0; column < 4; column++) {
+            ctx.fillStyle = backgrounds[(row + column) % 2];
+            ctx.fillRect(column * CELL.width, row * CELL.height, CELL.width, CELL.height);
+            const clip = built.metadata.clips[clips[column]];
+            if (!clip) continue;
+            const frames = clip.directions[direction];
+            const frame = frames[Math.floor(time / 1000 * clip.fps) % frames.length];
+            ctx.drawImage(built.canvas, frame.x, frame.y, frame.width, frame.height,
+              column * CELL.width, row * CELL.height, CELL.width, CELL.height);
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+    window.dioramaBake = samples;
+    window.dioramaReady = true;
+  </script>
+</body>
+</html>

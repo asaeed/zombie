@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>Sculpted Pixel atlas bake</title>
+<script type="module">
+import {buildCharacter} from './rig.mjs';
+try {
+  window.sculptedBake={};
+  for(const type of ['sniper','walker'])window.sculptedBake[type]=await buildCharacter(type);
+  window.sculptedReady=true;
+} catch(error){window.sculptedError=error.message;throw error;}
+</script>

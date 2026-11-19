@@ -1,0 +1,58 @@
+{
+  "asset": "brute-8cd0157e400f.png",
+  "source": "source/brute/custom-dd3dde656b0d.glb",
+  "status": "user-selected Before walk and After attack",
+  "production": "rigged sprite bake with authored Punch_Jab and Punch_Cross clips",
+  "selectionVerification": {
+    "walkingFramesMatched": 128,
+    "attackFramesMatched": 256,
+    "bodyModelUnchanged": true
+  },
+  "visualReview": "single agent self-review at native and enlarged sizes, normal and quarter speed; user selected comparison motions; no independent art review",
+  "reviewedHolds": {
+    "groups": [
+      [
+        "idle/S/0",
+        "attack/S/0",
+        "attack/S/31"
+      ],
+      [
+        "attack/SE/0",
+        "attack/SE/31"
+      ],
+      [
+        "idle/E/0",
+        "attack/E/0",
+        "attack/E/31"
+      ],
+      [
+        "idle/NE/0",
+        "attack/NE/0",
+        "attack/NE/31"
+      ],
+      [
+        "idle/N/0",
+        "attack/N/0",
+        "attack/N/31"
+      ],
+      [
+        "idle/NW/0",
+        "attack/NW/0",
+        "attack/NW/31"
+      ],
+      [
+        "idle/W/0",
+        "attack/W/0",
+        "attack/W/31"
+      ],
+      [
+        "attack/SW/0",
+        "attack/SW/31"
+      ]
+    ],
+    "reason": "intentional attack start and recovery return to the same forward rest pose"
+  },
+  "frames": 448,
+  "displayScale": 0.2964,
+  "publication": "local only"
+}

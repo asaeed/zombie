@@ -1,0 +1,14 @@
+{
+  "author": "Quaternius",
+  "pack": "Zombie Apocalypse Kit - March 2024",
+  "model": "Zombie_Chubby",
+  "license": "CC0-1.0",
+  "publisher": "https://quaternius.com/packs/zombieapocalypsekit.html",
+  "downloadMirror": {
+    "repo": "https://github.com/agentkaerf/FreeModels",
+    "commit": "db3df04d1e4714298a09510b26fb6de6645138a2",
+    "path": "Zombie Apocalypse Kit - March 2024/Characters/glTF/Zombie_Chubby.gltf"
+  },
+  "sha256": "7c65bae6f0c5f7754ca177a7de7658fc0e4c8de7c8aff33a872d7ffff57a423c",
+  "changes": "Original skinned model and embedded animations retained byte-for-byte. Muted zombie palette applied by the baker. Uniform height normalization only; no axis stretching or retargeting."
+}

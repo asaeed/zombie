@@ -40,7 +40,7 @@ try{
     actor.metadata.production.baseSource=actor.metadata.production.source;actor.metadata.production.source=name;
    }
    const png=Buffer.from(actor.png,'base64'),image=id+'-'+createHash('sha256').update(png).digest('hex').slice(0,12)+'.png';
-   await fs.writeFile(path.join(output,image),png);manifest.characters[id]={...actor.metadata,image};
+   await fs.writeFile(path.join(output,image),png);manifest.characters[id]={...actor.metadata,image,...(manifest.characters[id]?.death?{death:manifest.characters[id].death}:{})};
    await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');console.log('Baked '+id);
   }finally{await page.close();}
  }

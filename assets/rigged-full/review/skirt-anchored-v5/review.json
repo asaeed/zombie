@@ -1,0 +1,56 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-41f69c7c7c5a.png",
+  "method": "existing licensed rig rendered to sprite atlas",
+  "scope": "Fixed skinned waist attachments, untwisted stable panels and lower-leg occlusion",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "actions": [
+      "idle",
+      "walk",
+      "attack"
+    ],
+    "facings": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "observations": [
+      "Waist seam stays attached in front, rear and side views",
+      "Panel silhouette stays continuous beneath the waistband",
+      "No leg fragments appear over the cloth during the walk"
+    ],
+    "timedArtisticPlayback": "not independently reviewed; browser playback verified separately"
+  },
+  "renderedCoverage": {
+    "poses": 320,
+    "visibleLegPixelsThroughFabric": 0,
+    "projectedOverlapPixels": 349186
+  },
+  "preserved": {
+    "unchangedLegPoses": 320,
+    "unchangedArmPoses": 320,
+    "unchangedHandPoses": 320,
+    "unchangedShortGait": true
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  }
+}

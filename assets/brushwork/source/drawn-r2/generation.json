@@ -1,0 +1,174 @@
+{
+  "version": 2,
+  "date": "2026-10-08",
+  "tool": "built-in image_gen",
+  "model": "not exposed",
+  "scope": "four-facing walk-only review; not a gameplay replacement",
+  "status": "Candidate pending motion review; eight directional sets supplied across two actors.",
+  "entries": [
+    {
+      "id": "soldier",
+      "direction": "SE",
+      "name": "soldier-SE.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-3935424f-9479-46bd-bc40-3f1de08eae61.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the SOLDIER in Image 2. Image 1 specifies ONLY the understated leg motion, frame layout, facing, fixed camera and steady body position. Image 2 specifies the EXACT soldier identity, steel-blue cap and uniform, olive backpack, dark rifle at low ready held in both hands, boots, proportions, shading and palette. Do not copy the scout's turquoise clothes, grey trousers or high aiming pose. Keep the soldier's exact painted appearance throughout.\n\nTransparent production sheet, SIX columns TWO rows, exactly TWELVE complete separate sprites in chronological order. Keep every cell's head/root at the same height and center, consistent scale. Large transparent outer margins/gutters; figures no more than 65% of cell width and 75% of cell height. All face SOUTHEAST/down-right in the elevated orthographic three-quarter front-right view of the references. No scene or background panel: empty pixels must be true alpha, not a painted grey, black or checkerboard backdrop. No cast/contact shadows, halos, labels or grid lines.\n\nFollow the subtle successive ankle/knee positions in Image 1, a quiet in-place walk with modest steps and low foot lift, not the wide/exaggerated contact pose of Image 2. Actual articulated legs, small pose differences from frame to frame, no high-knee march, kneeling, kicking, running or sliding rigid feet. Keep the head, upper body, backpack and two-handed low rifle grip practically identical. Do not change uniform hue, brightness, head size, camera or light between cells. Muted blue NEVER progressively brightens to vivid royal blue. Fixed overhead-left soft key with crisp painted planes/edges, no blur. One consistent illustrated soldier repeated in genuinely different consecutive leg poses, no additional characters, no copied guide text or colors.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-SE.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-SE.png",
+        "../drawn-pilot/soldier-master.png"
+      ]
+    },
+    {
+      "id": "soldier",
+      "direction": "E",
+      "name": "soldier-E.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-cf2f721b-1a2f-4d73-b99e-593a83a8e371.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the SOLDIER in Image 2. Image 1 specifies ONLY the understated leg motion, frame layout, facing, fixed camera and steady body position. Image 2 fixes this facing and silhouette; Image 3 specifies the EXACT soldier identity, steel-blue cap and uniform, olive backpack, dark rifle at low ready held in both hands, boots, proportions, shading and palette. Do not copy the scout's turquoise clothes, grey trousers or high aiming pose. Keep the soldier's exact painted appearance throughout.\n\nTransparent production sheet, SIX columns TWO rows, exactly TWELVE complete separate sprites in chronological order. Keep every cell's head/root at the same height and center, consistent scale. Large transparent outer margins/gutters; figures no more than 65% of cell width and 75% of cell height. All face EAST/screen-right, elevated orthographic RIGHT PROFILE view with nose, cap brim, rifle barrel and both toes pointing horizontally right. Preserve the profile in Image 2, NOT the frontal view in Image 3. No scene or background panel: empty pixels must be true alpha, not a painted grey, black or checkerboard backdrop. No cast/contact shadows, halos, labels or grid lines.\n\nFollow the subtle successive ankle/knee positions in Image 1, a quiet in-place walk with modest steps and low foot lift, not the wide/exaggerated contact pose of Image 2. Actual articulated legs, small pose differences from frame to frame, no high-knee march, kneeling, kicking, running or sliding rigid feet. Keep the head, upper body, backpack and two-handed low rifle grip practically identical. Do not change uniform hue, brightness, head size, camera or light between cells. Muted blue NEVER progressively brightens to vivid royal blue. Fixed overhead-left soft key with crisp painted planes/edges, no blur. One consistent illustrated soldier repeated in genuinely different consecutive leg poses, no additional characters, no copied guide text or colors.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-E.png",
+        "/private/tmp/zombie-motion-r2/soldier-E-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-E.png",
+        "references/soldier-E-master.png",
+        "../drawn-pilot/soldier-master.png"
+      ]
+    },
+    {
+      "id": "soldier",
+      "direction": "NE",
+      "name": "soldier-NE.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-e1352ff2-1a93-470c-98d5-3b97e08ce400.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the SOLDIER in Image 2. Image 1 specifies ONLY the understated leg motion, frame layout, facing, fixed camera and steady body position. Image 2 fixes this facing and silhouette; Image 3 specifies the EXACT soldier identity, steel-blue cap and uniform, olive backpack, dark rifle at low ready held in both hands, boots, proportions, shading and palette. Do not copy the scout's turquoise clothes, grey trousers or high aiming pose. Keep the soldier's exact painted appearance throughout.\n\nTransparent production sheet, SIX columns TWO rows, exactly TWELVE complete separate sprites in chronological order. Keep every cell's head/root at the same height and center, consistent scale. Large transparent outer margins/gutters; figures no more than 65% of cell width and 75% of cell height. All face NORTHEAST/up-right in an elevated orthographic three-quarter REAR-RIGHT view. We see the back and right side, mostly backpack/back of cap and a small right cheek sliver. Nose and toes point up-right, AWAY from viewer. Preserve the rear view in Image 2, NOT the front view in Image 3. No scene or background panel: empty pixels must be true alpha, not a painted grey, black or checkerboard backdrop. No cast/contact shadows, halos, labels or grid lines.\n\nFollow the subtle successive ankle/knee positions in Image 1, a quiet in-place walk with modest steps and low foot lift, not the wide/exaggerated contact pose of Image 2. Actual articulated legs, small pose differences from frame to frame, no high-knee march, kneeling, kicking, running or sliding rigid feet. Keep the head, upper body, backpack and two-handed low rifle grip practically identical. Do not change uniform hue, brightness, head size, camera or light between cells. Muted blue NEVER progressively brightens to vivid royal blue. Fixed overhead-left soft key with crisp painted planes/edges, no blur. One consistent illustrated soldier repeated in genuinely different consecutive leg poses, no additional characters, no copied guide text or colors.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-NE.png",
+        "/private/tmp/zombie-motion-r2/soldier-NE-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-NE.png",
+        "references/soldier-NE-master.png",
+        "../drawn-pilot/soldier-master.png"
+      ]
+    },
+    {
+      "id": "soldier",
+      "direction": "N",
+      "name": "soldier-N.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-28aed8b1-0d9f-4a3a-bf3f-38cace87ffc9.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the SOLDIER in Image 2. Image 1 specifies ONLY the understated leg motion, frame layout, facing, fixed camera and steady body position. Image 2 fixes this facing and silhouette; Image 3 specifies the EXACT soldier identity, steel-blue cap and uniform, olive backpack, dark rifle at low ready held in both hands, boots, proportions, shading and palette. Do not copy the scout's turquoise clothes, grey trousers or high aiming pose. Keep the soldier's exact painted appearance throughout.\n\nTransparent production sheet, SIX columns TWO rows, exactly TWELVE complete separate sprites in chronological order. Keep every cell's head/root at the same height and center, consistent scale. Large transparent outer margins/gutters; figures no more than 65% of cell width and 75% of cell height. All face NORTH/straight up and AWAY from viewer in an elevated orthographic DIRECT BACK view. We see back of head, back of clothing/backpack, and heels. NO visible face or chest, NO sideways-facing rifle. Preserve the back view in Image 2, NOT the front view in Image 3. No scene or background panel: empty pixels must be true alpha, not a painted grey, black or checkerboard backdrop. No cast/contact shadows, halos, labels or grid lines.\n\nFollow the subtle successive ankle/knee positions in Image 1, a quiet in-place walk with modest steps and low foot lift, not the wide/exaggerated contact pose of Image 2. Actual articulated legs, small pose differences from frame to frame, no high-knee march, kneeling, kicking, running or sliding rigid feet. Keep the head, upper body, backpack and two-handed low rifle grip practically identical. Do not change uniform hue, brightness, head size, camera or light between cells. Muted blue NEVER progressively brightens to vivid royal blue. Fixed overhead-left soft key with crisp painted planes/edges, no blur. One consistent illustrated soldier repeated in genuinely different consecutive leg poses, no additional characters, no copied guide text or colors.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-N.png",
+        "/private/tmp/zombie-motion-r2/soldier-N-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-N.png",
+        "references/soldier-N-master.png",
+        "../drawn-pilot/soldier-master.png"
+      ]
+    },
+    {
+      "id": "walker",
+      "direction": "SE",
+      "name": "walker-SE.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-f17d4104-9f9d-4d9b-9213-315266bbfac2.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the grey WALKER ZOMBIE in Image 2. Image 1 controls ONLY subtle successive leg/foot motion, facing and steady camera, not the scout's clothes, weapon or upright posture. Image 2 controls exact zombie identity: bald grey head and slack face, stooped torso, loose arms, torn charcoal-grey short-sleeve shirt, lighter NEUTRAL GREY ragged trousers, dark shoes and crisp painted shading.\n\nSIX columns TWO rows, exactly TWELVE complete separate sprites, chronological order. Generous clear transparent outer margins/gutters, no touching or clipping. All face SOUTHEAST/down-right in the fixed elevated three-quarter front-right orthographic view. No background panel: empty pixels must be genuine alpha. No contact/cast shadows, grey studio glow, checkerboard, scene, labels or grid.\n\nUse Image 1's restrained small foot movements for a QUIET SHUFFLE, not a high-knee walk. Feet stay close to the ground and under the pelvis, modest short steps, slight real knee/ankle articulation. Preserve the same low hunched body with head/torso stable; arms only barely swing. Never raise a knee toward the waist, march, kick, run or crouch. Each drawing advances the walk with small differences, final pose continues into first. No duplicated/fused legs or hands.\n\nSame head proportions, clothes and constant overhead-left light in EVERY cell. Lock all frame colors to Image 2: NEUTRAL GREY skin, dark neutral grey shirt, pale grey trousers, charcoal shoes. No beige/cream trousers, no progressive whitening, saturation, extra colored clothing or brightening between frames. Sharp readable gouache painted forms, stable broad shade planes and clean silhouette, no blur. Exactly one repeated character in twelve successive poses, no extra bodies or props.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-SE.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-SE.png",
+        "../drawn-pilot/walker-master.png"
+      ]
+    },
+    {
+      "id": "walker",
+      "direction": "E",
+      "name": "walker-E.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b696b5aa-f341-43c1-a4c4-f35ae3d76796.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the grey WALKER ZOMBIE in Image 2. Image 1 controls ONLY subtle successive leg/foot motion, facing and steady camera, not the scout's clothes, weapon or upright posture. Image 2 fixes this facing and silhouette; Image 3 controls exact zombie identity: bald grey head and slack face, stooped torso, loose arms, torn charcoal-grey short-sleeve shirt, lighter NEUTRAL GREY ragged trousers, dark shoes and crisp painted shading.\n\nSIX columns TWO rows, exactly TWELVE complete separate sprites, chronological order. Generous clear transparent outer margins/gutters, no touching or clipping. All face EAST/screen-right in a fixed elevated RIGHT PROFILE orthographic view. Nose and toes face right; preserve the profile in Image 2, NOT the frontal view in Image 3. No background panel: empty pixels must be genuine alpha. No contact/cast shadows, grey studio glow, checkerboard, scene, labels or grid.\n\nUse Image 1's restrained small foot movements for a QUIET SHUFFLE, not a high-knee walk. Feet stay close to the ground and under the pelvis, modest short steps, slight real knee/ankle articulation. Preserve the same low hunched body with head/torso stable; arms only barely swing. Never raise a knee toward the waist, march, kick, run or crouch. Each drawing advances the walk with small differences, final pose continues into first. No duplicated/fused legs or hands.\n\nSame head proportions, clothes and constant overhead-left light in EVERY cell. Lock all frame colors to Image 3: NEUTRAL GREY skin, dark neutral grey shirt, pale grey trousers, charcoal shoes. No beige/cream trousers, no progressive whitening, saturation, extra colored clothing or brightening between frames. Sharp readable gouache painted forms, stable broad shade planes and clean silhouette, no blur. Exactly one repeated character in twelve successive poses, no extra bodies or props.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-E.png",
+        "/private/tmp/zombie-motion-r2/walker-E-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-E.png",
+        "references/walker-E-master.png",
+        "../drawn-pilot/walker-master.png"
+      ]
+    },
+    {
+      "id": "walker",
+      "direction": "NE",
+      "name": "walker-NE.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-79c478ae-cbe7-4131-9eb8-c9826f29d771.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the grey WALKER ZOMBIE in Image 2. Image 1 controls ONLY subtle successive leg/foot motion, facing and steady camera, not the scout's clothes, weapon or upright posture. Image 2 fixes this facing and silhouette; Image 3 controls exact zombie identity: bald grey head and slack face, stooped torso, loose arms, torn charcoal-grey short-sleeve shirt, lighter NEUTRAL GREY ragged trousers, dark shoes and crisp painted shading.\n\nSIX columns TWO rows, exactly TWELVE complete separate sprites, chronological order. Generous clear transparent outer margins/gutters, no touching or clipping. All face NORTHEAST/up-right in an elevated orthographic three-quarter REAR-RIGHT view. We see the back and right side, mostly backpack/back of cap and a small right cheek sliver. Nose and toes point up-right, AWAY from viewer. Preserve the rear view in Image 2, NOT the front view in Image 3. No background panel: empty pixels must be genuine alpha. No contact/cast shadows, grey studio glow, checkerboard, scene, labels or grid.\n\nUse Image 1's restrained small foot movements for a QUIET SHUFFLE, not a high-knee walk. Feet stay close to the ground and under the pelvis, modest short steps, slight real knee/ankle articulation. Preserve the same low hunched body with head/torso stable; arms only barely swing. Never raise a knee toward the waist, march, kick, run or crouch. Each drawing advances the walk with small differences, final pose continues into first. No duplicated/fused legs or hands.\n\nSame head proportions, clothes and constant overhead-left light in EVERY cell. Lock all frame colors to Image 3: NEUTRAL GREY skin, dark neutral grey shirt, pale grey trousers, charcoal shoes. No beige/cream trousers, no progressive whitening, saturation, extra colored clothing or brightening between frames. Sharp readable gouache painted forms, stable broad shade planes and clean silhouette, no blur. Exactly one repeated character in twelve successive poses, no extra bodies or props.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-NE.png",
+        "/private/tmp/zombie-motion-r2/walker-NE-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-NE.png",
+        "references/walker-NE-master.png",
+        "../drawn-pilot/walker-master.png"
+      ]
+    },
+    {
+      "id": "walker",
+      "direction": "N",
+      "name": "walker-N.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-05075768-dcb1-4f72-aa31-3ab15ace3a52.png",
+      "prompt": "Redraw the TWELVE walk frames in Image 1 as the grey WALKER ZOMBIE in Image 2. Image 1 controls ONLY subtle successive leg/foot motion, facing and steady camera, not the scout's clothes, weapon or upright posture. Image 2 fixes this facing and silhouette; Image 3 controls exact zombie identity: bald grey head and slack face, stooped torso, loose arms, torn charcoal-grey short-sleeve shirt, lighter NEUTRAL GREY ragged trousers, dark shoes and crisp painted shading.\n\nSIX columns TWO rows, exactly TWELVE complete separate sprites, chronological order. Generous clear transparent outer margins/gutters, no touching or clipping. All face NORTH/straight up and AWAY from viewer in an elevated orthographic DIRECT BACK view. We see back of head, back of clothing/backpack, and heels. NO visible face or chest, NO sideways-facing rifle. Preserve the back view in Image 2, NOT the front view in Image 3. No background panel: empty pixels must be genuine alpha. No contact/cast shadows, grey studio glow, checkerboard, scene, labels or grid.\n\nUse Image 1's restrained small foot movements for a QUIET SHUFFLE, not a high-knee walk. Feet stay close to the ground and under the pelvis, modest short steps, slight real knee/ankle articulation. Preserve the same low hunched body with head/torso stable; arms only barely swing. Never raise a knee toward the waist, march, kick, run or crouch. Each drawing advances the walk with small differences, final pose continues into first. No duplicated/fused legs or hands.\n\nSame head proportions, clothes and constant overhead-left light in EVERY cell. Lock all frame colors to Image 3: NEUTRAL GREY skin, dark neutral grey shirt, pale grey trousers, charcoal shoes. No beige/cream trousers, no progressive whitening, saturation, extra colored clothing or brightening between frames. Sharp readable gouache painted forms, stable broad shade planes and clean silhouette, no blur. Exactly one repeated character in twelve successive poses, no extra bodies or props.",
+      "references": [
+        "/private/tmp/zombie-motion-r2/scout-N.png",
+        "/private/tmp/zombie-motion-r2/walker-N-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-master.png"
+      ],
+      "usage": "Twelve source drawings; palette/alpha/registration normalized during atlas packaging. No mesh deformation or crossfade.",
+      "projectReferences": [
+        "references/scout-N.png",
+        "references/walker-N-master.png",
+        "../drawn-pilot/walker-master.png"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "name": "rejected-SE.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-d52b3498-6cfa-4b89-8035-748ff0357a95.png",
+      "prompt": "Create a transparent PRODUCTION WALK SPRITE SHEET for the two existing RTS characters in Images 1 and 2. Image 1 fixes the soldier's exact face, proportions, muted blue uniform and cap, olive backpack, black rifle held steadily in both hands, dark boots and crisp painted shading. Image 2 fixes the bald grey zombie's identity, grey skin and torn grey shirt, LIGHT GREY trousers and dark shoes. Image 3 is ONLY a TWELVE-phase short-stride leg-motion guide; its stick figures, colors, numbers and white background must NOT appear.\n\nLayout: SIX columns and FOUR rows, exactly 24 complete isolated sprites, generous clear gutters, no overlap. Rows 1-2: twelve consecutive SOLDIER drawings. Rows 3-4: twelve consecutive WALKER drawings. Read each character's two-row loop left-to-right. Make a high-resolution portrait sheet, ideally 1536x2048, with each figure approximately 330 pixels high. All figures face SOUTHEAST: elevated orthographic three-quarter FRONT-RIGHT view, nose and toes point down-right. Fixed camera, fixed body size and consistent head/root position within each cell.\n\nIMPORTANT use the same paint palette and material lighting in ALL frames; do NOT progressively brighten or saturate later drawings. Match the original references throughout both rows. Soldier blue is subdued steel-blue, not electric royal blue. Zombie skin and clothes are NEUTRAL GREY, trousers pale grey, not beige. Soft overhead-left key lighting with sharp painted edges and consistent broad shaded planes, not changing light or recoloring from frame to frame.\n\nMotion: a modest quiet walking/shuffling loop, not marching, running, kicking, crouching or exaggerated high knees. Maximum separation of shoes along the ground about one boot length; maximum airborne sole clearance only a small boot height. Knees stay below the waist and feet mostly under the body. Each frame is genuinely redrawn, with subtle articulated hip/knee/ankle movement and small increments. Head and soldier upper body/rifle remain nearly identical; zombie has only small loose arm swing.\nTwelve phases following Image 3: near leg modest forward heel contact; settle; rear foot low lift; feet pass under pelvis; forward reach; almost opposite contact; FAR leg modest forward heel contact (OPPOSITE leading leg); settle; opposite rear foot low lift; opposite feet pass under pelvis; near forward reach; almost initial contact. First row has near leg leading, second row far leg leading. Preserve actual left/right leg ownership, do not repeat the first half cycle as the second. Avoid a duplicated endpoint: pose 12 leads gently into pose 1.\n\nKeep exactly two legs and two arms, plausible knees, intact boots, stable rifle grip and backpack. Full silhouettes and clean real alpha, no ground shadows, scene, labels, grid, border, glow, blur, guide markings or extra characters. Sharp brushwork game art matching these references.",
+      "references": [
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-master.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-master.png",
+        "/private/tmp/zombie-motion-r2/guide-SE.png"
+      ],
+      "reason": "Repeated leading-leg half and insufficient outer margins."
+    },
+    {
+      "name": "rejected-SE-A.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-28e53f45-d568-408f-845b-b6c76a93be53.png",
+      "prompt": "Create a sharp transparent sprite sheet containing SIX consecutive drawings each of the soldier and grey walker. Image 1 is the soldier identity/palette reference, Image 2 the walker identity/palette reference, Image 3 specifies leg motion only. SIX columns TWO rows: soldier phases 1-6 in row 1, walker phases 1-6 in row 2. Exactly TWELVE isolated complete figures. Large outer margins and generous transparent gaps: each figure occupies at most 65% of its cell width and 75% of cell height. No cropping or touching. Landscape 1536x1024.\n\nAll face SOUTHEAST, same elevated orthographic three-quarter front-right view as Images 1/2. Preserve the exact muted steel-blue soldier uniform/cap, olive backpack, black rifle in two fixed hands and dark boots. Preserve bald neutral-grey zombie skin, torn grey shirt, pale GREY (not beige) trousers, dark shoes. Same subdued palette and constant overhead-left illumination in EVERY drawing. Do not add saturation/brightness to later frames. Keep head, torso silhouette, proportions and equipment identical.\n\nOnly a quiet small HALF WALK CYCLE. The NEAR leg from the screen-left hip/holster starts modestly FORWARD toward screen-right/down, overlapping in FRONT of the far thigh. The FAR leg from screen-right hip starts modestly BACK toward screen-left/up. This is the leg ownership in Images 1/2. Start with near heel modest forward contact, then settle, then rear/far boot slightly lifts, then low passing beside support shin, then small far forward reach, then far shoe nearly contacts forward. At the end the near leg has moved modestly back and the far leg forward: genuinely change leg ownership over these six drawings. Use Image 3 frames 7-12 for the motion only. Only a low boot-height lift, foot separation at most one boot length, knees below waist, minimal torso bob, no marching/high knees/kicking/running. Soldier arms/rifle steady; zombie arms barely sway.\n\nRender true consecutive drawings with smaller pose increments. Crisp gouache painted planes, NO blurry strokes. Preserve exact reference lighting, shade/color family and anatomy. Entire bodies, real alpha transparency, no shadows, scene, numbers, labels, grid, guide colors, additional characters or duplicate legs.",
+      "references": [
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/soldier-opposite.png",
+        "/Users/ASaeed/claude/zombie/assets/brushwork/source/drawn-pilot/walker-opposite.png",
+        "/private/tmp/zombie-motion-r2/guide-SE.png"
+      ],
+      "reason": "Near-static leg sequence; did not establish the requested half-cycle."
+    }
+  ]
+}

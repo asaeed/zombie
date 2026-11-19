@@ -1,0 +1,7 @@
+{
+  "unchangedLowerBodyRasterFrames": 384,
+  "lowerBodyCrop": {
+    "fromY": 100,
+    "footAnchorY": 136
+  }
+}

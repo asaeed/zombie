@@ -1,0 +1,17 @@
+{
+  "image": "tower.png",
+  "group": "building",
+  "tiles": 2,
+  "width": 103,
+  "height": 162,
+  "footAnchor": {
+    "x": 50.28350462556554,
+    "y": 158
+  },
+  "sourceRect": {
+    "x": 483,
+    "y": 8,
+    "width": 614,
+    "height": 1004
+  }
+}

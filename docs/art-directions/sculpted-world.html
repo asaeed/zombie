@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="../../"><title>Dead Zone - Sculpted World</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#222825;color:#e6ece6;font:13px system-ui,sans-serif;letter-spacing:0}
+    header{min-height:54px;display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid #576257;flex-wrap:wrap}
+    h1{font-size:18px;line-height:24px;margin:0}nav{display:flex;gap:16px;margin-left:auto}a{color:#d8e5b8;text-decoration:none}a:hover{text-decoration:underline}
+    .controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}label{display:flex;align-items:center;gap:6px}
+    select,button{font:inherit;color:#e6ece6;background:#303834;border:1px solid #6a776d;border-radius:4px;height:30px;padding:3px 7px}
+    button{width:30px;display:grid;place-items:center;cursor:pointer}button svg{width:18px;height:18px;fill:currentColor}
+    input[type=range]{width:85px;accent-color:#d4df9a}#viewport{height:calc(100dvh - 55px);min-height:400px}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+    body{height:100dvh;display:flex;flex-direction:column}header{flex-shrink:0}#viewport{flex:1;height:auto;min-height:0;overflow:hidden}canvas{cursor:grab;touch-action:none}canvas:active{cursor:grabbing}
+    #failure{position:fixed;top:70px;left:20px;color:#ffd0bd;background:#202723;padding:8px}
+    @media(max-width:800px){header{gap:10px}nav{margin-left:0}.controls{gap:8px}}
+  </style>
+</head>
+<body>
+  <header><h1>Sculpted World</h1><div class="controls">
+    <button id="play" title="Pause" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M6 3h4v18H6zM14 3h4v18h-4z"></path></svg></button>
+    <label>State <select id="motion"><option value="idle">Idle</option><option value="walk" selected>Walk</option><option value="strike">Attack</option><option value="work">Work</option></select></label>
+    <label>Facing <select id="facing"><option>S</option><option selected>SE</option><option>E</option><option>NE</option><option>N</option><option>NW</option><option>W</option><option>SW</option></select></label>
+    <label>Light <select id="light"><option value="day">Day</option><option value="night">Night</option></select></label>
+    <label>Zoom <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1.5"></label>
+  </div><nav><a href="docs/art-directions/sculpted-pixel-sprites.html">Sprite sheets</a><a href="docs/art-directions/focused-sculpted-pixel.png">Concept</a><a href="?artPilot=sculpted">Play</a></nav></header>
+  <div id="viewport"><canvas id="scene"></canvas></div><p id="failure" hidden></p>
+  <script src="js/config.js"></script><script src="js/utils.js"></script><script src="js/pathfinding.js"></script>
+  <script src="js/entities.js"></script><script src="js/game.js"></script><script src="js/zombie-art.js"></script>
+  <script src="js/diorama-art.js?v=20261007-sculpted-world"></script><script src="js/renderer.js?v=20261007-sculpted-world"></script>
+  <script type="module" src="docs/art-directions/sculpted-world.mjs"></script>
+</body></html>

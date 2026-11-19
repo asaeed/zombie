@@ -1,0 +1,89 @@
+{
+  "checkedFrames": 320,
+  "lowerBodyPixelDifferences": 0,
+  "diffMinY": 160,
+  "diffMaxY": 0,
+  "alphaDifferences": 0,
+  "detachedLegFrames": {
+    "before": [
+      {
+        "direction": "S",
+        "frame": 0,
+        "components": [
+          {
+            "count": 158,
+            "minY": 115
+          }
+        ]
+      },
+      {
+        "direction": "S",
+        "frame": 1,
+        "components": [
+          {
+            "count": 146,
+            "minY": 116
+          }
+        ]
+      },
+      {
+        "direction": "S",
+        "frame": 13,
+        "components": [
+          {
+            "count": 132,
+            "minY": 115
+          }
+        ]
+      },
+      {
+        "direction": "S",
+        "frame": 14,
+        "components": [
+          {
+            "count": 133,
+            "minY": 117
+          }
+        ]
+      },
+      {
+        "direction": "S",
+        "frame": 15,
+        "components": [
+          {
+            "count": 140,
+            "minY": 115
+          }
+        ]
+      },
+      {
+        "direction": "SE",
+        "frame": 14,
+        "components": [
+          {
+            "count": 155,
+            "minY": 112
+          }
+        ]
+      },
+      {
+        "direction": "W",
+        "frame": 14,
+        "components": [
+          {
+            "count": 196,
+            "minY": 117
+          }
+        ]
+      }
+    ],
+    "updated": []
+  },
+  "image": "walker-dress-6ed6d6e2da7a.png",
+  "imageSha256": "6ed6d6e2da7a9b55820a06656dc5e4cd82a51fb7a9954bfd5c6ef2999b09eeae",
+  "lowerBodyCrop": {
+    "fromY": 100,
+    "footAnchorY": 136
+  },
+  "note": "Comparison excludes changed hands, which project through rows 90 to 97."
+}

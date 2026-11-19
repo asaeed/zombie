@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "date": "2026-10-08",
+  "tool": "built-in image_gen",
+  "model": "not exposed",
+  "status": "Completed SE walk-only experimental comparison; not installed as gameplay animation or promoted in skill",
+  "entries": [
+    {
+      "id": "soldier",
+      "name": "soldier-walk-sheet.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-bb1ea413-842c-4aec-aa92-e465ed708ece.png",
+      "prompt": "Paint a coherent EIGHT-FRAME WALK LOOP of this soldier. TWO different contact drawings are provided: Image 1 is contact A (the holster-side/near leg trails back); Image 2 is contact B (the holster-side/near leg crosses forward in front). Preserve BOTH leg configurations. Image 3 is a timing guide ONLY, not artwork. Both contact drawings fix the same identity, blue clothing, cap, olive pack, low rifle, elevated southeast/front-right camera and sharp gouache finish. You must not replace contact B with contact A again.\n\nFOUR columns and TWO rows, transparent background, exactly eight complete sprites, large empty gutters. SAME body size, camera, light, head and upper-body detail across both rows. Frame 1 MUST reproduce Image 1's leg ownership, Frame 5 (first cell second row) MUST reproduce Image 2's opposite leg ownership. In the FIRST ROW the near/holster leg trails and then lifts, bends, passes forward. In SECOND ROW the near/holster leg starts crossing forward as in Image 2, then plants and moves backward as the far leg swings. The second row is NOT a duplicate of the first.\nPhases: 1 contact A, 2 weight down/rear boot clearly lifted, 3 passing with one shoe airborne beside supporting shin, 4 airborne leg reaches forward ready for B; 5 contact B using Image 2 leg anatomy, 6 weight down/opposite rear shoe clearly lifted, 7 opposite passing one shoe airborne, 8 airborne leg reaches forward toward contact A. Alternating grounded shoes. Small natural body bob, steady two-handed rifle. No rigid leg sliding. Anatomical bent knees and ankles, full boots, arms remain stable rather than change grip each frame. In-place sequence, no movement across cell. Frame 8 leads into 1, no identical endpoint. Sharp painted facets, no blurred watercolor, no ground shadows, no labels, no guide colors, no scene/grid/borders. No mirrored upper bodies; the cap brim, rifle and backpack always face the same way.",
+      "references": [
+        "/private/tmp/zombie-crisp/generated/soldier-master.png",
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b5ad640e-317f-4703-87c8-c5d6fd11c31f.png",
+        "/private/tmp/zombie-crisp/generated/soldier-guide.png"
+      ],
+      "usage": "First four frames only; generated second half repeated leg ownership and is not used."
+    },
+    {
+      "id": "soldier",
+      "name": "soldier-opposite.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b5ad640e-317f-4703-87c8-c5d6fd11c31f.png",
+      "prompt": "Edit this exact soldier into ONE new full-body walk CONTACT pose with OPPOSITE leg positions. Keep everything above the belt identical: face, cap, uniform, backpack, low-ready rifle, two gripping hands, elevated three-quarter front-right camera, upper-left lighting, style and proportions.\n\nIn the reference the leg below the screen-left belt pouch/holster trails BACK toward screen-left, while the other leg supports the body on the forward screen-right shoe. REVERSE THIS. The leg descending from the SCREEN-LEFT HIP UNDER THE BELT POUCH must now extend diagonally forward to SCREEN-RIGHT and DOWN, heel touching ground, ankle ahead of the body. Its thigh must visibly overlap IN FRONT OF the opposite thigh. The other leg, below the screen-right hip, extends back toward SCREEN-LEFT/UP with its heel lifted, toe behind the body. This is opposite leg ownership, NOT just both legs widened, NOT the same pose, NOT a mirrored character. Do not change facing or rifle or clothing to achieve it. Show the near thigh crossing in front and the far knee behind. Both soles follow the same imaginary ground plane. Anatomically plausible articulated hip/knee/ankle joints.\nCrisp painted material planes, clear edges, sharp shading matching the master. Exactly one complete character with generous transparent margins and true alpha, no grid, text, shadow or extra figures.",
+      "references": [
+        "/private/tmp/zombie-crisp/generated/soldier-master.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "soldier",
+      "name": "soldier-downB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b2aca34f-6043-45eb-9d3c-af90957bc9f2.png",
+      "prompt": "Create ONE new walk animation frame by editing Image 1 (the opposite contact pose) of this exact soldier. Image 2 is identity reference only. Keep the entire upper body exactly like Image 1: same cap/face/blue uniform/backpack/rifle/grip/camera/light. Change only the legs to the NEXT PHASE after that contact.\n\nThe near leg descending from screen-left hip/holster is forward and now planted SUPPORTING the weight. Its foot is under/in front of the body on SCREEN-RIGHT/down. Bend that planted knee slightly as weight settles. The FAR leg descending from screen-right hip trails BACK to SCREEN-LEFT/up; now bend that FAR knee tightly so its boot lifts clearly OFF the ground behind the supporting calf, sole angled down/back. DO NOT lift the near/front leg. Show the near thigh crossing IN FRONT of the far thigh as in Image 1, so opposite leg ownership is preserved. Two legs, anatomically plausible knee/ankle joints; no stretched trousers or backward knees. This is the down/recoil frame of the SECOND half of a walk, not a repeat of the first reference contact.\nEntire single figure, generous empty transparent margins, real alpha, no shadow/grid/text/extra figures. Crisp gouache-painted edges and planes; no blur.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b5ad640e-317f-4703-87c8-c5d6fd11c31f.png",
+        "/private/tmp/zombie-crisp/generated/soldier-master.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "soldier",
+      "name": "soldier-passB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-3a60e375-f78e-464f-8011-0a890e7e80f5.png",
+      "prompt": "Create ONE next consecutive WALK PASSING animation frame from this soldier. Preserve the exact soldier's upper body, equipment, blue cloth, shading, elevated three-quarter southeast camera. No turn/mirror. Only the legs advance to the passing phase.\n\nIn this reference the NEAR leg from screen-left hip crosses FORWARD and supports on screen-right, while the FAR leg's boot is lifted BACK at screen-left. Move that FAR lifted leg FORWARD now: its knee comes beside/ahead of the supporting shin, knee bent 90 degrees, lifted boot below its knee but well above ground, visible on the far/right side of the planted shin. The NEAR planted leg from the holster hip moves under the pelvis, nearly vertical supporting on ground. Keep its cargo pocket on the supporting thigh. Far raised foot is not planted; only ONE shoe on ground. This is leg crossing/airborne passing, not a wide contact or kneeling pose. Preserve anatomically intact trousers, boots, two hips/knees/ankles.\nFull single figure, lots of empty transparent margin, no text, shadows, scene or extra bodies. Hard-edged crisp painted facets, no fuzzy strokes/blur.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-b2aca34f-6043-45eb-9d3c-af90957bc9f2.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "soldier",
+      "name": "soldier-liftB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-9c2bec29-5bc2-41b7-a613-1e4766c59240.png",
+      "prompt": "Create ONE next consecutive WALK REACH/LIFT animation frame from this exact soldier, changing ONLY the legs. Preserve cap, face, uniform, pack, rifle in both hands, elevated southeast/front-right camera, shading and upper-body shape.\n\nIn the reference the NEAR leg with cargo pocket from the screen-left hip is grounded under the body; the FAR leg from screen-right hip is bent and lifted to screen-right. Advance the FAR airborne leg: extend its lower leg forward toward SCREEN-RIGHT/DOWN, knee still slightly bent, toe raised with heel ready to land but shoe still slightly OFF ground. The NEAR cargo-pocket leg stays grounded but travels BACK toward screen-left/up relative to hip, heel rises for push-off. This pose is just before the original contact A: far leg will land ahead on screen-right, near leg will trail screen-left. Show real knee/ankle articulation and different foot positions from the reference. Natural small torso bob, keep proportions and camera. No kneeling or rubber stretching.\nExactly one entire soldier, boots intact, transparent background with large margins, no ground shadows/grid/text/scene. Sharp painted planes/edges matching the reference; no blur.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-3a60e375-f78e-464f-8011-0a890e7e80f5.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "walker",
+      "name": "walker-walk-sheet.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-890edd9f-41d0-4d86-8da1-77c8c4f7dc71.png",
+      "prompt": "Make eight hand-painted animation drawings of ONE grey zombie walking in place facing southeast/front-right. Image 1 is the approved character master; retain exactly its bald grey head, slack face, grey torn short-sleeve shirt, lighter grey ragged trousers, dark shoes and proportions. Image 2 is a chronological eight-pose walk guide ONLY. Image 3 is the sharp painted game's art style. No colored clothing. No limb textures stretched or warped.\n\nA transparent production sheet with FOUR columns and TWO rows, exactly eight full figures with large empty gutters, read left-to-right then next row. Consistent size, elevated three-quarter orthographic camera and upper-left light, same visible front/right side in all frames. Head and pelvis positions coherent throughout, not eight independent portraits. Zombie shuffles slowly with a stooped back, loose bent elbows, subtle alternating arm swing, and real articulated knee/ankle bends.\n\nIMPORTANT the two half-cycles use OPPOSITE legs. Frames 1-4: the NEAR leg (attached to the hip closest to viewer, screen-left hip) is FORWARD toward screen-right/down and supporting the body; the FAR leg trails toward screen-left/up, then lifts bent behind, passes through bent beside the support shin, then reaches forward. Frames 5-8: the NEAR leg is now BACK toward screen-left/up; the FAR leg is FORWARD and supporting, and the near leg lifts, passes, reaches. Exact eight phases: near heel contact; weight down/far foot lifted behind; far knee passing/one grounded shoe; far leg reaching/near heel rising; far heel contact; weight down/near foot lifted behind; near knee passing/one grounded shoe; near leg reaching toward initial contact. Clear ankle lift, not sliding planted feet. Do not repeat the first contact pose as the fifth. Preserve all original anatomy, no duplicated legs/hands. The guide colors must not appear. Make consecutive drawings flow as one loop with alternating foot ownership.\n\nCrisp gouache planes and clean hard-edge silhouette, minimal brush texture, no blurry/soft airbrush. Full body each time, no foot/body truncation or contact shadows. Transparent alpha, no scene, labels, grid lines, borders, glow, text or extra characters.",
+      "references": [
+        "/private/tmp/zombie-crisp/generated/walker-master.png",
+        "/private/tmp/zombie-crisp/generated/walker-guide.png",
+        "/Users/ASaeed/claude/zombie/docs/art-directions/next-brushwork-tactics.png"
+      ],
+      "usage": "First four frames only; generated second half repeated leg ownership and is not used."
+    },
+    {
+      "id": "walker",
+      "name": "walker-opposite.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-32f26b9a-97be-4a36-bc55-4215532f87bb.png",
+      "prompt": "Make one new animation frame by changing ONLY the legs of this exact zombie into the OPPOSITE walk contact. Preserve its head, face, arms, hands, hunched torso, ragged grey shirt, pale grey trousers, dark shoes, camera and lighting.\n\nThe original front/supporting shoe is on SCREEN-RIGHT and attached to the screen-right hip. Instead the leg attached to the SCREEN-LEFT HIP must now cross diagonally IN FRONT OF the other thigh, extend toward SCREEN-RIGHT/DOWN and plant its heel forward. Show that near thigh crossing the midline, visibly overlapping the far thigh. The leg attached to SCREEN-RIGHT HIP is now BACK toward SCREEN-LEFT/UP, its knee behind the body, heel lifted and toe supporting behind. OPPOSITE leg ownership from the reference, not a duplicate of the original legs. Do not mirror the whole zombie or turn the torso. Natural articulated knees/ankles, full-body idle arms remain loose. This is the opposite contact of a slow walking cycle.\nExactly one zombie, entire silhouette with generous empty margins, transparent alpha, no labels, scene, shadows, grid or extra figures. Crisp grey gouache-painted anatomy, not fuzzy airbrush, match the original finish and size proportions.",
+      "references": [
+        "/private/tmp/zombie-crisp/generated/walker-master.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "walker",
+      "name": "walker-downB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-738f76ea-6b48-4711-af24-bc85da99c781.png",
+      "prompt": "Create ONE next WALK DOWN/recoil frame from this exact grey zombie contact drawing. Keep head, face, grey ragged shirt, pale grey trousers, loose arms and fingers, hunched torso, camera, lighting and painted style identical. Change only the legs.\n\nThe NEAR leg descending from screen-left hip crosses forward and supports on screen-right as in the reference; keep that leg supporting and bend its knee slightly to accept weight. The FAR leg descending from screen-right hip trails behind toward screen-left; bend that FAR knee so its shoe lifts clearly OFF ground behind the planted calf. The near thigh visibly overlaps in FRONT of the far thigh, preserving opposite leg ownership. Only the front shoe touches ground, rear boot lifted. Natural knee/ankle articulation, not a kneeling pose, no stretched anatomy. This is consecutive to the contact shown, not the same stance.\nOne complete zombie with empty transparent margins, actual alpha, no shadow/scene/grid/text. Sharp hard-edged painted forms and consistent light, no blur.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-32f26b9a-97be-4a36-bc55-4215532f87bb.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "walker",
+      "name": "walker-passB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-dbefbe56-575b-409c-958b-2e0e705b2c10.png",
+      "prompt": "Create ONE consecutive WALK PASSING frame from this exact grey zombie. Keep head/face, stooped torso, loose arms and fingers, grey ragged shirt and pale grey trousers, elevated southeast camera and light identical. Only change the legs.\n\nIn the reference the NEAR leg descending from screen-left hip crosses forward and supports on screen-right; the FAR leg is lifted behind on screen-left. Advance that FAR airborne knee FORWARD beside/ahead of the planted shin, knee tightly bent 90 degrees, its shoe dangling well ABOVE the ground on the far/right side of the support leg. The NEAR support leg moves under the pelvis, almost vertical, its shoe planted. Only ONE shoe touches ground. Near thigh in FRONT of the raised far thigh, no duplicated legs, natural knee and ankle anatomy. This is a passing phase, not kneeling and not another wide contact pose. Preserve upper body identity and shirt drape without stretching.\nExactly one complete zombie, transparent alpha and generous empty margins, no shadow/grid/scene/text. Crisp grey gouache planes and hard silhouette edges, no blurred surface.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-738f76ea-6b48-4711-af24-bc85da99c781.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    },
+    {
+      "id": "walker",
+      "name": "walker-liftB.png",
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-5426c255-cf8f-42ed-abd1-929b68e2bbfe.png",
+      "prompt": "Create ONE next WALK REACH/LIFT frame of this exact grey zombie. Preserve its entire upper body, face, loose arms/hands, grey shirt, pale grey trousers, camera and light. Only the legs advance.\n\nIts NEAR leg descending from screen-left hip supports on ground under the body; the FAR leg is raised, knee bent forward on screen-right. Extend that FAR airborne lower leg forward toward SCREEN-RIGHT/DOWN so its heel is ready to land, toe raised, shoe still slightly off ground. The NEAR planted leg travels BACK toward SCREEN-LEFT/up relative to the hip, heel raised for push-off. This is just before contact A, when the far leg will support ahead and near leg will trail. Clearly different from the bent-knee passing pose. Anatomical knee/ankle articulation, intact two legs and boots, no kneeling or stretched textures.\nOne whole zombie with true transparent background and generous empty margins. Crisp hard-edged grey gouache forms matching the reference, no airbrush, shadows/grid/text/scene/additional figures.",
+      "references": [
+        "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-dbefbe56-575b-409c-958b-2e0e705b2c10.png"
+      ],
+      "usage": "Targeted consecutive frame candidate; no deformation."
+    }
+  ],
+  "rejected": [
+    {
+      "source": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-55b075e3-1677-4048-9914-ad4baf967214.png",
+      "prompt": "Create a production sprite sheet of EIGHT separately DRAWN consecutive walk frames of the SAME blue soldier. Image 1 fixes identity, anatomy, exact blue uniform/cap, olive backpack, dark boots, rifle carried with both hands at low ready, and the elevated isometric three-quarter FRONT-RIGHT camera. Image 2 is ONLY a leg-pose/timing guide: its orange/blue limb colors, stick anatomy, labels and grid must NOT appear in the final. Image 3 fixes the sharp gouache/brushwork art style and lighting. Preserve the soldier's identity and equipment in every frame.\n\nA 4 columns x 2 rows transparent sheet, chronological order left to right, top to bottom. Exactly 8 complete figures, generous clear gutters, same camera and figure scale. All face southeast/down-right (never turn, never mirror). One walk cycle in place, no horizontal travel. Eight phases: 1 near leg forward heel contact/far leg back toe contact; 2 near leg accepting weight, far knee bends as rear foot lifts; 3 far knee passes near planted leg, far foot clearly OFF ground; 4 far knee ahead, near planted heel rises; 5 far leg forward heel contact/near leg back toe contact (opposite legs from frame 1); 6 far leg accepts weight, near knee bends and rear foot lifts; 7 near knee passes far planted leg with near foot OFF ground; 8 near knee ahead and extends toward frame 1 contact. Clear alternating leg ownership, not the same leading boot eight times. Knees have real bent anatomy, no rubber stretching. Boots must leave the ground in passing frames. Natural small weight transfer, steady rifle and head, consistent cap brim and backpack. Consecutive frames must be coherent at 10 fps, frame 8 flows into 1 without a duplicated endpoint.\n\nCrisp hard-edged painted shapes, clean high-contrast material planes and decisive small highlights, not fuzzy or airbrushed, no mist, no blur, no outline cartoon, no simulated pixel grid or fabric noise. Same upper-left light in every frame. Ground contact belongs to an invisible fixed plane; no ground/shadow. Transparent alpha background. No text, labels, panel frames, effects or extra objects. This is new artwork for each articulated pose, not rotated/deformed copies of a neutral drawing.",
+      "references": [
+        "/private/tmp/zombie-crisp/generated/soldier-master.png",
+        "/private/tmp/zombie-crisp/generated/soldier-guide.png",
+        "/Users/ASaeed/claude/zombie/docs/art-directions/next-brushwork-tactics.png"
+      ],
+      "reason": "Same leading leg in both halves; not exported as animation."
+    }
+  ],
+  "references": [
+    "soldier-master.png",
+    "walker-master.png",
+    "soldier-guide.png",
+    "walker-guide.png"
+  ],
+  "referenceConcept": "docs/art-directions/next-brushwork-tactics.png"
+}

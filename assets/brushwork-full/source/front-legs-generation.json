@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-09",
+  "tool": "built-in image_gen",
+  "model": "not exposed",
+  "purpose": "Replace profile legs mislabeled as front-facing; preserve all existing torsos and the approved soldier walk",
+  "prompt": "Use case: stylized-concept. Asset type: replacement articulated sprite components for an illustrated isometric RTS. Input images 1, 2, 3 are STYLE AND MATERIAL references for walker, runner, brute, not layouts to reproduce. Make ONLY SIX separate complete legs, organized as a precise 2 column by 3 row component sheet on actual transparent alpha, generous empty gutters. NO torsos, heads, arms, weapons, backgrounds, shadows, text or labels. Both columns show the same FRONT/SOUTH-facing camera (slightly elevated RTS view): column 1 is the left leg on the viewer's left, column 2 the right leg on the viewer's right. Every thigh, kneecap, shin and shoe must face the viewer, not sideways or three-quarter. Shoes show fronts/toes facing down toward the viewer, not side profiles pointing left or right. Anatomically natural parallel stance, knees point forward, no crossed legs, no knock knees or bow legs. Each complete limb includes an open rounded upper-thigh attachment, knee, lower calf and full foot with overlap for rigging. Row 1: ordinary zombie, slightly relaxed mostly straight leg, lighter ash-grey torn trousers and dark charcoal front-view boots, matching reference 1's neutral grey painterly illustration. Row 2: smaller runner, short torn pale-grey trousers revealing light grey calves, bent knees IN DEPTH toward the camera, not bent sideways in the picture plane, bare front-view feet; matching reference 2. Row 3: large stocky brute, powerful thicker legs, pale-grey ripped trousers, heavy charcoal front-view boots, matching reference 3. All grey, no colorful garments. Clean resolved illustrated shading, clear anatomically correct joints, restrained brush texture, fixed top-left daylight consistent with references, never soft-focus blur. Keep all limbs completely separated and fully visible; six cutouts only. Critical: front view must be actual front-facing anatomy with left/right legs mirrored in form, not duplicated profile legs.",
+  "references": [
+    "walker.png",
+    "runner.png",
+    "brute.png"
+  ],
+  "file": "front-legs.png",
+  "original": "/Users/ASaeed/.codex/generated_images/01a0a7f1-9097-7e71-af61-253ef6426b3d/exec-ac79fbb2-3a9d-410a-abc4-7b27b862a6ca.png",
+  "columns": 2,
+  "rows": 3,
+  "rowFamilies": [
+    "walker and regular variants and slimmer specials",
+    "runner",
+    "brute and boss"
+  ],
+  "facing": "S",
+  "matteCutoff": 224
+}

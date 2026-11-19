@@ -1,0 +1,83 @@
+{
+  "asset": "heavy-6e8c0fae7c8a.png",
+  "status": "local revision for user review",
+  "referenceAsset": "heavy-82ffb30e4278.png",
+  "method": "raised backward weapon-arm wind-up, horizontal 180-degree chest-level sweep, then recovery",
+  "motion": {
+    "version": "chest-level-sweep-v2",
+    "weaponHand": "r",
+    "attackDuration": 1.3333333333333333
+  },
+  "reviewer": "single-agent self-review; no independent art review",
+  "visualCoverage": [
+    "all eight directions at key poses, atlas and game display sizes",
+    "complete south, east and north attack strips",
+    "southeast heavy sweep",
+    "actual Canvas sprite renderer at varied zoom and pixel density"
+  ],
+  "timedNativePreview": "not reviewed",
+  "reviewedDuplicates": {
+    "groups": [
+      [
+        "idle/S/0",
+        "attack/S/0",
+        "attack/S/31"
+      ],
+      [
+        "idle/SE/0",
+        "attack/SE/0",
+        "attack/SE/31"
+      ],
+      [
+        "idle/E/0",
+        "attack/E/0",
+        "attack/E/31"
+      ],
+      [
+        "idle/NE/0",
+        "attack/NE/0",
+        "attack/NE/31"
+      ],
+      [
+        "idle/N/0",
+        "attack/N/0",
+        "attack/N/31"
+      ],
+      [
+        "idle/NW/0",
+        "attack/NW/0",
+        "attack/NW/31"
+      ],
+      [
+        "idle/W/0",
+        "attack/W/0",
+        "attack/W/31"
+      ],
+      [
+        "idle/SW/0",
+        "attack/SW/0",
+        "attack/SW/31"
+      ]
+    ],
+    "reason": "matching carry pose at start and end"
+  },
+  "preservation": {
+    "unchangedNonAttackFrames": 320
+  },
+  "renderer": {
+    "renderedFrames": 632,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "publication": "local only"
+}

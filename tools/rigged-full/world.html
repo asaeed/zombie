@@ -1,0 +1,4 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Rigged World Bake</title></head><body><script type="module">
+import {world} from './world.mjs';
+try{const original=await(await fetch('../../assets/rigged-full/manifest.json')).json();window.worldBake=await world(original);window.worldBakeReady=true;}catch(error){window.worldBakeError=error.stack;}
+</script></body></html>

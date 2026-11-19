@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Twelve Art Directions</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="next-directions.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="../../"><img src="../../assets/favicon.svg" width="28" height="28" alt="">Dead Zone</a>
+    <nav aria-label="Project"><a href="sculpted-world.html?artPack=sculpted">Current Art</a><a href="../../">Play</a></nav>
+  </header>
+  <main>
+    <div class="heading"><div><p class="eyebrow">ART STUDIES / 2026.10</p><h1>Twelve Art Directions</h1></div><span class="status">Concepts, not animated packs</span></div>
+    <div class="toolbar">
+      <fieldset class="segmented"><legend class="sr-only">View</legend>
+        <label><input type="radio" name="view" value="gallery" checked><span>Gallery</span></label>
+        <label><input type="radio" name="view" value="compare"><span>Compare</span></label>
+      </fieldset>
+      <div id="compare-controls" hidden><label>Zoom <select id="zoom"><option value="fit">Fit</option><option value="100">100%</option><option value="150">150%</option></select></label></div>
+      <output id="load-status" aria-live="polite"></output>
+    </div>
+    <section id="gallery" aria-label="Art directions"></section>
+    <section id="compare" aria-label="A/B comparison" hidden>
+      <div class="comparison-pane"><label class="choice-label" for="choice-a">A <select id="choice-a"></select></label><div class="viewport"><img id="image-a" alt=""></div><h2 id="name-a"></h2><p id="description-a"></p><p class="route" id="route-a"></p></div>
+      <div class="comparison-pane"><label class="choice-label" for="choice-b">B <select id="choice-b"></select></label><div class="viewport"><img id="image-b" alt=""></div><h2 id="name-b"></h2><p id="description-b"></p><p class="route" id="route-b"></p></div>
+    </section>
+    <footer><a href="../../?artPack=sculpted">Sculpted Pixel</a><span>/</span><a href="../../?artPack=classic">Classic</a><span class="provenance">Built-in image generation. Fresh masters for each medium.</span></footer>
+  </main>
+  <dialog id="detail"><div class="dialog-toolbar"><h2 id="detail-title"></h2><button id="close-detail" type="button">Close</button></div><img id="detail-image" alt=""><p id="detail-route"></p></dialog>
+  <script type="module" src="next-directions.mjs"></script>
+</body>
+</html>

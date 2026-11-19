@@ -1,0 +1,18 @@
+{
+  "checkedFrames": 320,
+  "lowerBodyPixelDifferences": 0,
+  "diffMinY": 160,
+  "diffMaxY": 0,
+  "alphaDifferences": 0,
+  "detachedLegFrames": {
+    "before": [],
+    "updated": []
+  },
+  "image": "walker-dress-d83bf57b054a.png",
+  "imageSha256": "d83bf57b054a03b0faaec84d929aae06eb00d4b2d6e3418d79032ae77461b1b3",
+  "lowerBodyCrop": {
+    "fromY": 100,
+    "footAnchorY": 136
+  },
+  "note": "Decoded lower-body continuity check with the unchanged short-step gait."
+}

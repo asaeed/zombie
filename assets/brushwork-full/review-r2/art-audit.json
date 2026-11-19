@@ -1,0 +1,391 @@
+{
+  "actors": {
+    "soldier": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2350,
+      "filmstrips": [
+        "soldier-idle-all.png",
+        "soldier-walk-all.png",
+        "soldier-shoot-all.png",
+        "soldier-gather-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "shoot": 8,
+        "gather": 12
+      }
+    },
+    "scout": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2360,
+      "filmstrips": [
+        "scout-idle-all.png",
+        "scout-walk-all.png",
+        "scout-shoot-all.png",
+        "scout-gather-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "shoot": 8,
+        "gather": 12
+      }
+    },
+    "builder": {
+      "checked": 416,
+      "edge": 0,
+      "min": 2223,
+      "filmstrips": [
+        "builder-idle-all.png",
+        "builder-walk-all.png",
+        "builder-attack-all.png",
+        "builder-gather-all.png",
+        "builder-repair-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8,
+        "gather": 12,
+        "repair": 12
+      }
+    },
+    "medic": {
+      "checked": 352,
+      "edge": 0,
+      "min": 2390,
+      "filmstrips": [
+        "medic-idle-all.png",
+        "medic-walk-all.png",
+        "medic-gather-all.png",
+        "medic-heal-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "gather": 12,
+        "heal": 12
+      }
+    },
+    "sniper": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2435,
+      "filmstrips": [
+        "sniper-idle-all.png",
+        "sniper-walk-all.png",
+        "sniper-shoot-all.png",
+        "sniper-gather-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "shoot": 8,
+        "gather": 12
+      }
+    },
+    "heavy": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2845,
+      "filmstrips": [
+        "heavy-idle-all.png",
+        "heavy-walk-all.png",
+        "heavy-attack-all.png",
+        "heavy-gather-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8,
+        "gather": 12
+      }
+    },
+    "torchbearer": {
+      "checked": 320,
+      "edge": 0,
+      "min": 2669,
+      "filmstrips": [
+        "torchbearer-idle-all.png",
+        "torchbearer-walk-all.png",
+        "torchbearer-attack-all.png",
+        "torchbearer-gather-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8,
+        "gather": 12
+      }
+    },
+    "walker": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2213,
+      "filmstrips": [
+        "walker-idle-all.png",
+        "walker-walk-all.png",
+        "walker-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "runner": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2378,
+      "filmstrips": [
+        "runner-idle-all.png",
+        "runner-walk-all.png",
+        "runner-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "brute": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2880,
+      "filmstrips": [
+        "brute-idle-all.png",
+        "brute-walk-all.png",
+        "brute-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "spitter": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2203,
+      "filmstrips": [
+        "spitter-idle-all.png",
+        "spitter-walk-all.png",
+        "spitter-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "exploder": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2455,
+      "filmstrips": [
+        "exploder-idle-all.png",
+        "exploder-walk-all.png",
+        "exploder-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "screamer": {
+      "checked": 224,
+      "edge": 0,
+      "min": 1898,
+      "filmstrips": [
+        "screamer-idle-all.png",
+        "screamer-walk-all.png",
+        "screamer-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "boss": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2604,
+      "filmstrips": [
+        "boss-idle-all.png",
+        "boss-walk-all.png",
+        "boss-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "walker-cap": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2210,
+      "filmstrips": [
+        "walker-cap-idle-all.png",
+        "walker-cap-walk-all.png",
+        "walker-cap-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "walker-dress": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2434,
+      "filmstrips": [
+        "walker-dress-idle-all.png",
+        "walker-dress-walk-all.png",
+        "walker-dress-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    },
+    "walker-onearm": {
+      "checked": 224,
+      "edge": 0,
+      "min": 2210,
+      "filmstrips": [
+        "walker-onearm-idle-all.png",
+        "walker-onearm-walk-all.png",
+        "walker-onearm-attack-all.png"
+      ],
+      "playedActions": {
+        "idle": 4,
+        "walk": 16,
+        "attack": 8
+      }
+    }
+  },
+  "preservedSoldierWalk": true,
+  "soldierChangedFacings": [
+    "S"
+  ],
+  "buildings": {
+    "hq": {
+      "width": 629,
+      "height": 472,
+      "density": 3.145,
+      "displayUnchanged": true
+    },
+    "wall": {
+      "width": 259,
+      "height": 250,
+      "density": 4.4655172413793105,
+      "displayUnchanged": true
+    },
+    "tower": {
+      "width": 261,
+      "height": 470,
+      "density": 2.9,
+      "displayUnchanged": true
+    },
+    "barracks": {
+      "width": 417,
+      "height": 322,
+      "density": 3.0661764705882355,
+      "displayUnchanged": true
+    },
+    "depot": {
+      "width": 516,
+      "height": 383,
+      "density": 3.7941176470588234,
+      "displayUnchanged": true
+    },
+    "light": {
+      "width": 189,
+      "height": 420,
+      "density": 3.5,
+      "displayUnchanged": true
+    },
+    "clinic": {
+      "width": 419,
+      "height": 351,
+      "density": 3.0808823529411766,
+      "displayUnchanged": true
+    },
+    "mechanics": {
+      "width": 421,
+      "height": 368,
+      "density": 3.0955882352941178,
+      "displayUnchanged": true
+    }
+  },
+  "builderProfileBoots": {
+    "beforeFar": -12.081453513117424,
+    "after": [
+      21.677373929590864,
+      21.25614412728123
+    ]
+  },
+  "shootingLegStability": {
+    "soldier": {
+      "same": true,
+      "maxAlpha": 0,
+      "maxPremultiplied": 0,
+      "differingRows": []
+    },
+    "scout": {
+      "same": true,
+      "maxAlpha": 0,
+      "maxPremultiplied": 0,
+      "differingRows": []
+    },
+    "sniper": {
+      "same": true,
+      "maxAlpha": 0,
+      "maxPremultiplied": 0,
+      "differingRows": []
+    }
+  },
+  "errors": [],
+  "visualReview": {
+    "required": true,
+    "automaticApproval": false,
+    "scope": [
+      "soldier",
+      "scout",
+      "builder",
+      "medic",
+      "sniper",
+      "heavy",
+      "torchbearer",
+      "walker",
+      "runner",
+      "brute",
+      "spitter",
+      "exploder",
+      "screamer",
+      "boss",
+      "walker-cap",
+      "walker-dress",
+      "walker-onearm"
+    ],
+    "coverage": "all frames of every action in every facing; no sampled-peak substitution",
+    "checks": [
+      "source foot toe/heel direction",
+      "anatomical facing",
+      "shoulder and hip ownership",
+      "knee hinge and foot lanes",
+      "torso-to-leg ratio",
+      "two hands connected to rifle in every shooting view",
+      "equipment hand and depth order",
+      "all frame transitions and loop seam"
+    ]
+  }
+}

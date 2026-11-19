@@ -1,0 +1,186 @@
+{
+  "evidence": "/var/folders/qk/b434yxn909s2wm1k4nbg39040000gp/T/zombie-drawn-verify-AN7TuT",
+  "scope": "SE walk-only experiment; not gameplay replacement",
+  "limitations": [
+    "Different paint detail and brightness between individually drawn frames.",
+    "No user approval of seamless motion or remaining directions/actions."
+  ],
+  "pilot": {
+    "soldier": {
+      "unique": 8,
+      "ranges": [
+        {
+          "count": 19345,
+          "edge": 0,
+          "left": 58,
+          "top": 63,
+          "right": 206,
+          "bottom": 302
+        },
+        {
+          "count": 17941,
+          "edge": 0,
+          "left": 57,
+          "top": 65,
+          "right": 199,
+          "bottom": 305
+        },
+        {
+          "count": 17021,
+          "edge": 0,
+          "left": 59,
+          "top": 66,
+          "right": 201,
+          "bottom": 305
+        },
+        {
+          "count": 19249,
+          "edge": 0,
+          "left": 51,
+          "top": 65,
+          "right": 201,
+          "bottom": 307
+        },
+        {
+          "count": 17997,
+          "edge": 0,
+          "left": 63,
+          "top": 57,
+          "right": 200,
+          "bottom": 296
+        },
+        {
+          "count": 17524,
+          "edge": 0,
+          "left": 63,
+          "top": 56,
+          "right": 200,
+          "bottom": 296
+        },
+        {
+          "count": 17308,
+          "edge": 0,
+          "left": 63,
+          "top": 56,
+          "right": 201,
+          "bottom": 298
+        },
+        {
+          "count": 18519,
+          "edge": 0,
+          "left": 63,
+          "top": 57,
+          "right": 215,
+          "bottom": 293
+        }
+      ]
+    },
+    "walker": {
+      "unique": 8,
+      "ranges": [
+        {
+          "count": 17827,
+          "edge": 0,
+          "left": 60,
+          "top": 62,
+          "right": 201,
+          "bottom": 301
+        },
+        {
+          "count": 17304,
+          "edge": 0,
+          "left": 56,
+          "top": 62,
+          "right": 206,
+          "bottom": 302
+        },
+        {
+          "count": 16660,
+          "edge": 0,
+          "left": 60,
+          "top": 61,
+          "right": 204,
+          "bottom": 300
+        },
+        {
+          "count": 17921,
+          "edge": 0,
+          "left": 59,
+          "top": 62,
+          "right": 200,
+          "bottom": 303
+        },
+        {
+          "count": 18366,
+          "edge": 0,
+          "left": 52,
+          "top": 60,
+          "right": 197,
+          "bottom": 299
+        },
+        {
+          "count": 18488,
+          "edge": 0,
+          "left": 51,
+          "top": 60,
+          "right": 200,
+          "bottom": 301
+        },
+        {
+          "count": 18638,
+          "edge": 0,
+          "left": 51,
+          "top": 60,
+          "right": 202,
+          "bottom": 305
+        },
+        {
+          "count": 21212,
+          "edge": 0,
+          "left": 41,
+          "top": 62,
+          "right": 215,
+          "bottom": 308
+        }
+      ]
+    },
+    "contrast": [
+      {
+        "kind": "original",
+        "meanAdjacentRGB": 8.224647778293853,
+        "softPixels": 746,
+        "occupiedPixels": 2485
+      },
+      {
+        "kind": "sharp",
+        "meanAdjacentRGB": 10.753342147789041,
+        "softPixels": 355,
+        "occupiedPixels": 2483
+      }
+    ]
+  },
+  "reviewControls": true,
+  "retina": {
+    "dpr": 2,
+    "physical": [
+      2360,
+      1640
+    ],
+    "css": [
+      1180,
+      820
+    ],
+    "transform": [
+      2,
+      2
+    ],
+    "body": 21.28,
+    "gathering": {
+      "peak": 20,
+      "delivered": 20
+    },
+    "menuLogicalCoordinates": true,
+    "resize": true
+  },
+  "browserErrors": []
+}

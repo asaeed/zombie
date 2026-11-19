@@ -1,0 +1,47 @@
+{
+  "actor": "heavy",
+  "image": "heavy-68e214b1d38f.png",
+  "method": "existing rigged 3D source rendered to sprite atlas",
+  "scope": "Walking only: authored relaxed right-arm swing with club anchored to the closed palm, shaft hanging along forearm",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "fullCycleContactSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after all directions at quarter phases and native display scale",
+    "observations": [
+      "Relaxed walking arms swing in opposite phases",
+      "Club hangs beside the body and follows the hand",
+      "No floating prop or club crossing the waist in the reviewed frames"
+    ],
+    "timedNativePlayback": "not reviewed: in-app browser unavailable"
+  },
+  "preserved": {
+    "unchangedLegPoses": 128,
+    "unchangedLeftArmPoses": 128,
+    "unchangedNonWalkFrames": 448
+  },
+  "renderer": {
+    "renderedFrames": 632,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Unchanged attack endpoint carry pose in each direction"
+}

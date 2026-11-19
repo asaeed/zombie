@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><title>Sculpted Pixel world baker</title>
+<script type="module">
+import {buildWorld,buildTerrain} from './world-bake.mjs';
+try{
+  window.worldBake=new URLSearchParams(location.search).has('terrain')
+    ?{built:{terrain:await buildTerrain()}}:await buildWorld();
+  window.worldReady=true;
+}
+catch(error){window.worldError=error.message;throw error;}
+</script>

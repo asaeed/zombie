@@ -1,0 +1,45 @@
+{
+  "actor": "heavy",
+  "image": "heavy-13f5d6f0363e.png",
+  "method": "rigged 3D rendered to sprite atlas",
+  "scope": "High right reach, extended 180-degree chest-level swing and folded recovery",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "fullCycleContactSheets": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "comparison": "before and after all directions at quarter phases and native display scale",
+    "timedNativePlayback": "not reviewed: separate in-app browser unavailable; existing native browser sessions were in use",
+    "observations": [
+      "Raised right wind-up and full extended sweep read across all views",
+      "Weapon stays attached to the right palm",
+      "Attack returns exactly to the carry pose"
+    ]
+  },
+  "preserved": {
+    "unchangedNonAttackFrames": 320
+  },
+  "renderer": {
+    "renderedFrames": 632,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": "Attack first and last frames are the same carry pose in each direction"
+}

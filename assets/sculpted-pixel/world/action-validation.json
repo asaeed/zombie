@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-08",
+  "scales": {
+    "sniper": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "walker": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "soldier": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "scout": {
+      "before": 39.52,
+      "after": 19.76
+    },
+    "builder": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "medic": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "heavy": {
+      "before": 47.879999999999995,
+      "after": 23.939999999999998
+    },
+    "torchbearer": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "runner": {
+      "before": 30.240000000000002,
+      "after": 15.120000000000001
+    },
+    "brute": {
+      "before": 59.28,
+      "after": 29.64
+    },
+    "spitter": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "exploder": {
+      "before": 46.36,
+      "after": 23.18
+    },
+    "screamer": {
+      "before": 44.08,
+      "after": 22.04
+    },
+    "boss": {
+      "before": 72.96000000000001,
+      "after": 36.480000000000004
+    },
+    "walker-cap": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "walker-dress": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "walker-onearm": {
+      "before": 42.56,
+      "after": 21.28
+    },
+    "suv": {
+      "before": 36,
+      "after": 18
+    }
+  },
+  "unchangedObjects": [
+    "hq",
+    "wall",
+    "tower",
+    "barracks",
+    "depot",
+    "light",
+    "clinic",
+    "mechanics",
+    "car",
+    "cabin",
+    "bin",
+    "pine",
+    "bush",
+    "rock"
+  ],
+  "protectedFrames": {
+    "medic": {
+      "checked": 144,
+      "different": 0
+    },
+    "soldier": {
+      "checked": 208,
+      "different": 0
+    },
+    "walker": {
+      "checked": 144,
+      "different": 0
+    },
+    "scout": {
+      "checked": 208,
+      "different": 0
+    },
+    "builder": {
+      "checked": 144,
+      "different": 0
+    },
+    "sniper": {
+      "checked": 208,
+      "different": 0
+    },
+    "heavy": {
+      "checked": 144,
+      "different": 0
+    },
+    "torchbearer": {
+      "checked": 144,
+      "different": 0
+    },
+    "spitter": {
+      "checked": 144,
+      "different": 0
+    },
+    "brute": {
+      "checked": 144,
+      "different": 0
+    },
+    "runner": {
+      "checked": 144,
+      "different": 0
+    },
+    "exploder": {
+      "checked": 144,
+      "different": 0
+    },
+    "suv": {
+      "checked": 8,
+      "different": 0
+    },
+    "walker-dress": {
+      "checked": 144,
+      "different": 0
+    },
+    "walker-cap": {
+      "checked": 144,
+      "different": 0
+    },
+    "screamer": {
+      "checked": 144,
+      "different": 0
+    },
+    "walker-onearm": {
+      "checked": 144,
+      "different": 0
+    },
+    "boss": {
+      "checked": 144,
+      "different": 0
+    }
+  },
+  "checkedProtectedFrames": 2648,
+  "notes": [
+    "All actors are exactly half their prior presentation size with the same foot anchors.",
+    "All object atlas pixels and metadata are unchanged.",
+    "Only attack/work clips were re-rigged; idle, walking and shooting pixels are unchanged.",
+    "Attack and gathering are bounded texture-mesh poses, not separately painted limb layers."
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "image": "suv.png",
+  "group": "vehicle",
+  "cell": {
+    "width": 96,
+    "height": 96
+  },
+  "footAnchor": {
+    "x": 48,
+    "y": 87
+  },
+  "bodyHeight": 45,
+  "renderScale": 0.4,
+  "directions": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+  ],
+  "production": {
+    "correctedFacings": [
+      "NE",
+      "SW"
+    ],
+    "method": "mirrored correct opposite diagonal masters"
+  },
+  "clips": {
+    "idle": {
+      "fps": 1,
+      "loop": true,
+      "directions": {
+        "S": [
+          {
+            "x": 0,
+            "y": 0,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "SE": [
+          {
+            "x": 0,
+            "y": 96,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "E": [
+          {
+            "x": 0,
+            "y": 192,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "NE": [
+          {
+            "x": 0,
+            "y": 288,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "N": [
+          {
+            "x": 0,
+            "y": 384,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "NW": [
+          {
+            "x": 0,
+            "y": 480,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "W": [
+          {
+            "x": 0,
+            "y": 576,
+            "width": 96,
+            "height": 96
+          }
+        ],
+        "SW": [
+          {
+            "x": 0,
+            "y": 672,
+            "width": 96,
+            "height": 96
+          }
+        ]
+      }
+    }
+  }
+}

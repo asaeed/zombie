@@ -1,0 +1,13 @@
+{
+  "folder": "skirt-anchored-v5",
+  "httpStatus": 200,
+  "errors": [],
+  "animationFrameAdvanced": true,
+  "renderedPixelsChanged": true,
+  "checkedCanvases": 640,
+  "actors": [
+    "walker-dress"
+  ],
+  "directions": 8,
+  "screenshot": "/private/tmp/skirt-anchored-v5-fixed.png"
+}

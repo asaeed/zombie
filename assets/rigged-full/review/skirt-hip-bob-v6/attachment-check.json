@@ -1,0 +1,13 @@
+{
+  "image": "walker-dress-d83bf57b054a.png",
+  "cell": {
+    "width": 108,
+    "height": 134
+  },
+  "poses": 320,
+  "maxSkinError": 8.67640316772796e-08,
+  "maxHairError": 3.4228530676472246e-08,
+  "maxHipDrift": 5.551115123125783e-16,
+  "visibleLegPixels": 0,
+  "projectedOverlap": 407296
+}

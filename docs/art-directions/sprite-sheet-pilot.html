@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dead Zone | Sprite-sheet pilot</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101717; color: #e8eae5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button { font: inherit; }
+    a { color: #eecb7a; }
+    .shell { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    header { background: #172220; border-bottom: 1px solid #35423f; }
+    .topbar { min-height: 66px; display: flex; align-items: center; gap: 24px; }
+    .brand { font-size: 17px; font-weight: 850; white-space: nowrap; }
+    .brand b { color: #db735f; }
+    nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 18px; }
+    nav a { text-decoration: none; color: #bfcac3; font-size: 13px; }
+    nav a:hover, nav a:focus-visible { color: #fff; text-decoration: underline; }
+    .intro { padding: 39px 0 28px; }
+    .eyebrow { color: #efca72; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 8px 0 12px; font-size: clamp(30px, 4.5vw, 46px); line-height: 1.1; }
+    .intro p { margin: 0; color: #b8c6bc; max-width: 78ch; line-height: 1.5; }
+    section { border-top: 1px solid #3a4942; padding: 24px 0 32px; }
+    h2 { margin: 0 0 8px; font-size: 21px; }
+    .minor { color: #aebcb3; margin: 0 0 20px; font-size: 13px; line-height: 1.5; }
+    .pilot { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 26px; }
+    .preview { background: #1c2c25; border: 1px solid #45574a; border-radius: 6px; padding: 16px; text-align: center; }
+    canvas { image-rendering: pixelated; }
+    #large { display: block; width: 200px; height: 200px; max-width: 100%; margin-inline: auto; }
+    .actual { display: flex; justify-content: center; align-items: center; gap: 12px; color: #afbeb3; font-size: 12px; }
+    #small { width: 80px; height: 70px; }
+    .controls { display: flex; flex-direction: column; gap: 17px; justify-content: center; }
+    .control-label { display: block; margin-bottom: 8px; color: #aebcb3; font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .segments { display: flex; flex-wrap: wrap; gap: 5px; }
+    .segments button, .command { min-height: 35px; padding: 6px 11px; color: #e5eae3; background: #25352d; border: 1px solid #4f6155; border-radius: 4px; cursor: pointer; }
+    .segments button:hover, .command:hover { background: #334a3b; }
+    .segments button[aria-pressed="true"] { background: #efca72; color: #19251d; border-color: #efca72; }
+    .segments button:focus-visible, .command:focus-visible { outline: 2px solid #fff2c3; outline-offset: 2px; }
+    .commands { display: flex; gap: 7px; }
+    .frame-status { margin: 0; color: #aebcb3; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .strip-wrap { max-width: 100%; overflow-x: auto; }
+    #strip { display: block; width: 384px; height: 80px; background: #25342c; border: 1px solid #425346; }
+    .downloads { display: flex; flex-wrap: wrap; gap: 15px; font-size: 13px; }
+    .atlas-wrap { max-width: 400px; max-height: 370px; overflow: auto; background: #25342c; border: 1px solid #425346; border-radius: 4px; }
+    #atlas { display: block; width: 192px; height: 1280px; image-rendering: pixelated; }
+    .spec { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .spec strong { display: block; margin-bottom: 5px; color: #f2d47e; }
+    .spec p { margin: 0; color: #bfcdbf; font-size: 13px; line-height: 1.5; }
+    footer { border-top: 1px solid #35423f; padding: 20px 0 32px; color: #a8b7ac; font-size: 12px; }
+    @media (max-width: 720px) { .pilot { grid-template-columns: 1fr; } .preview { max-width: 280px; } .spec { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .shell { width: min(100% - 28px, 1120px); } .topbar { align-items: start; flex-direction: column; gap: 10px; padding-block: 14px; } nav { margin-left: 0; } .intro { padding-top: 30px; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell topbar"><div class="brand">DEAD <b>ZONE</b></div><nav aria-label="Site"><a href="native-sprite-options.html">Five sprite options</a><a href="../../index.html">Open game</a></nav></div></header>
+  <main class="shell">
+    <div class="intro"><div class="eyebrow">Pose and atlas proof</div><h1>A real sprite-sheet pilot</h1><p>This 12 x 16 sniper has separately drawn walk, shoot, and gather poses. Playback reads frame rectangles from one transparent atlas, not a still sprite moved around the screen. It proves the frame pipeline; <a href="native-sprite-options.html#option-d">the selected D art target is 24 x 32</a> and will need new frames.</p></div>
+    <section aria-labelledby="play-title">
+      <h2 id="play-title">Playback</h2><p class="minor">Eight headings, a fixed foot anchor, and timing defined per action.</p>
+      <div class="pilot">
+        <div class="preview"><canvas id="large" width="200" height="200" aria-label="Enlarged sniper animation"></canvas><div class="actual"><canvas id="small" width="80" height="70" aria-label="Sniper animation at game size"></canvas><span>Game size</span></div></div>
+        <div class="controls">
+          <div><span class="control-label">Facing</span><div id="directions" class="segments"></div></div>
+          <div><span class="control-label">Action</span><div id="actions" class="segments"></div></div>
+          <div class="commands"><button id="play" class="command" type="button">Pause</button><button id="step" class="command" type="button">Next frame</button></div>
+          <p id="frame-status" class="frame-status" role="status"></p>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="frames-title"><h2 id="frames-title">Actual frames</h2><p class="minor">The selected row from the atlas. Every cell has the same 16 x 20 bounds and the same foot anchor.</p><div class="strip-wrap"><canvas id="strip" width="384" height="80" aria-label="Frame strip for the selected action and direction"></canvas></div></section>
+    <section aria-labelledby="atlas-title"><h2 id="atlas-title">Atlas and metadata</h2><p class="minor">120 populated cells: idle 1, walk 6, shoot 4, gather 4, across eight headings. Six columns by 32 rows, with transparent unused cells.</p><div class="downloads"><a id="download-png" href="#" download="sniper-pilot-sheet.png">Download PNG sheet</a><a id="download-json" href="#" download="sniper-pilot-sheet.json">Download frame metadata</a></div><div class="atlas-wrap" style="margin-top:16px"><img id="atlas" alt="Complete transparent sniper sprite-sheet pilot"></div></section>
+    <section aria-labelledby="production-title"><h2 id="production-title">Production path</h2><div class="spec">
+      <div><strong>One source model</strong><p>Rig the selected low-poly unit once. Animate limbs, tools, and weapons, then render each heading from a locked orthographic camera.</p></div>
+      <div><strong>One pixel budget</strong><p>Render transparent frames, reduce them to the chosen native grid, and manually clean silhouettes. Keep the same crop and foot anchor in every frame.</p></div>
+      <div><strong>One playback contract</strong><p>Pack PNG atlases with frame rectangles, anchor, duration, and looping metadata. Test every state transition, facing change, and loop at normal zoom and night lighting.</p></div>
+    </div><p class="minor" style="margin-top:18px">The pilot uses a deterministic pixel rig to prove continuity. It shares front, back, side, and mirrored shapes; production-quality eight-direction art still needs authored or 3D-rendered views for each heading.</p></section>
+  </main>
+  <footer><div class="shell">Prototype art and atlas code live in this repository. <a href="README.md">Art-direction notes</a>.</div></footer>
+  <script src="sprite-sheet-generator.js"></script>
+  <script>
+    'use strict';
+    const result = buildSniperPilotSheet();
+    const { metadata } = result;
+    const sheetUrl = 'sniper-pilot-sheet.png';
+    const sheetImage = new Image();
+    sheetImage.src = sheetUrl;
+    document.getElementById('atlas').src = sheetUrl;
+    document.getElementById('download-png').href = sheetUrl;
+    document.getElementById('download-json').href = 'sniper-pilot-sheet.json';
+    let direction = 'SE';
+    let action = 'walk';
+    let playing = true;
+    let elapsed = 0;
+    let previousTime = performance.now();
+    let selectedFrame = 0;
+
+    function addButtons(containerId, values, current, setValue) {
+      const container = document.getElementById(containerId);
+      values.forEach(value => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = value;
+        button.setAttribute('aria-pressed', String(value === current));
+        button.addEventListener('click', () => {
+          setValue(value);
+          elapsed = 0;
+          selectedFrame = 0;
+          playing = true;
+          document.getElementById('play').textContent = 'Pause';
+          container.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+          drawStrip();
+        });
+        container.append(button);
+      });
+    }
+    addButtons('directions', metadata.directions, direction, value => { direction = value; });
+    addButtons('actions', Object.keys(metadata.clips), action, value => { action = value; });
+    document.getElementById('play').addEventListener('click', event => {
+      if (!playing && action === 'shoot' && selectedFrame === metadata.clips.shoot.directions[direction].length - 1) { elapsed = 0; selectedFrame = 0; }
+      playing = !playing;
+      event.currentTarget.textContent = playing ? 'Pause' : 'Play';
+    });
+    document.getElementById('step').addEventListener('click', () => {
+      playing = false;
+      document.getElementById('play').textContent = 'Play';
+      const frames = metadata.clips[action].directions[direction];
+      selectedFrame = (selectedFrame + 1) % frames.length;
+      elapsed = selectedFrame / metadata.clips[action].fps;
+      drawPreview();
+    });
+
+    function drawFrame(ctx, rectangle, dx, dy, dw, dh) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(sheetImage, rectangle.x, rectangle.y, rectangle.width, rectangle.height, dx, dy, dw, dh);
+    }
+    function drawPreview() {
+      if (!sheetImage.complete) return;
+      const rectangle = metadata.clips[action].directions[direction][selectedFrame];
+      const large = document.getElementById('large').getContext('2d');
+      large.fillStyle = '#263b30'; large.fillRect(0, 0, 200, 200);
+      large.fillStyle = '#6b7e67'; large.fillRect(31, 152, 138, 1);
+      drawFrame(large, rectangle, 36, 8, 128, 160);
+      const small = document.getElementById('small').getContext('2d');
+      small.fillStyle = '#263b30'; small.fillRect(0, 0, 80, 70);
+      small.fillStyle = '#6b7e67'; small.fillRect(19, 51, 42, 1);
+      drawFrame(small, rectangle, 24, 15, 32, 40);
+      document.getElementById('frame-status').textContent = `${action} / ${direction} / frame ${selectedFrame + 1} of ${metadata.clips[action].directions[direction].length}`;
+    }
+    function drawStrip() {
+      if (!sheetImage.complete) return;
+      const ctx = document.getElementById('strip').getContext('2d');
+      ctx.fillStyle = '#263b30'; ctx.fillRect(0, 0, 384, 80);
+      metadata.clips[action].directions[direction].forEach((frame, index) => drawFrame(ctx, frame, index * 64, 0, 64, 80));
+    }
+    function animate(now) {
+      if (playing) {
+        elapsed += Math.min((now - previousTime) / 1000, .1);
+        const clip = metadata.clips[action];
+        const count = clip.directions[direction].length;
+        const index = Math.floor(elapsed * clip.fps);
+        if (clip.loop) selectedFrame = index % count;
+        else if (index >= count) {
+          selectedFrame = count - 1;
+          playing = false;
+          document.getElementById('play').textContent = 'Play';
+        } else selectedFrame = index;
+      }
+      previousTime = now;
+      drawPreview();
+      requestAnimationFrame(animate);
+    }
+    sheetImage.decode().then(() => { drawStrip(); requestAnimationFrame(animate); });
+  </script>
+</body>
+</html>

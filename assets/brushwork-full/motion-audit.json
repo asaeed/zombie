@@ -1,0 +1,495 @@
+{
+  "version": 1,
+  "initialPacking": {
+    "cell": {
+      "width": 160,
+      "height": 152
+    },
+    "footAnchor": {
+      "x": 80,
+      "y": 140
+    },
+    "measuredMotionBounds": {
+      "soldier": {
+        "left": 24,
+        "top": 43,
+        "right": 135,
+        "bottom": 140
+      },
+      "scout": {
+        "left": 26,
+        "top": 43,
+        "right": 133,
+        "bottom": 140
+      },
+      "builder": {
+        "left": 37,
+        "top": 43,
+        "right": 122,
+        "bottom": 140
+      },
+      "medic": {
+        "left": 40,
+        "top": 43,
+        "right": 119,
+        "bottom": 140
+      },
+      "sniper": {
+        "left": 23,
+        "top": 43,
+        "right": 138,
+        "bottom": 140
+      },
+      "heavy": {
+        "left": 41,
+        "top": 43,
+        "right": 118,
+        "bottom": 141
+      },
+      "torchbearer": {
+        "left": 33,
+        "top": 43,
+        "right": 126,
+        "bottom": 141
+      },
+      "walker": {
+        "left": 36,
+        "top": 43,
+        "right": 123,
+        "bottom": 141
+      },
+      "runner": {
+        "left": 37,
+        "top": 43,
+        "right": 122,
+        "bottom": 143
+      },
+      "brute": {
+        "left": 41,
+        "top": 43,
+        "right": 118,
+        "bottom": 141
+      },
+      "spitter": {
+        "left": 48,
+        "top": 43,
+        "right": 111,
+        "bottom": 141
+      },
+      "exploder": {
+        "left": 48,
+        "top": 43,
+        "right": 109,
+        "bottom": 141
+      },
+      "screamer": {
+        "left": 49,
+        "top": 43,
+        "right": 109,
+        "bottom": 141
+      },
+      "boss": {
+        "left": 41,
+        "top": 43,
+        "right": 114,
+        "bottom": 141
+      },
+      "walker-cap": {
+        "left": 48,
+        "top": 43,
+        "right": 111,
+        "bottom": 141
+      },
+      "walker-dress": {
+        "left": 43,
+        "top": 43,
+        "right": 116,
+        "bottom": 141
+      },
+      "walker-onearm": {
+        "left": 45,
+        "top": 43,
+        "right": 114,
+        "bottom": 141
+      }
+    }
+  },
+  "finalPacking": {
+    "cell": {
+      "width": 128,
+      "height": 128
+    },
+    "footAnchor": {
+      "x": 64,
+      "y": 116
+    },
+    "bodyPixels": 96,
+    "ordinaryBodyCSSPixels": 21.28,
+    "humanoidFrames": 4608,
+    "decodedPixelBytes": 301989888,
+    "previousDecodedPixelBytes": 448266240,
+    "pixelAreaReduction": 0.3263157894736842,
+    "finalBlankFrames": 0,
+    "finalEdgeFrames": 0,
+    "boundsEvidence": "review/atlas-audit.json"
+  },
+  "playback": {
+    "soldier": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 16
+    },
+    "scout": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 20
+    },
+    "builder": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 14
+    },
+    "medic": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 16
+    },
+    "sniper": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 14
+    },
+    "heavy": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 10
+    },
+    "torchbearer": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 15
+    },
+    "walker": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 13
+    },
+    "runner": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 22
+    },
+    "brute": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 7
+    },
+    "spitter": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 12
+    },
+    "exploder": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 17
+    },
+    "screamer": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 14
+    },
+    "boss": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 7
+    },
+    "walker-cap": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 13
+    },
+    "walker-dress": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 13
+    },
+    "walker-onearm": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "fps": 13
+    }
+  }
+}

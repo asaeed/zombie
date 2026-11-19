@@ -1,0 +1,50 @@
+{
+  "actor": "walker-dress",
+  "image": "walker-dress-af09e2fdef02.png",
+  "method": "existing rigged model rendered to sprite atlas",
+  "scope": "Shorter, quicker gait and concealed garment-covered thighs; existing hands retained",
+  "visualReview": {
+    "reviewer": "same agent self-review",
+    "completeWalkCycles": [
+      "S",
+      "SE",
+      "E",
+      "NE",
+      "N",
+      "NW",
+      "W",
+      "SW"
+    ],
+    "completeAttackCycles": [
+      "E"
+    ],
+    "idleAndAttackPhaseComparison": "before and after all eight directions, native and source scale",
+    "timedNativePlayback": "not reviewed: separate in-app browser unavailable",
+    "observations": [
+      "About half the ankle travel at double the cadence",
+      "Covered thigh geometry cannot render through the garment",
+      "Shins and feet remain visible below the moving hem"
+    ]
+  },
+  "preserved": {
+    "shorterGait": true,
+    "unchangedHandPositions": 320,
+    "unchangedNonWalkJointPoses": 192
+  },
+  "renderer": {
+    "renderedFrames": 376,
+    "blankFrames": 0,
+    "edgeContacts": 0,
+    "zooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "pixelRatios": [
+      1,
+      2
+    ]
+  },
+  "intentionalDuplicates": null
+}

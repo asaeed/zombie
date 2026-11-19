@@ -1,0 +1,16 @@
+{
+  "image": "rock.png",
+  "group": "decoration",
+  "width": 42,
+  "height": 29,
+  "footAnchor": {
+    "x": 30.273541284322963,
+    "y": 25
+  },
+  "sourceRect": {
+    "x": 362,
+    "y": 283,
+    "width": 829,
+    "height": 504
+  }
+}
