@@ -164,6 +164,7 @@ class Game {
         maxHp: z.maxHp, dormant: z.dormant, burnTime: z.burnTime, burnMax: z.burnMax,
         burnParticleTimer: z._burnParticleTimer, shriekCooldown: z.shriekCooldown,
         exploded: z.exploded, facing: z.facing, animDistance: z.animDistance,
+        escortLeaderId: targetId(z.escortLeader),
       })),
       projectiles: this.projectiles.map(p => ({
         id: p.id, x: p.x, y: p.y, targetId: targetId(p.target),
@@ -339,6 +340,7 @@ class Game {
       z.facing = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW'].includes(s.facing) ? s.facing : 'S';
       z.animDistance = s.animDistance ?? 0;
       z._saveAtkTargetId = s.atkTargetId ?? null;
+      z._saveEscortLeaderId = s.escortLeaderId ?? null;
       addEntity(z);
       return z;
     });
@@ -374,6 +376,12 @@ class Game {
     for (const z of game.zombies) {
       z.atkTarget = entityById.get(z._saveAtkTargetId) || null;
       delete z._saveAtkTargetId;
+      const leader = entityById.get(z._saveEscortLeaderId);
+      if (z.type === 'walker' && leader?.type === 'screamer' && !leader.dead) {
+        z.escortLeader = leader;
+        (leader.escorts ??= []).push(z);
+      }
+      delete z._saveEscortLeaderId;
     }
 
     game.projectiles = (data.projectiles || []).map(s => {
@@ -1085,12 +1093,13 @@ class Game {
     const scale = Math.min(3, 1 + Math.max(0, this.waveNum - WAVE_TABLE.length) * 0.12);
 
     this.zombiesToSpawn = [];
-    const add = (type, n) => {
-      for (let i = 0; i < Math.ceil(n * scale); i++) this.zombiesToSpawn.push(type);
+    const add = (type, n, multiplier = scale) => {
+      for (let i = 0; i < Math.ceil(n * multiplier); i++) this.zombiesToSpawn.push(type);
     };
     add('walker', template.walkers);
     add('runner', template.runners);
-    add('brute',  template.brutes);
+    // Brutes start on wave 5 and add one every two waves.
+    add('brute', Math.max(0, Math.floor((this.waveNum - 3) / 2)), 1);
     add('spitter', template.spitters);
     add('exploder', template.exploders);
     add('screamer', template.screamers);
@@ -1127,7 +1136,20 @@ class Game {
     if (this.waveSpawnIndex <= this.waveDirections.length) {
       this.addAlert(x, y, 'wave');
     }
-    this.zombies.push(new Zombie(type, x, y));
+    const zombie = new Zombie(type, x, y);
+    this.zombies.push(zombie);
+    if (type === 'screamer') {
+      zombie.escorts = [];
+      for (let i = 0; i < 6; i++) {
+        const position = zombie._escortPosition(i, this);
+        const site = this.nearestOpenGround(position.x, position.y, ZOMBIE_DEFS.walker.radius);
+        if (!site) continue;
+        const escort = new Zombie('walker', site.x, site.y);
+        escort.escortLeader = zombie;
+        zombie.escorts.push(escort);
+        this.zombies.push(escort);
+      }
+    }
   }
 
   // ── Events ───────────────────────────────────────────────────────────────────

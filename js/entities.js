@@ -1227,6 +1227,7 @@ class Zombie {
   recordMotion(dx, dy, time) {
     const traveled = Math.hypot(dx, dy);
     if (traveled < 0.05) return;
+    if (this.type === 'screamer') this._escortDirection = {dx:dx/traveled, dy:dy/traveled};
     this.animDistance += traveled;
     this.lastMotionAt = time;
     const angle = Math.atan2((dx + dy) * 0.5, dx - dy);
@@ -1360,6 +1361,7 @@ class Zombie {
         : dist(this.x, this.y, targetX, targetY);
 
       if (d > this.def.atkRange) {
+        if (this._moveWithEscort(dt, game)) return;
         if (this.atkTarget instanceof Unit || this.atkTarget instanceof Vehicle || this.atkTarget.type === 'wall') this._directMoveToward(targetX, targetY, dt, game);
         else this._flowMove(dt, game);
       } else {
@@ -1383,8 +1385,46 @@ class Zombie {
       }
     } else {
       this.atkTarget = null;
+      if (this._moveWithEscort(dt, game)) return;
       this._flowMove(dt, game);
     }
+  }
+
+  _escortPosition(index, game) {
+    const target = this.atkTarget || game.nearestBuildingTo(this.x, this.y);
+    const direction = this._escortDirection || normalize((target?.x ?? this.x) - this.x,
+      (target?.y ?? this.y + 1) - this.y);
+    const angle = Math.atan2(direction.dy, direction.dx) +
+      (Math.floor(index / 2) + .5) * Math.PI / 3 * (index % 2 ? 1 : -1);
+    return {x:this.x + Math.cos(angle) * 48, y:this.y + Math.sin(angle) * 48};
+  }
+
+  _moveWithEscort(dt, game) {
+    if (this.escortLeader && !this.escortLeader.dead) {
+      const leader = this.escortLeader;
+      const index = leader.escorts.filter(z => !z.dead).indexOf(this);
+      const position = leader._escortPosition(index, game);
+      const distance = dist(this.x, this.y, position.x, position.y);
+      if (this._route && this._followRoute(dt, game, leader)) return true;
+      if (distance > 4) {
+        const x = this.x, y = this.y;
+        this._directMoveToward(position.x, position.y,
+          Math.min(dt, distance / game.zombieSpeed(this)), game);
+        if (dist2(x, y, this.x, this.y) < .01 || this._movementStalled(dt))
+          this._followRoute(dt, game, leader, true);
+      }
+      return true;
+    }
+    if (this.escorts) {
+      const front = this.escorts.filter(z => !z.dead).slice(0, 2);
+      // ponytail: six fixed slots; let normal movement handle blocked slots and combat.
+      return front.length > 0 && front.every((z, i) => {
+        const position = this._escortPosition(i, game);
+        return game.canOccupyGround(position.x, position.y, z.def.radius) &&
+          dist2(z.x, z.y, position.x, position.y) > 24 ** 2;
+      });
+    }
+    return false;
   }
 
   detonate(game, premature) {

@@ -46,14 +46,14 @@ const ZOMBIE_DEFS = {
 };
 
 const WAVE_TABLE = [
-  { walkers:8,  runners:0,  brutes:0, spitters:0, exploders:0, screamers:0 },
-  { walkers:12, runners:3,  brutes:0, spitters:0, exploders:0, screamers:0 },
-  { walkers:15, runners:5,  brutes:1, spitters:0, exploders:0, screamers:0 },
-  { walkers:18, runners:8,  brutes:2, spitters:2, exploders:0, screamers:0 },
-  { walkers:20, runners:12, brutes:3, spitters:3, exploders:0, screamers:0 },
-  { walkers:25, runners:15, brutes:4, spitters:4, exploders:2, screamers:0 },
-  { walkers:27, runners:17, brutes:4, spitters:4, exploders:3, screamers:0 },
-  { walkers:30, runners:18, brutes:5, spitters:5, exploders:3, screamers:1 },
+  { walkers:8,  runners:0,  spitters:0, exploders:0, screamers:0 },
+  { walkers:12, runners:3,  spitters:0, exploders:0, screamers:0 },
+  { walkers:15, runners:5,  spitters:1, exploders:0, screamers:0 },
+  { walkers:18, runners:8,  spitters:2, exploders:1, screamers:0 },
+  { walkers:20, runners:12, spitters:3, exploders:1, screamers:0 },
+  { walkers:25, runners:15, spitters:4, exploders:2, screamers:0 },
+  { walkers:27, runners:17, spitters:4, exploders:3, screamers:0 },
+  { walkers:30, runners:18, spitters:5, exploders:3, screamers:1 },
 ];
 
 const FIRST_WAVE_DELAY = 90;

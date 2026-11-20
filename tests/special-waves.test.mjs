@@ -22,18 +22,21 @@ function fixture(e) {
   return game;
 }
 
-test('wave counts match the original special zombie progression', () => {
+test('wave counts introduce specials gradually and add a brute every two waves', () => {
   const e = engine();
-  const types = ['walker', 'runner', 'brute', 'spitter', 'exploder', 'screamer'];
+  const types = ['walker', 'runner', 'brute', 'spitter', 'exploder', 'screamer', 'boss'];
   const counts = [
-    [8, 0, 0, 0, 0, 0],
-    [12, 3, 0, 0, 0, 0],
-    [15, 5, 1, 0, 0, 0],
-    [18, 8, 2, 2, 0, 0],
-    [20, 12, 3, 3, 0, 0],
-    [25, 15, 4, 4, 2, 0],
-    [27, 17, 4, 4, 3, 0],
-    [30, 18, 5, 5, 3, 1],
+    [8, 0, 0, 0, 0, 0, 0],
+    [12, 3, 0, 0, 0, 0, 0],
+    [15, 5, 0, 1, 0, 0, 0],
+    [18, 8, 0, 2, 1, 0, 0],
+    [20, 12, 1, 3, 1, 0, 0],
+    [25, 15, 1, 4, 2, 0, 0],
+    [27, 17, 2, 4, 3, 0, 0],
+    [30, 18, 2, 5, 3, 1, 0],
+    [34, 21, 3, 6, 4, 2, 0],
+    [38, 23, 3, 7, 4, 2, 1],
+    [41, 25, 4, 7, 5, 2, 0],
   ];
   for (const [index, expected] of counts.entries()) {
     const game = fixture(e);

@@ -2,7 +2,9 @@
 
 Local optional pack `rigged` / Rigged Tactics. Accepted soldier/walker pilot images and clips are copied exactly. The user accepted the delivered roster on 2026-10-10. Subsequent display-only enlargement keeps humanoid frames unchanged at 1.2x presentation size and the retained SUV at 2.5x; future art/motion changes still require review.
 
-## Evidence
+## Retained evidence
+
+Generated PNG captures and standalone HTML review snapshots were removed during the 2026-11-12 asset cleanup. JSON measurements, hashes and regression-test baselines remain. The screenshot folders described below are historical; use `node tools/rigged-full/verify.mjs` and `node tools/rigged-full/capture.mjs` to generate new captures in temporary directories. Current inspectors remain at `docs/art-directions/rigged-full-sprites.html` and `docs/art-directions/rigged-full-world.html`.
 
 - `../validation.json`: final served browser audit, every action's complete playback, all 6,600 decoded cells, marker coverage, actual game scales/filtering, switching, saved selection/cargo, pause, capacity-20 gathering, export and zero browser errors.
 - `atlas-audit.json`: decoded alpha, clipping, walk uniqueness and minimum neon pixels by special/action/facing.

@@ -46,7 +46,7 @@ for (let wave = 1; wave <= 20; wave++) {
   const game = bareGame();
   game.waveNum = wave - 1;
   game._scheduleWave();
-  for (const [type, firstWave] of [['spitter', 4], ['exploder', 6], ['screamer', 8]]) {
+  for (const [type, firstWave] of [['brute', 5], ['spitter', 3], ['exploder', 4], ['screamer', 8]]) {
     assert.equal(game.zombiesToSpawn.includes(type), wave >= firstWave,
       `${type} introduction should be wave ${firstWave}, checked at wave ${wave}`);
   }
